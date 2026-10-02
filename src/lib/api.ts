@@ -12,7 +12,8 @@ async function token(): Promise<string> {
 
 async function call<T>(path: string, init: RequestInit): Promise<T> {
   const r = await fetch(path, { ...init, headers: { ...init.headers, authorization: `Bearer ${await token()}` } });
-  const body = await r.json().catch(() => ({ error: "ai_failed" }));
+  // Máy chủ sập hoặc hết thời gian chờ thì trả trang lỗi không phải JSON: báo riêng, không nói sai là đã hoàn lượt.
+  const body = await r.json().catch(() => ({ error: "server_error", message: String(r.status) }));
   if (!r.ok) throw new ApiFailure(body as ApiError, r.status);
   return body as T;
 }

@@ -1,5 +1,5 @@
 // Gợi ý khi điểm < 60: tìm công trình thay thế trên OpenAlex (CC0) và đối chiếu tạp chí với CSDL EduFind.
-import edu from "../../data/edufind-journals.json";
+import edu from "../../data/edufind-journals.ts";
 import type { JournalRec, Recommendations, WorkRec } from "../../shared/types.ts";
 
 interface IntlJ { t: string; i: string[]; p: string; q: string; s: number | null; oa: boolean; c: string[]; co: string }

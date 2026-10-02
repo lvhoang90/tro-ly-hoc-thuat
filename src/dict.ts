@@ -129,6 +129,7 @@ const D = {
   err_ai_failed: { vi: "Dịch vụ AI gặp sự cố. Lượt dùng đã được hoàn lại, vui lòng thử lại.", en: "The AI service had a problem. Your credit was refunded; please try again." },
   err_ai_refused: { vi: "Dịch vụ AI từ chối xử lý tài liệu này. Lượt dùng đã được hoàn lại.", en: "The AI service declined to process this document. Your credit was refunded." },
   err_server_misconfigured: { vi: "Máy chủ chưa được cấu hình đầy đủ. Vui lòng báo quản trị viên.", en: "The server is not fully configured. Please tell the administrator." },
+  err_server_error: { vi: "Máy chủ gặp sự cố hoặc quá thời gian chờ. Hãy kiểm tra Lịch sử/hạn mức: nếu lượt bị trừ mà không có kết quả, hãy báo quản trị viên để được hoàn lại.", en: "The server failed or timed out. Check your allowance: if a credit was used without a result, ask the administrator to refund it." },
   err_network: { vi: "Không kết nối được máy chủ. Hãy kiểm tra mạng và thử lại.", en: "Could not reach the server. Check your connection and try again." },
 
   // ----- Kết quả -----

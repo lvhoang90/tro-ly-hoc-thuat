@@ -30,5 +30,6 @@ const out = {
   intl, dom,
 };
 mkdirSync("data", { recursive: true });
-writeFileSync("data/edufind-journals.json", JSON.stringify(out));
-console.log(`OK: ${intl.length} tạp chí quốc tế, ${dom.length} tạp chí trong nước → data/edufind-journals.json`);
+// Xuất ra module TypeScript (không phải .json) vì hàm Vercel chạy ESM và không cho import .json thiếu thuộc tính "type: json".
+writeFileSync("data/edufind-journals.ts", `// Tệp sinh tự động bởi scripts/sync-edufind.mjs, không sửa tay.\nconst data = ${JSON.stringify(out)};\nexport default data;\n`);
+console.log(`OK: ${intl.length} tạp chí quốc tế, ${dom.length} tạp chí trong nước → data/edufind-journals.ts`);
