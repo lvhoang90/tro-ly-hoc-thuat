@@ -1,4 +1,4 @@
-# Trợ lý học thuật | AI Academic Assistant 1.0
+# Trợ lý học thuật | AI Academic Agent 1.0
 
 Ứng dụng web song ngữ Việt/Anh giúp nhà nghiên cứu **đọc tài liệu, chấm mức độ phù hợp, tóm tắt, chọn đoạn đáng trích dẫn và sao chép trích dẫn đúng chuẩn quốc tế**.
 Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác giả: Lương Việt Hoàng (ISA Vietnam).
@@ -10,8 +10,10 @@ Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác gi
 3. **Tải tài liệu** PDF/DOC/DOCX dưới 10 MB (được chứa ảnh). Văn bản được trích **ngay trên máy người dùng**; chỉ văn bản gửi lên.
 4. **AI đánh giá**: điểm 0-100 theo 5 tiêu chí (chủ đề 40, khái niệm 20, phương pháp 15, bằng chứng 15, cập nhật 10), tóm tắt, điểm phù hợp/hạn chế.
    - **≥ 60 điểm**: danh sách đoạn nên trích, xếp hạng và tô màu ưu tiên cao/trung bình/thấp, kèm số trang. Mỗi đoạn là nguyên văn đã **đối chiếu với văn bản gốc**; đoạn AI "bịa" bị loại.
-   - **< 60 điểm**: gợi ý nên tìm gì thay thế, công trình tương tự (OpenAlex) và tạp chí đối chiếu với CSDL **EduFind** (hạng Q của SJR, mức điểm HĐGSNN).
+   - **< 60 điểm**: gợi ý nên tìm gì thay thế, công trình tương tự (OpenAlex) và tạp chí đối chiếu với CSDL **EduFind**: AI chọn 1 đến 3 trong 28 lĩnh vực phù hợp với đề tài, gợi ý tạp chí quốc tế (hạng Q của SJR) và trong nước (điểm tối đa HĐGSNN), kèm liên kết đúng trang lĩnh vực.
 5. **Trích dẫn**: APA 7, Harvard, Chicago (author-date), MLA 9, IEEE, Vancouver, AMA, BibTeX, RIS. Chọn ngôn ngữ trích dẫn **tiếng Việt (và, tr., và cs.) hoặc tiếng Anh (&, pp., et al.)** độc lập với ngôn ngữ giao diện. Sao chép giữ chữ nghiêng khi dán vào Word.
+
+Kết quả đánh giá hiển thị song ngữ (đổi ngôn ngữ giao diện là đổi cả nhận xét, không gọi AI lần nữa), viết theo văn phong học thuật phù hợp lĩnh vực mà người dùng khai báo trong hồ sơ. Sau phần nhận xét là hộp **Quyết định của bạn** để chọn hướng đi (trích dẫn, tìm nguồn khác, chỉnh abstract, hoặc vẫn trích dẫn nguồn có điểm thấp). Lịch sử trích dẫn cho đổi kiểu và ngôn ngữ ngay trên từng mục.
 
 Hạn mức: **2 lượt/ngày** (đặt lại 00:00 giờ Việt Nam). Hết lượt thì hiện thông tin liên hệ quản trị viên (email/SĐT/Zalo). Quản trị viên cấp thêm lượt trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
@@ -24,7 +26,7 @@ Trình duyệt (React + TS, Vite)               Vercel Functions                
  ├ nhận diện ngôn ngữ (shared/lang)           │   ├ xác thực JWT Supabase + email đã xác thực
  ├ định dạng trích dẫn (shared/citation)      │   ├ consume_credit() nguyên tử → hoàn lại nếu lỗi
  └ supabase-js: hồ sơ, lịch sử, admin RPC     │   ├ đối chiếu trích đoạn (shared/quotes)
-                                              │   └ <60: OpenAlex + data/edufind-journals.ts
+                                              │   └ <60: OpenAlex + data/edufind.ts
                                               /api/extract-doc  (chỉ .doc cũ, word-extractor)
                                               /api/visit        ──► Upstash Redis (đếm truy cập)
 Supabase: Auth + Postgres (RLS)  ◄── supabase/schema.sql
@@ -50,7 +52,7 @@ Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel; tùy ch�
    `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (bí mật), `ANTHROPIC_API_KEY` (bí mật), `ANTHROPIC_MODEL` (mặc định `claude-opus-5-5`; đặt `claude-sonnet-5-5` để rẻ hơn), `CONTACT_EMAIL`, `KV_REST_API_URL` + `KV_REST_API_TOKEN` (đếm truy cập; có thể dùng chung Upstash với EduFind, khóa riêng tiền tố `troly:`).
 3. **Vercel**: import repo, framework Vite (đã có `vercel.json`). `api/analyze` cần thời gian chạy tới 120 giây; dùng gói/tùy chọn Vercel cho phép (Fluid compute).
 4. Đăng nhập bằng email master → **Quản trị → Cài đặt**: nhập email/SĐT/Zalo liên hệ và số lượt miễn phí/ngày.
-5. Cập nhật CSDL EduFind: `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind-journals.ts`. Ngành khác: `EDUFIND_DISCIPLINE=<slug>`.
+5. Cập nhật CSDL EduFind (cả 28 lĩnh vực, địa chỉ gốc lấy từ `site.config.json` của EduFind, hiện là https://edufind.isavn.edu.vn/): cập nhật bản sao repo `edufind-khgd`, chạy `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind.ts`. Mỗi lĩnh vực giữ 400 tạp chí SJR cao nhất (đổi bằng `EDUFIND_TOP`) và toàn bộ tạp chí trong nước của Hội đồng.
 
 Hướng dẫn Supabase chi tiết từng bước: [`docs/SUPABASE.md`](docs/SUPABASE.md).
 

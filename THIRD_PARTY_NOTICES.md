@@ -21,6 +21,6 @@ Dữ liệu:
 | Nguồn | Giấy phép / điều khoản | Dùng để |
 |---|---|---|
 | OpenAlex | CC0 | Gợi ý công trình thay thế khi điểm dưới 60 |
-| SCImago Journal Rank (Scopus), Hội đồng GSNN | Điều khoản riêng của từng nguồn | Bản chụp tạp chí EduFind trong `data/edufind-journals.ts` |
+| SCImago Journal Rank (Scopus), Hội đồng GSNN | Điều khoản riêng của từng nguồn | Bản chụp tạp chí EduFind trong `data/edufind.ts` |
 | Citation Style Language (kiểu CSL, locale) | CC BY-SA 3.0 | Hơn 10.000 kiểu trích dẫn, tải theo nhu cầu; chỉ mục `public/csl/index.json` |
 | ORCID Public API | Điều khoản ORCID | Nhập hồ sơ (tùy chọn, người dùng chủ động bấm) |

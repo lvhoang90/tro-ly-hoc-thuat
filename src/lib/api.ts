@@ -1,5 +1,5 @@
 import { supabase } from "./supabase.ts";
-import type { AnalysisResult, ApiError, Lang } from "../../shared/types.ts";
+import type { AnalysisResult, ApiError } from "../../shared/types.ts";
 
 export class ApiFailure extends Error {
   constructor(public info: ApiError, public status: number) { super(info.error); }
@@ -18,7 +18,7 @@ async function call<T>(path: string, init: RequestInit): Promise<T> {
   return body as T;
 }
 
-export const analyze = (p: { abstract: string; text: string; fileName: string; ui: Lang; fields?: string }) =>
+export const analyze = (p: { abstract: string; text: string; fileName: string; profile?: string }) =>
   call<AnalysisResult>("/api/analyze", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(p) });
 
 export const extractDoc = (file: File) =>

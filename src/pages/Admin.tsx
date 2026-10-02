@@ -1,13 +1,84 @@
 import { useCallback, useEffect, useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
-import { supabase, type Contact } from "../lib/supabase.ts";
+import { supabase, type Contact, type Profile } from "../lib/supabase.ts";
+import { Icon } from "../components/Icon.tsx";
 import { visit, type VisitStats } from "../lib/api.ts";
 
 interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number }
 interface Stats { users: number; new_7d: number; analyses_today: number; analyses_7d: number; analyses_total: number; citations_total: number; bonus_outstanding: number; exhausted_today: number }
 
 const PAGE = 25;
+
+interface Grant { id: number; amount: number; note: string; created_at: string; admin_id: string | null }
+interface Use { id: number; created_at: string; source: string; refunded: boolean }
+
+/** Hồ sơ đầy đủ của một người dùng (mọi thông tin họ đã khai báo, trừ mật khẩu). Quản trị viên đọc được nhờ chính sách RLS. */
+function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
+  const { t, lang } = useI18n();
+  const [p, setP] = useState<Profile | null>(null);
+  const [grants, setGrants] = useState<Grant[]>([]);
+  const [uses, setUses] = useState<Use[]>([]);
+  const [last, setLast] = useState<string | null>(null);
+  useEffect(() => {
+    void supabase.from("profiles").select("*").eq("id", id).maybeSingle().then(({ data }) => { setP(data as Profile); setLast((data as { last_seen?: string })?.last_seen ?? null); });
+    void supabase.from("credit_grants").select("id,amount,note,created_at,admin_id").eq("user_id", id).order("created_at", { ascending: false }).limit(10).then(({ data }) => setGrants((data ?? []) as Grant[]));
+    void supabase.from("usage_log").select("id,created_at,source,refunded").eq("user_id", id).order("created_at", { ascending: false }).limit(10).then(({ data }) => setUses((data ?? []) as Use[]));
+  }, [id]);
+  useEffect(() => { const k = (e: KeyboardEvent) => e.key === "Escape" && onClose(); addEventListener("keydown", k); return () => removeEventListener("keydown", k); }, [onClose]);
+  const dt = (s: string | null) => (s ? new Date(s).toLocaleString() : "—");
+  const row = (label: string, v: React.ReactNode) => <><dt>{label}</dt><dd>{v || "—"}</dd></>;
+  return (
+    <div className="drawer-wrap" onClick={onClose}>
+      <aside className="drawer" role="dialog" aria-modal="true" aria-label={t("adm_detail")} onClick={(e) => e.stopPropagation()}>
+        <div className="between"><h3 className="serif"><Icon name="user" size={18} /> {t("adm_detail")}</h3><button className="icon-btn" onClick={onClose} aria-label={t("close")}><Icon name="x" size={16} /></button></div>
+        {!p ? <p className="muted">…</p> : (
+          <>
+            <div className="id-card slim">
+              <div className="avatar sm" aria-hidden="true">{(p.full_name || p.email).split(/\s+/).slice(-2).map((w) => w[0]?.toUpperCase()).join("") || "?"}</div>
+              <div><h4>{[p.title, p.full_name].filter(Boolean).join(" ") || p.email}</h4>
+                <div className="id-badges"><span className={`badge ${p.role === "admin" ? "admin" : ""}`}>{p.role === "admin" ? t("role_admin") : t("role_user")}</span>
+                  <span className="badge">{p.status === "suspended" ? t("st_suspended") : t("st_active")}</span></div></div>
+            </div>
+            <h5>{t("sec_identity")}</h5>
+            <dl className="kv">
+              {row("Email", <a href={`mailto:${p.email}`}>{p.email}</a>)}
+              {row("ORCID iD", p.orcid && <a href={`https://orcid.org/${p.orcid}`} target="_blank" rel="noopener noreferrer">{p.orcid}</a>)}
+              {row(t("country"), p.country)}
+              {row(t("phone"), p.phone)}
+            </dl>
+            <h5>{t("sec_affil")}</h5>
+            <dl className="kv">
+              {row(t("affiliation"), p.affiliation)}{row(t("department"), p.department)}{row(t("position"), p.position)}
+            </dl>
+            <h5>{t("sec_research")}</h5>
+            <dl className="kv">
+              {row(t("fields"), p.research_fields.length ? <div className="tags static">{p.research_fields.map((x) => <span className="tag" key={x}>{x}</span>)}</div> : "")}
+              {row(t("keywords"), p.keywords.length ? <div className="tags static">{p.keywords.map((x) => <span className="tag" key={x}>{x}</span>)}</div> : "")}
+              {row(t("bio"), p.bio && <span className="prose">{p.bio}</span>)}
+            </dl>
+            <h5>{t("sec_links")}</h5>
+            <dl className="kv">
+              {row("Google Scholar", p.scholar_url && <a href={p.scholar_url} target="_blank" rel="noopener noreferrer">{p.scholar_url}</a>)}
+              {row("Scopus Author ID", p.scopus_id)}
+              {row(t("website"), p.website && <a href={p.website} target="_blank" rel="noopener noreferrer">{p.website}</a>)}
+            </dl>
+            <h5>{t("adm_account")}</h5>
+            <dl className="kv">
+              {row(t("adm_created"), dt(p.created_at))}{row(t("adm_last"), dt(last))}
+              {row(t("adm_bonus"), String(p.bonus_credits))}{row(t("adm_life"), String(p.lifetime_used))}
+            </dl>
+            <h5>{t("adm_grants")}</h5>
+            {grants.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{grants.map((g) => <li key={g.id}><b>{g.amount > 0 ? "+" : ""}{g.amount}</b> <span className="muted small">{dt(g.created_at)}{g.note ? ` · ${g.note}` : ""}</span></li>)}</ul>}
+            <h5>{t("adm_uses")}</h5>
+            {uses.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{uses.map((u) => <li key={u.id}><span className="muted small">{dt(u.created_at)}</span> · {u.source}{u.refunded ? ` · ${t("adm_refunded")}` : ""}</li>)}</ul>}
+            <p className="muted small">{t("adm_privacy")}</p>
+          </>
+        )}
+      </aside>
+    </div>
+  );
+}
 
 export default function Admin() {
   const { t } = useI18n();
@@ -18,6 +89,7 @@ export default function Admin() {
   const [q, setQ] = useState("");
   const [off, setOff] = useState(0);
   const [amount, setAmount] = useState<Record<string, string>>({});
+  const [detail, setDetail] = useState<string | null>(null);
   const [stats, setStats] = useState<Stats | null>(null);
   const [vs, setVs] = useState<VisitStats | null>(null);
   const [limit, setLimit] = useState("2");
@@ -82,8 +154,8 @@ export default function Admin() {
               <tbody>
                 {rows.map((u) => (
                   <tr key={u.id} className={u.status === "suspended" ? "dim" : ""}>
-                    <td><b>{u.full_name || "—"}</b><div className="muted small">{u.email}</div><div className="muted small">{u.affiliation}{u.orcid ? ` · ${u.orcid}` : ""}</div>
-                      <div className="muted small">{new Date(u.created_at).toLocaleDateString()}{u.last_seen ? ` → ${new Date(u.last_seen).toLocaleDateString()}` : ""}</div></td>
+                    <td><button className="link strong" onClick={() => setDetail(u.id)} title={t("adm_detail")}>{u.full_name || u.email}</button><div className="muted small">{u.email}</div><div className="muted small">{u.affiliation}{u.orcid ? ` · ${u.orcid}` : ""}</div>
+                      <div className="muted small">{new Date(u.created_at).toLocaleDateString()}{u.last_seen ? ` – ${new Date(u.last_seen).toLocaleDateString()}` : ""}</div></td>
                     <td>{u.role === "admin" ? "∞" : u.used_today}</td>
                     <td><b>{u.bonus_credits}</b></td>
                     <td>{u.lifetime_used}</td>
@@ -105,11 +177,13 @@ export default function Admin() {
               </tbody>
             </table>
           </div>
-          <div className="between"><button className="btn sm" disabled={off === 0} onClick={() => setOff(Math.max(0, off - PAGE))}>←</button>
+          <div className="between"><button className="btn sm" disabled={off === 0} onClick={() => setOff(Math.max(0, off - PAGE))}><Icon name="left" size={14} /></button>
             <span className="muted small">{Math.floor(off / PAGE) + 1} / {Math.max(1, Math.ceil(total / PAGE))}</span>
-            <button className="btn sm" disabled={off + PAGE >= total} onClick={() => setOff(off + PAGE)}>→</button></div>
+            <button className="btn sm" disabled={off + PAGE >= total} onClick={() => setOff(off + PAGE)}><Icon name="right" size={14} /></button></div>
         </div>
       )}
+
+      {detail && <UserDetail id={detail} onClose={() => setDetail(null)} />}
 
       {tab === "settings" && (
         <div className="card form-grid">

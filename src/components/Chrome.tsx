@@ -1,32 +1,31 @@
 import { useEffect, useState } from "react";
 import { useI18n } from "../i18n.tsx";
+import type { Lang } from "../../shared/types.ts";
 import { useApp } from "../ctx.tsx";
 import { APP } from "../lib/config.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
+import { Flag, Icon } from "./Icon.tsx";
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-    <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#38bdf8" /><stop offset="1" stopColor="#a78bfa" />
-      </linearGradient>
-    </defs>
-    <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#lg)" />
-    <path d="M14 33c4-1 7-4 10-9s6-8 10-9" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
-    <path d="M14 15c4 1 7 4 10 9s6 8 10 9" fill="none" stroke="#fff" strokeOpacity=".65" strokeWidth="2.6" strokeLinecap="round" />
-    <circle cx="24" cy="24" r="2.6" fill="#fff" />
-  </svg>
+  <img src="/favicon.svg" width={size} height={size} alt="" aria-hidden="true" />
 );
 
-export function LangSwitch() {
-  const { lang, setLang } = useI18n();
+/** Nút chọn ngôn ngữ kèm quốc kỳ; trạng thái đang chọn mang màu cờ (đỏ-vàng cho Việt Nam, xanh-đỏ cho Anh). */
+export function FlagToggle({ value, onChange, label }: { value: Lang; onChange: (l: Lang) => void; label: string }) {
   return (
-    <div className="seg" role="group" aria-label="Language">
+    <div className="flagseg" role="group" aria-label={label}>
       {(["vi", "en"] as const).map((l) => (
-        <button key={l} className={lang === l ? "on" : ""} onClick={() => setLang(l)} aria-pressed={lang === l}>{l.toUpperCase()}</button>
+        <button key={l} className={`${l} ${value === l ? "on" : ""}`} onClick={() => onChange(l)} aria-pressed={value === l} title={l === "vi" ? "Tiếng Việt" : "English"}>
+          <Flag lang={l} w={20} /><span>{l.toUpperCase()}</span>
+        </button>
       ))}
     </div>
   );
+}
+
+export function LangSwitch() {
+  const { lang, setLang } = useI18n();
+  return <FlagToggle value={lang} onChange={setLang} label="Language" />;
 }
 
 export function ThemeToggle() {
@@ -40,7 +39,7 @@ export function ThemeToggle() {
   const dark = theme ? theme === "dark" : matchMedia("(prefers-color-scheme: dark)").matches;
   return (
     <button className="icon-btn" onClick={() => setTheme(dark ? "light" : "dark")} title={t("theme")} aria-label={t("theme")}>
-      {dark ? "☀" : "☾"}
+      <Icon name={dark ? "sun" : "moon"} size={17} />
     </button>
   );
 }
@@ -79,7 +78,25 @@ export function Header({ route, go }: { route: Route; go: (r: Route) => void }) 
 
 export function Toasts() {
   const { toasts } = useApp();
-  return <div className="toasts" aria-live="polite">{toasts.map((x) => <div key={x.id} className={`toast ${x.kind}`}>{x.text}</div>)}</div>;
+  const { t } = useI18n();
+  const win = toasts.filter((x) => x.kind === "win");
+  return (
+    <>
+      <div className="wins" aria-live="polite">
+        {win.map((x) => (
+          <div key={x.id} className="win" role="status">
+            <span className="win-ico"><Icon name="check" size={22} /></span>
+            <div className="win-body">
+              <b>{x.text}</b>
+              {x.body && <p>{x.body}</p>}
+              {x.note && <small><Icon name="clock" size={12} /> {x.note}</small>}
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="toasts" aria-live="polite" aria-label={t("notifications")}>{toasts.filter((x) => x.kind !== "win").map((x) => <div key={x.id} className={`toast ${x.kind}`}>{x.text}</div>)}</div>
+    </>
+  );
 }
 
 // ---------- Chia sẻ mạng xã hội (liên kết thuần, không nhúng script bên thứ ba) ----------
@@ -95,8 +112,8 @@ export function ShareButtons({ compact = false }: { compact?: boolean }) {
     ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${u}`, "f"],
     ["X", `https://twitter.com/intent/tweet?url=${u}&text=${tx}`, "𝕏"],
     ["LinkedIn", `https://www.linkedin.com/sharing/share-offsite/?url=${u}`, "in"],
-    ["Telegram", `https://t.me/share/url?url=${u}&text=${tx}`, "✈"],
-    ["Email", `mailto:?subject=${encodeURIComponent(APP.name[lang])}&body=${tx}%0A${u}`, "✉"],
+    ["Telegram", `https://t.me/share/url?url=${u}&text=${tx}`, "Tg"],
+    ["Email", `mailto:?subject=${encodeURIComponent(APP.name[lang])}&body=${tx}%0A${u}`, "@"],
   ];
   const copy = async (msg: string) => {
     try { await navigator.clipboard.writeText(url); toast(msg); } catch { toast(url); }
@@ -108,7 +125,7 @@ export function ShareButtons({ compact = false }: { compact?: boolean }) {
         <a key={name} className="share-btn" href={href} target="_blank" rel="noopener noreferrer" title={name} aria-label={`${t("share")} ${name}`}>{glyph}</a>
       ))}
       <button className="share-btn zalo" title="Zalo" aria-label={`${t("share")} Zalo`} onClick={() => copy(t("zalo_copied"))}>Z</button>
-      <button className="share-btn" title={t("copy_link")} aria-label={t("copy_link")} onClick={() => copy(t("link_copied"))}>🔗</button>
+      <button className="share-btn" title={t("copy_link")} aria-label={t("copy_link")} onClick={() => copy(t("link_copied"))}><Icon name="copy" size={15} /></button>
     </div>
   );
 }
@@ -138,6 +155,7 @@ export function Footer() {
         <div>
           <div className="foot-title">{APP.name[lang]} {APP.version}</div>
           <p className="muted small">{t("foot_about")}</p>
+          <p className="brand-mean"><Logo size={22} /> <span className="muted small">{t("brand_meaning")}</span></p>
           <ShareButtons />
         </div>
         <div>
@@ -175,8 +193,8 @@ export function ContactAdmin({ reason }: { reason?: string }) {
       {note && <p>{note}</p>}
       {has ? (
         <div className="contact-row">
-          {contact.email && <a className="btn" href={`mailto:${contact.email}?subject=${subject}&body=${body}`}>✉ {contact.email}</a>}
-          {contact.phone && <a className="btn" href={`tel:${contact.phone}`}>☎ {contact.phone}</a>}
+          {contact.email && <a className="btn" href={`mailto:${contact.email}?subject=${subject}&body=${body}`}><Icon name="mail" size={16} /> {contact.email}</a>}
+          {contact.phone && <a className="btn" href={`tel:${contact.phone}`}><Icon name="phone" size={16} /> {contact.phone}</a>}
           {zaloNum && <a className="btn" href={`https://zalo.me/${zaloNum}`} target="_blank" rel="noopener noreferrer">Zalo {contact.zalo || contact.phone}</a>}
         </div>
       ) : <p className="muted">{t("contact_missing")}</p>}
