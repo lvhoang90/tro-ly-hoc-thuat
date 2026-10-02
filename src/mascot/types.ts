@@ -1,4 +1,4 @@
-/** Cảm xúc/trạng thái của nhân vật trợ lý Ali. */
+/** Cảm xúc/trạng thái của nhân vật trợ lý Ami. */
 export type Mood = "idle" | "wave" | "read" | "think" | "happy" | "celebrate" | "care" | "alert" | "sleep";
 
 export interface FaceState { mood: Mood; blink: number; gx: number; gy: number; t: number }

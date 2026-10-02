@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Ali } from "../mascot/Ali.tsx";
+import { Ami } from "../mascot/Ami.tsx";
 import { useMascot } from "../mascot/ctx.tsx";
 import { useI18n } from "../i18n.tsx";
 import { supabase } from "../lib/supabase.ts";
@@ -21,11 +21,11 @@ export default function Auth() {
   const [info, setInfo] = useState("");
   const [unverified, setUnverified] = useState(false);
 
-  const ali = useMascot();
+  const ami = useMascot();
   useEffect(() => {
-    ali.say(t(mode === "up" ? "ali_signup" : mode === "reset" ? "ali_reset" : mode === "sent" ? "ali_sent" : "ali_hello"), mode === "in" ? "wave" : "happy", 9000);
+    ami.say(t(mode === "up" ? "ami_signup" : mode === "reset" ? "ami_reset" : mode === "sent" ? "ami_sent" : "ami_hello"), mode === "in" ? "wave" : "happy", 9000);
   }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (err) ali.say(t("ali_oops"), "care", 6000); }, [err]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (err) ami.say(t("ami_oops"), "care", 6000); }, [err]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const redirect = APP.siteUrl || location.origin;
 
@@ -78,7 +78,7 @@ export default function Auth() {
   return (
     <div className="landing">
       <section className="hero">
-        <Ali variant="hero" />
+        <Ami variant="hero" />
         <div className="eyebrow">{t("hero_eyebrow")}</div>
         <h1>{APP.name[lang]}<span className="grad"> | {lang === "vi" ? APP.name.en : APP.name.vi} {APP.version}</span></h1>
         <p className="lead">{t("hero_lead")}</p>

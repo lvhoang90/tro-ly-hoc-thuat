@@ -257,5 +257,5 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
     };
   }, [fps]);
 
-  return <div ref={host} className="ali-3d" aria-hidden="true" />;
+  return <div ref={host} className="ami-3d" aria-hidden="true" />;
 }
