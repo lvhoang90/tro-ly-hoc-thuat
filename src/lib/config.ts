@@ -12,6 +12,7 @@ export const APP = {
     orcid: "0009-0000-5248-6186",
     website: "https://isavietnam.app/",
     edufind: "https://edufind.isavn.edu.vn/",
+    vanthu: "https://trolyvanthu.isavn.edu.vn/",
   },
 };
 
