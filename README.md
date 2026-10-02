@@ -24,7 +24,7 @@ Trình duyệt (React + TS, Vite)               Vercel Functions                
  ├ nhận diện ngôn ngữ (shared/lang)           │   ├ xác thực JWT Supabase + email đã xác thực
  ├ định dạng trích dẫn (shared/citation)      │   ├ consume_credit() nguyên tử → hoàn lại nếu lỗi
  └ supabase-js: hồ sơ, lịch sử, admin RPC     │   ├ đối chiếu trích đoạn (shared/quotes)
-                                              │   └ <60: OpenAlex + data/edufind-journals.json
+                                              │   └ <60: OpenAlex + data/edufind-journals.ts
                                               /api/extract-doc  (chỉ .doc cũ, word-extractor)
                                               /api/visit        ──► Upstash Redis (đếm truy cập)
 Supabase: Auth + Postgres (RLS)  ◄── supabase/schema.sql
@@ -50,7 +50,7 @@ Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel; tùy ch�
    `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (bí mật), `ANTHROPIC_API_KEY` (bí mật), `ANTHROPIC_MODEL` (mặc định `claude-opus-5-5`; đặt `claude-sonnet-5-5` để rẻ hơn), `CONTACT_EMAIL`, `KV_REST_API_URL` + `KV_REST_API_TOKEN` (đếm truy cập; có thể dùng chung Upstash với EduFind, khóa riêng tiền tố `troly:`).
 3. **Vercel**: import repo, framework Vite (đã có `vercel.json`). `api/analyze` cần thời gian chạy tới 120 giây; dùng gói/tùy chọn Vercel cho phép (Fluid compute).
 4. Đăng nhập bằng email master → **Quản trị → Cài đặt**: nhập email/SĐT/Zalo liên hệ và số lượt miễn phí/ngày.
-5. Cập nhật CSDL EduFind: `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind-journals.json`. Ngành khác: `EDUFIND_DISCIPLINE=<slug>`.
+5. Cập nhật CSDL EduFind: `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind-journals.ts`. Ngành khác: `EDUFIND_DISCIPLINE=<slug>`.
 
 Hướng dẫn Supabase chi tiết từng bước: [`docs/SUPABASE.md`](docs/SUPABASE.md).
 
