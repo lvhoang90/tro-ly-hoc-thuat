@@ -20,3 +20,9 @@ Dữ liệu trong clip là dữ liệu minh họa.
 - `audio.py`: tổng hợp nhạc nền và hiệu ứng bằng numpy, trộn với giọng nói (Piper TTS, giọng nam `en_US-ryan-high`, giấy phép MIT/CC0 theo mô hình giọng).
 - `overlay.js`: các cảnh, bong bóng lời thoại, chuyển động theo thời gian `t` (dựng khung hình xác định).
 - `render.cjs`: chạy lượt `bg` (nền + cảnh) và lượt `ami` (Ami 3D thật từ ứng dụng, nền trong suốt) bằng Playwright; sau đó ghép bằng ffmpeg (xem lệnh `overlay` với hiệu ứng Ami xuất hiện).
+
+## Bản tiếng Việt
+- `ami-journey-30s.vi.mp4`: cùng hình ảnh và bố cục, chữ trên màn hình và lời Ami bằng tiếng Việt, giọng nam.
+- Giọng: Facebook MMS-TTS tiếng Việt (`facebook/mms-tts-vie`, giấy phép CC-BY-NC 4.0, chỉ dùng phi thương mại), nâng cao độ nhẹ và nén động để nghe hào hứng hơn.
+- `make-vi.py` tạo `overlay.vi.js` từ `overlay.js` (thay chuỗi hiển thị); dựng nền bằng `OVERLAY=overlay.vi.js node render.cjs <thư mục> 0 900 1 bg`, dùng lại khung Ami của bản tiếng Anh.
+- Lời thoại: "Chào bạn, mình là Ami! Tìm đúng tài liệu mất hàng giờ. Từ nay thì không nữa!" / "Thả vào tệp PDF, Word, hay cả bản quét." / "Mình chấm điểm độ phù hợp, từ 0 đến 100." / "Rồi chọn đoạn đáng trích, kèm số trang, đối chiếu từng chữ." / "Chạm một cái, có ngay trích dẫn chuẩn, hơn 10.000 kiểu!" / "Tệp của bạn không bị lưu trữ. Dùng thử miễn phí ngay nhé!"

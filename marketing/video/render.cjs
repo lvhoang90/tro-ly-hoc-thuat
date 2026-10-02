@@ -26,7 +26,7 @@ const qr = fs.readFileSync(path.join(__dirname, "../qr-app.svg"), "utf8");
       .ami-hero .ami-stage{width:620px!important;margin:0!important;position:fixed!important;left:0;top:0;z-index:5}.ami-hero .ami-stage::before,.ami-bubble,.ami-orbit{display:none!important}#vid{display:none!important}` });
   } else await p.setContent("<!doctype html><meta charset=utf-8><body style='margin:0'>");
   await p.evaluate((q) => { window.__QR = q; }, qr);
-  await p.addScriptTag({ path: path.join(__dirname, "overlay.js") });
+  await p.addScriptTag({ path: path.join(__dirname, process.env.OVERLAY || "overlay.js") });
   if (ami) await p.evaluate(() => { document.querySelectorAll("#root *").forEach((e) => { if (!e.closest(".ami-hero")) e.style.visibility = "hidden"; }); document.querySelectorAll(".ami-hero, .ami-hero *").forEach((e) => { e.style.visibility = "visible"; }); });
   else await p.addStyleTag({ content: "html{background:#070b16}" });
   await p.waitForFunction(() => window.__vidReady);
