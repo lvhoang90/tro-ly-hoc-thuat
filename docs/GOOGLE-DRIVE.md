@@ -56,3 +56,20 @@ Google Sheets là bản báo cáo, **không phải bản sao lưu để khôi ph
 | `visit_days: HTTP 404` hoặc `relation ... does not exist` | Chưa chạy `supabase/schema.sql` bản mới (xem `docs/SUPABASE.md`, mục nâng cấp v2). |
 | `Exceeded maximum execution time` | Nhật ký quá lớn so với giới hạn 6 phút của Apps Script. Hãy báo tôi để chuyển sang đồng bộ theo lô hoặc chỉ lấy 90 ngày gần nhất. |
 | Không thấy lịch tự chạy | Apps Script → biểu tượng đồng hồ **Triggers**: phải có một dòng `syncAll` theo ngày. |
+
+## Cách B: đồng bộ bằng GitHub Actions (khi Google chặn Apps Script)
+
+Dùng khi bước cấp quyền Apps Script báo "Ứng dụng này đã bị chặn". Không cần Apps Script; một service account ghi thẳng vào Google Sheet của bạn.
+
+1. **Tạo service account.** Vào console.cloud.google.com, chọn (hoặc tạo) một dự án. Mở *APIs & Services → Library*, tìm **Google Sheets API** và bấm **Enable**. Mở *IAM & Admin → Service Accounts → Create service account*, đặt tên `sheet-sync`, bỏ qua các bước gán quyền, bấm **Done**.
+2. **Tạo khóa JSON.** Bấm vào service account vừa tạo, tab **Keys → Add key → Create new key → JSON**. Tệp JSON được tải về máy. Giữ kín tệp này, không đưa lên Git hay chat.
+3. **Chia sẻ Sheet.** Mở tệp JSON, sao chép giá trị `client_email` (dạng `sheet-sync@…iam.gserviceaccount.com`). Mở Google Sheet của bạn, bấm **Chia sẻ**, dán email đó và cấp quyền **Người chỉnh sửa**.
+4. **Lấy SHEET_ID.** Là đoạn nằm giữa `/d/` và `/edit` trong địa chỉ của Sheet.
+5. **Thêm 4 secret vào GitHub.** Repo → *Settings → Secrets and variables → Actions → New repository secret*:
+   - `SUPABASE_URL`: địa chỉ dự án Supabase.
+   - `SUPABASE_SERVICE_ROLE_KEY`: khóa `service_role`.
+   - `GOOGLE_SERVICE_ACCOUNT_JSON`: dán toàn bộ nội dung tệp JSON.
+   - `SHEET_ID`: mã ở bước 4.
+6. **Chạy thử.** Tab *Actions → Sync Google Sheets → Run workflow*. Sau khi xong (xanh), Sheet có các tab dữ liệu. Workflow tự chạy mỗi ngày lúc 02:00 giờ Việt Nam (`.github/workflows/sync-sheets.yml`).
+
+Script nằm ở `scripts/sync-sheets.mjs`, cùng nguyên tắc với bản Apps Script: một chiều, không đưa abstract hay đoạn trích vào Sheet (đặt biến `INCLUDE_CITATIONS=1` nếu cần tab trích dẫn).
