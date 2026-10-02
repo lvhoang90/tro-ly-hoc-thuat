@@ -86,13 +86,14 @@ export default function ProfilePage() {
             {f.orcid && validOrcid(f.orcid) && <a className="badge orcid" href={`https://orcid.org/${f.orcid}`} target="_blank" rel="noopener noreferrer"><span>iD</span> {f.orcid}</a>}
             <span className="badge">{f.email}</span>
             {f.role === "admin" && <span className="badge admin">{t("role_admin")}</span>}
+            <span className={`badge ${f.approved || f.role === "admin" ? "ok-badge" : "warn-badge"}`}>{f.approved || f.role === "admin" ? t("approved") : t("pending")}</span>
           </div>
         </div>
         <div className="meter" title={t("completeness")}><div style={{ width: `${completeness}%` }} /><span>{completeness}%</span></div>
       </div>
 
       <QuotaBar />
-      {quota && <p className="muted small">{t("usage_life", { n: quota.lifetime_used })}</p>}
+      {quota && <p className="muted small">{t("usage_life", { n: quota.lifetime_used })} · {quota.approved ? t("limit_approved", { mb: quota.max_file_mb }) : t("limit_basic", { mb: quota.max_file_mb })}</p>}
 
       <div className="card form-grid">
         <h3>{t("sec_identity")}</h3>

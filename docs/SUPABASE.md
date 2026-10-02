@@ -42,7 +42,7 @@ Thời gian khoảng 20 phút. Bạn cần: tài khoản Supabase (gói Free đ�
 ## Bước 6. Khai báo trên Vercel
 1. Vercel → **Add New… → Project** → import repo `lvhoang90/tro-ly-hoc-thuat` (framework tự nhận là Vite).
 2. **Settings → Environment Variables**, thêm cho cả Production và Preview:
-   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `CONTACT_EMAIL`, tùy chọn `ANTHROPIC_MODEL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN` (mẫu: `.env.example`).
+   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `ANTHROPIC_API_KEY`, `CONTACT_EMAIL`, tùy chọn `ANTHROPIC_MODEL` (mẫu: `.env.example`).
    Đánh dấu **Sensitive** cho khóa `service_role` và `ANTHROPIC_API_KEY`.
 3. **Deploy** (hoặc Redeploy sau khi thêm biến). Gói Pro cho phép hàm chạy lâu, đủ cho `maxDuration` 120 giây đã khai báo trong `vercel.json`.
 
@@ -51,6 +51,14 @@ Thời gian khoảng 20 phút. Bạn cần: tài khoản Supabase (gói Free đ�
 2. **Quản trị → Cài đặt**: nhập email, SĐT, Zalo liên hệ, số lượt miễn phí mỗi ngày (mặc định 2) → **Lưu**.
 3. Đăng ký thêm một tài khoản thử (email khác). Phân tích 2 tài liệu rồi thử lần thứ 3: phải hiện khung "đã dùng hết lượt" kèm thông tin liên hệ.
 4. Trở lại tài khoản master → **Quản trị → Người dùng** → tìm tài khoản thử → nhập số lượt → bấm **+**. Tài khoản thử dùng tiếp được.
+
+## Nâng cấp lược đồ lên bản mới (v2)
+Bản v2 thêm: xác nhận người dùng (tệp 5 MB / 15 MB), chi phí API từng lượt, đề tài đã lưu, điểm phù hợp trong lịch sử trích dẫn, và bộ đếm truy cập lưu trong Supabase.
+1. Mở **SQL Editor**, dán lại **toàn bộ** `supabase/schema.sql` mới nhất và bấm **Run** (chọn *Run and enable RLS* nếu có cảnh báo). Tệp chạy lại an toàn và **giữ nguyên dữ liệu cũ** (đã kiểm tra nâng cấp từ bản v1).
+2. Tài khoản master tự được đánh dấu *đã xác nhận*. Các tài khoản cũ ở trạng thái *chờ xác nhận* cho đến khi bạn bấm **Xác nhận** trong **Quản trị → Người dùng**.
+3. **Quản trị → Cài đặt**: chỉnh dung lượng tệp (mặc định 5 MB và 15 MB) và tỷ giá USD/VND hiển thị trong thống kê.
+4. Bộ đếm truy cập không còn cần Upstash. Số liệu bắt đầu đếm từ lúc nâng cấp; bạn có thể xóa các biến `KV_REST_API_URL`, `KV_REST_API_TOKEN` nếu đã thêm trước đó.
+5. Chi phí API chỉ được ghi cho các lượt phân tích **sau** khi triển khai bản mới (lượt cũ không có số token).
 
 ## Xử lý sự cố thường gặp
 | Triệu chứng | Nguyên nhân và cách xử lý |
@@ -61,6 +69,8 @@ Thời gian khoảng 20 phút. Bạn cần: tài khoản Supabase (gói Free đ�
 | Đăng nhập được nhưng không thấy mục Quản trị | Email chưa nằm trong `admin_emails` (Bước 3), hoặc đã đăng ký bằng email khác. |
 | `permission denied` khi cấp lượt | Chạy lại toàn bộ `schema.sql`; chỉ tài khoản có `role = admin` mới gọi được hàm `admin_*`. |
 | Muốn đổi số lượt miễn phí | Quản trị → Cài đặt; có hiệu lực ngay với mọi người dùng. |
+| Bộ đếm truy cập không hiện | Chạy lại `schema.sql` (hàm `record_visit`, `visit_stats`) và kiểm tra `SUPABASE_SERVICE_ROLE_KEY` trên Vercel; mở `/api/visit` phải trả `"enabled":true`. |
+| Người dùng báo tệp bị từ chối vì quá 5 MB | Tài khoản chưa được xác nhận: vào Quản trị → Người dùng và bấm Xác nhận. |
 
 ## Sao lưu và dữ liệu
 Hệ thống không lưu tài liệu tải lên. Dữ liệu duy nhất cần bảo vệ là hồ sơ, hạn mức và lịch sử trích dẫn: bật **Database → Backups** (gói Pro của Supabase có sao lưu hằng ngày; gói Free thì dùng `pg_dump` định kỳ).

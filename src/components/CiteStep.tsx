@@ -68,8 +68,10 @@ function CslPicker({ value, onPick }: { value: string; onPick: (id: string) => v
   );
 }
 
-export default function CiteStep({ meta: initial, passages, project, onBack, onAnother, onNewProject }: {
-  meta: SourceMeta; passages: Passage[]; project: string; onBack: () => void; onAnother: () => void; onNewProject: () => void;
+export interface CiteCtx { score: number; projectId: string; abstractHash: string; abstractTitle: string }
+
+export default function CiteStep({ meta: initial, passages, ctx, onBack, onAnother, onNewProject }: {
+  meta: SourceMeta; passages: Passage[]; ctx: CiteCtx; onBack: () => void; onAnother: () => void; onNewProject: () => void;
 }) {
   const { t, lang: ui } = useI18n();
   const { toast, celebrate, session } = useApp();
@@ -119,7 +121,8 @@ export default function CiteStep({ meta: initial, passages, project, onBack, onA
     if (saved.current.has(key) || !session) return;
     saved.current.add(key);
     const { error } = await supabase.from("citations").insert({
-      user_id: session.user.id, style: styleKey, cite_lang: cl, reference: toPlain(ref), in_text: toPlain(inText), quote, page, priority, project, source: meta,
+      user_id: session.user.id, style: styleKey, cite_lang: cl, reference: toPlain(ref), in_text: toPlain(inText), quote, page, priority, project: ctx.abstractTitle, source: meta,
+      score: ctx.score, project_id: ctx.projectId || null, abstract_hash: ctx.abstractHash, abstract_title: ctx.abstractTitle,
     });
     if (error) { saved.current.delete(key); toast(error.message, "err"); }
   }

@@ -11,7 +11,7 @@ export const supabase = createClient(SUPABASE_URL ?? "http://localhost:54321", S
 export interface Profile {
   id: string; email: string; full_name: string; title: string; affiliation: string; department: string; position: string;
   country: string; orcid: string; research_fields: string[]; keywords: string[]; bio: string; website: string;
-  scholar_url: string; scopus_id: string; phone: string; role: "user" | "admin"; status: "active" | "suspended";
+  scholar_url: string; scopus_id: string; phone: string; role: "user" | "admin"; status: "active" | "suspended"; approved: boolean;
   bonus_credits: number; lifetime_used: number; created_at: string;
 }
 

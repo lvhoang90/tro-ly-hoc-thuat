@@ -3,12 +3,12 @@ import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { supabase, type Contact, type Profile } from "../lib/supabase.ts";
 import { Icon } from "../components/Icon.tsx";
-import { visit, type VisitStats } from "../lib/api.ts";
+import AdminStats from "./AdminStats.tsx";
 
-interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number }
-interface Stats { users: number; new_7d: number; analyses_today: number; analyses_7d: number; analyses_total: number; citations_total: number; bonus_outstanding: number; exhausted_today: number }
+interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; approved: boolean; cost_usd: number; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number }
 
 const PAGE = 25;
+const usdFmt = (n: number) => (n < 1 ? `$${Number(n).toFixed(4)}` : `$${Number(n).toFixed(2)}`);
 
 interface Grant { id: number; amount: number; note: string; created_at: string; admin_id: string | null }
 interface Use { id: number; created_at: string; source: string; refunded: boolean }
@@ -38,7 +38,8 @@ function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
               <div className="avatar sm" aria-hidden="true">{(p.full_name || p.email).split(/\s+/).slice(-2).map((w) => w[0]?.toUpperCase()).join("") || "?"}</div>
               <div><h4>{[p.title, p.full_name].filter(Boolean).join(" ") || p.email}</h4>
                 <div className="id-badges"><span className={`badge ${p.role === "admin" ? "admin" : ""}`}>{p.role === "admin" ? t("role_admin") : t("role_user")}</span>
-                  <span className="badge">{p.status === "suspended" ? t("st_suspended") : t("st_active")}</span></div></div>
+                  <span className="badge">{p.status === "suspended" ? t("st_suspended") : t("st_active")}</span>
+                  <span className={`badge ${p.approved || p.role === "admin" ? "ok-badge" : "warn-badge"}`}>{p.approved || p.role === "admin" ? t("approved") : t("pending")}</span></div></div>
             </div>
             <h5>{t("sec_identity")}</h5>
             <dl className="kv">
@@ -90,27 +91,29 @@ export default function Admin() {
   const [off, setOff] = useState(0);
   const [amount, setAmount] = useState<Record<string, string>>({});
   const [detail, setDetail] = useState<string | null>(null);
-  const [stats, setStats] = useState<Stats | null>(null);
-  const [vs, setVs] = useState<VisitStats | null>(null);
   const [limit, setLimit] = useState("2");
+  const [mbBasic, setMbBasic] = useState("5");
+  const [mbApproved, setMbApproved] = useState("15");
+  const [rate, setRate] = useState("25500");
+  const [pending, setPending] = useState(false);
   const [c, setC] = useState<Contact>({ email: "", phone: "", zalo: "", note_vi: "", note_en: "" });
 
   const loadUsers = useCallback(async () => {
-    const { data, error } = await supabase.rpc("admin_list_users", { p_search: q.trim(), p_limit: PAGE, p_offset: off });
+    const { data, error } = await supabase.rpc("admin_list_users", { p_search: q.trim(), p_limit: PAGE, p_offset: off, p_pending: pending });
     if (error) { toast(error.message, "err"); return; }
     const r = (data ?? []) as UserRow[];
     setRows(r); setTotal(r[0]?.total_count ?? 0);
-  }, [q, off, toast]);
+  }, [q, off, pending, toast]);
 
   useEffect(() => { const id = setTimeout(() => void loadUsers(), 250); return () => clearTimeout(id); }, [loadUsers]);
   useEffect(() => {
-    if (tab === "stats") {
-      void supabase.rpc("admin_stats").then(({ data }) => setStats(data as Stats));
-      void visit().then(setVs);
-    }
     if (tab === "settings") {
       void supabase.from("app_settings").select("key,value").then(({ data }) => {
-        const l = data?.find((x) => x.key === "free_daily_limit")?.value; if (l != null) setLimit(String(l));
+        const get = (k: string) => data?.find((x) => x.key === k)?.value;
+        const l = get("free_daily_limit"); if (l != null) setLimit(String(l));
+        if (get("file_limit_basic_mb") != null) setMbBasic(String(get("file_limit_basic_mb")));
+        if (get("file_limit_approved_mb") != null) setMbApproved(String(get("file_limit_approved_mb")));
+        if (get("usd_vnd") != null) setRate(String(get("usd_vnd")));
         const ct = data?.find((x) => x.key === "contact")?.value as Contact | undefined; if (ct) setC({ ...c, ...ct });
       });
     }
@@ -126,15 +129,20 @@ export default function Admin() {
     const { data, error } = await supabase.rpc("admin_grant_credits", { p_user: u.id, p_amount: n, p_note: "" });
     if (error) toast(error.message, "err"); else { toast(t("granted", { n, email: u.email })); setRows((r) => r.map((x) => (x.id === u.id ? { ...x, bonus_credits: data as number } : x))); }
   }
-  async function setUser(u: UserRow, role?: string, status?: string) {
-    const { error } = await supabase.rpc("admin_set_user", { p_user: u.id, p_role: role ?? null, p_status: status ?? null });
+  async function setUser(u: UserRow, role?: string, status?: string, approved?: boolean) {
+    const { error } = await supabase.rpc("admin_set_user", { p_user: u.id, p_role: role ?? null, p_status: status ?? null, p_approved: approved ?? null });
     if (error) toast(error.message, "err"); else { toast(t("saved")); void loadUsers(); void refresh(); }
   }
   async function saveSettings() {
     const n = Math.max(0, Math.min(100, parseInt(limit, 10) || 0));
     const a = await supabase.rpc("admin_set_setting", { p_key: "free_daily_limit", p_value: n });
     const b = await supabase.rpc("admin_set_setting", { p_key: "contact", p_value: c });
-    if (a.error || b.error) toast((a.error ?? b.error)!.message, "err"); else { toast(t("saved")); void refresh(); }
+    const mb = (v: string, d: number) => Math.max(1, Math.min(100, parseInt(v, 10) || d));
+    const e1 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_basic_mb", p_value: mb(mbBasic, 5) });
+    const e2 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_approved_mb", p_value: Math.max(mb(mbApproved, 15), mb(mbBasic, 5)) });
+    const e3 = await supabase.rpc("admin_set_setting", { p_key: "usd_vnd", p_value: Math.max(1, parseInt(rate, 10) || 25500) });
+    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error;
+    if (err) toast(err.message, "err"); else { toast(t("saved")); void refresh(); }
   }
 
   return (
@@ -147,15 +155,23 @@ export default function Admin() {
       {tab === "users" && (
         <div className="card">
           <div className="row wrap"><input className="grow" placeholder={t("adm_search")} value={q} onChange={(e) => { setQ(e.target.value); setOff(0); }} />
+            <label className="inline check-inline"><input type="checkbox" checked={pending} onChange={(e) => { setPending(e.target.checked); setOff(0); }} /> {t("adm_only_pending")}</label>
             <span className="muted small">{t("adm_total", { n: total })}</span></div>
           <div className="table-wrap">
             <table className="tbl users">
-              <thead><tr><th>{t("adm_user")}</th><th>{t("adm_today")}</th><th>{t("adm_bonus")}</th><th>{t("adm_life")}</th><th>{t("adm_grant")}</th><th>{t("adm_role")}</th></tr></thead>
+              <thead><tr><th>{t("adm_user")}</th><th>{t("adm_status")}</th><th>{t("adm_today")}</th><th>{t("adm_bonus")}</th><th>{t("adm_life")}</th><th>{t("adm_grant")}</th><th>{t("adm_role")}</th></tr></thead>
               <tbody>
                 {rows.map((u) => (
                   <tr key={u.id} className={u.status === "suspended" ? "dim" : ""}>
                     <td><button className="link strong" onClick={() => setDetail(u.id)} title={t("adm_detail")}>{u.full_name || u.email}</button><div className="muted small">{u.email}</div><div className="muted small">{u.affiliation}{u.orcid ? ` · ${u.orcid}` : ""}</div>
                       <div className="muted small">{new Date(u.created_at).toLocaleDateString()}{u.last_seen ? ` – ${new Date(u.last_seen).toLocaleDateString()}` : ""}</div></td>
+                    <td>
+                      <div className="stack-sm">
+                        <span className={`badge ${u.approved ? "ok-badge" : "warn-badge"}`}>{u.approved ? t("approved") : t("pending")}</span>
+                        {u.role !== "admin" && <button className={`btn sm ${u.approved ? "" : "primary"}`} onClick={() => setUser(u, undefined, undefined, !u.approved)}>{u.approved ? t("adm_unapprove") : t("adm_approve")}</button>}
+                        <span className="muted small">{usdFmt(u.cost_usd)}</span>
+                      </div>
+                    </td>
                     <td>{u.role === "admin" ? "∞" : u.used_today}</td>
                     <td><b>{u.bonus_credits}</b></td>
                     <td>{u.lifetime_used}</td>
@@ -190,6 +206,13 @@ export default function Admin() {
           <h3 className="wide">{t("adm_quota_h")}</h3>
           <label>{t("adm_free_limit")}<input inputMode="numeric" value={limit} onChange={(e) => setLimit(e.target.value)} /></label>
           <p className="muted small wide">{t("adm_free_hint")}</p>
+          <h3 className="wide">{t("adm_files_h")}</h3>
+          <label>{t("adm_mb_basic")}<input inputMode="numeric" value={mbBasic} onChange={(e) => setMbBasic(e.target.value)} /></label>
+          <label>{t("adm_mb_approved")}<input inputMode="numeric" value={mbApproved} onChange={(e) => setMbApproved(e.target.value)} /></label>
+          <p className="muted small wide">{t("adm_files_hint")}</p>
+          <h3 className="wide">{t("adm_cost_h")}</h3>
+          <label>{t("adm_rate")}<input inputMode="numeric" value={rate} onChange={(e) => setRate(e.target.value)} /></label>
+          <p className="muted small wide">{t("adm_rate_hint")}</p>
           <h3 className="wide">{t("adm_contact_h")}</h3>
           <label>Email<input type="email" value={c.email} onChange={(e) => setC({ ...c, email: e.target.value })} /></label>
           <label>{t("phone")}<input value={c.phone} onChange={(e) => setC({ ...c, phone: e.target.value })} /></label>
@@ -200,18 +223,7 @@ export default function Admin() {
         </div>
       )}
 
-      {tab === "stats" && (
-        <div className="stack gap">
-          <div className="stats">
-            {stats && ([["users", stats.users], ["new_7d", stats.new_7d], ["analyses_today", stats.analyses_today], ["analyses_7d", stats.analyses_7d], ["analyses_total", stats.analyses_total], ["citations_total", stats.citations_total], ["bonus_outstanding", stats.bonus_outstanding], ["exhausted_today", stats.exhausted_today]] as const).map(([k, v]) => (
-              <div key={k} className="stat"><b>{v}</b><span>{t(`st_${k}` as "st_users")}</span></div>
-            ))}
-            {vs?.enabled && <><div className="stat"><b>{vs.total}</b><span>{t("visits_total")}</span></div><div className="stat"><b>{vs.today}</b><span>{t("visits_today")}</span></div></>}
-          </div>
-          {vs?.enabled && vs.countries && vs.countries.length > 0 && <div className="card"><h4>{t("visits_countries")}</h4><p>{vs.countries.map((x) => `${x.c}: ${x.n}`).join(" · ")}</p></div>}
-          {vs && !vs.enabled && <p className="muted small">{t("visits_off")}</p>}
-        </div>
-      )}
+      {tab === "stats" && <AdminStats />}
     </div>
   );
 }

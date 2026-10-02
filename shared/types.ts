@@ -89,6 +89,8 @@ export interface Quota {
   role: "user" | "admin";
   status: "active" | "suspended";
   unlimited: boolean;
+  approved: boolean;       // đã được quản trị viên xác nhận (hạn mức tệp cao hơn)
+  max_file_mb: number;     // dung lượng tệp tối đa theo hạng người dùng
   free_limit: number;
   used_today: number;
   free_left: number;
@@ -103,7 +105,11 @@ export type ApiErrorCode =
 export interface ApiError { error: ApiErrorCode; message?: string; quota?: Quota | null }
 
 export const PASS_SCORE = 60;
-export const MAX_FILE_BYTES = 10 * 1024 * 1024;
+/** Dung lượng tệp tuyệt đối tối đa (mức của người dùng đã xác nhận); mức cụ thể do quản trị viên đặt (Quota.max_file_mb). */
+export const MAX_FILE_BYTES = 15 * 1024 * 1024;
+export const DEFAULT_FILE_MB = { basic: 5, approved: 15 } as const;
+/** Giới hạn độ dài văn bản gửi AI theo hạng: máy chủ không thấy kích thước tệp nên giới hạn theo văn bản đã trích. */
 export const MAX_TEXT_CHARS = 400_000;
+export const MAX_TEXT_CHARS_BASIC = 150_000;
 export const MAX_ABSTRACT_CHARS = 20_000;
 export const MIN_ABSTRACT_WORDS = 40;

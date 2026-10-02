@@ -35,15 +35,18 @@ export async function requireUser(request: Request): Promise<AuthedUser | Respon
 
 export async function quotaOf(sb: SupabaseClient, userId: string): Promise<Quota | null> {
   // my_quota() dùng auth.uid(); với service_role tính trực tiếp.
-  const { data: p } = await sb.from("profiles").select("role,status,bonus_credits,lifetime_used").eq("id", userId).single();
+  const { data: p } = await sb.from("profiles").select("role,status,approved,bonus_credits,lifetime_used").eq("id", userId).single();
   if (!p) return null;
-  const { data: s } = await sb.from("app_settings").select("value").eq("key", "free_daily_limit").maybeSingle();
-  const lim = Number(s?.value ?? 2);
+  const { data: st } = await sb.from("app_settings").select("key,value").in("key", ["free_daily_limit", "file_limit_basic_mb", "file_limit_approved_mb"]);
+  const set = (k: string, d: number) => Number(st?.find((x) => x.key === k)?.value ?? d);
+  const lim = set("free_daily_limit", 2);
+  const approved = p.approved || p.role === "admin";
   const day = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
   const { data: u } = await sb.from("usage_daily").select("used").eq("user_id", userId).eq("day", day).maybeSingle();
   const used = u?.used ?? 0;
   return {
-    role: p.role, status: p.status, unlimited: p.role === "admin", free_limit: lim, used_today: used,
+    role: p.role, status: p.status, unlimited: p.role === "admin", approved,
+    max_file_mb: approved ? set("file_limit_approved_mb", 15) : set("file_limit_basic_mb", 5), free_limit: lim, used_today: used,
     free_left: Math.max(lim - used, 0), bonus: p.bonus_credits, lifetime_used: p.lifetime_used,
   };
 }

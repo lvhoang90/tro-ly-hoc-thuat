@@ -4,11 +4,12 @@ import { useApp } from "../ctx.tsx";
 import { analyze, ApiFailure } from "../lib/api.ts";
 import { ExtractFailure, extractText, OCR_MAX_PAGES, type Progress } from "../lib/extract.ts";
 import { detectLang } from "../../shared/lang.ts";
-import { MAX_ABSTRACT_CHARS, MAX_FILE_BYTES, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, type AnalysisResult } from "../../shared/types.ts";
+import { MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MAX_TEXT_CHARS_BASIC, MIN_ABSTRACT_WORDS, type AnalysisResult } from "../../shared/types.ts";
 import { QuotaBar, remaining } from "../components/Quota.tsx";
 import { ContactAdmin } from "../components/Chrome.tsx";
 import { Icon } from "../components/Icon.tsx";
 import ResultView from "../components/ResultView.tsx";
+import ProjectPicker, { type Project } from "../components/ProjectPicker.tsx";
 import CiteStep from "../components/CiteStep.tsx";
 import type { Key } from "../dict.ts";
 
@@ -24,6 +25,8 @@ export default function Workspace() {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
   const [abstract, setAbstract] = useState(() => store.get("tl-abstract"));
   const [project, setProject] = useState(() => store.get("tl-project"));
+  const [projectId, setProjectId] = useState(() => store.get("tl-project-id"));
+  const [abstractHash, setAbstractHash] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
   const [prog, setProg] = useState<Progress | null>(null);
@@ -41,12 +44,22 @@ export default function Workspace() {
 
   useEffect(() => { store.set("tl-abstract", abstract); }, [abstract]);
   useEffect(() => { store.set("tl-project", project); }, [project]);
+  useEffect(() => { store.set("tl-project-id", projectId); }, [projectId]);
+  // Mã băm của abstract (không lưu nội dung): dùng để gom lịch sử trích dẫn theo đề tài khi người dùng không lưu đề tài.
+  useEffect(() => {
+    const norm = abstract.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!norm || !crypto?.subtle) { setAbstractHash(""); return; }
+    void crypto.subtle.digest("SHA-256", new TextEncoder().encode(norm)).then((b) => setAbstractHash([...new Uint8Array(b)].slice(0, 8).map((x) => x.toString(16).padStart(2, "0")).join("")));
+  }, [abstract]);
   useEffect(() => {
     if (!busy) return;
     const id = setInterval(() => setPhase((p) => Math.min(p + 1, 3)), 9000);
     return () => clearInterval(id);
   }, [busy]);
 
+  const maxMb = quota?.max_file_mb ?? 5;
+  const approved = quota?.approved ?? false;
+  const textLimit = approved ? MAX_TEXT_CHARS : MAX_TEXT_CHARS_BASIC;
   const wc = words(abstract);
   const abstractOk = wc >= MIN_ABSTRACT_WORDS && abstract.length <= MAX_ABSTRACT_CHARS;
   // Bối cảnh học thuật người dùng đã khai báo: giúp AI chọn thuật ngữ và đánh giá theo đúng lĩnh vực.
@@ -70,15 +83,16 @@ export default function Workspace() {
     setReading(true);
     abort.current = new AbortController();
     try {
-      const r = await extractText(f, setProg, { ocr, signal: abort.current.signal });
-      if (r.text.length > MAX_TEXT_CHARS) { setErr(t("err_too_long")); return; }
+      const r = await extractText(f, setProg, { ocr, signal: abort.current.signal, maxBytes: maxMb * 1048576 });
+      if (r.text.length > textLimit) { setErr(approved ? t("err_too_long") : t("err_too_long_basic")); return; }
       const dl = detectLang(r.text);
       if (dl === "other") { setErr(t("err_unsupported_language")); return; }
       setFile(f); setText(r.text);
     } catch (e) {
       const code = e instanceof ExtractFailure ? e.code : "corrupt";
       if (code === "no_text" && !ocr && e instanceof ExtractFailure && e.kind === "pdf") setOcrFile(f); // đề nghị OCR
-      else if (code !== "cancelled") setErr(t(`err_file_${code}` as Key, { mb: MAX_FILE_BYTES / 1048576, n: OCR_MAX_PAGES }));
+      else if (code === "size") setErr(approved ? t("err_file_size", { mb: maxMb }) : t("err_file_size_basic", { mb: maxMb }));
+      else if (code !== "cancelled") setErr(t(`err_file_${code}` as Key, { mb: maxMb, n: OCR_MAX_PAGES }));
     } finally { setReading(false); }
   }
 
@@ -96,7 +110,8 @@ export default function Workspace() {
       if (e instanceof ApiFailure) {
         if (e.info.quota) setQuota(e.info.quota);
         if (e.info.error === "quota_exhausted") setNeedContact(true);
-        setErr(e.info.error === "ai_failed" && e.info.message ? e.info.message : t(`err_${e.info.error}` as Key));
+        setErr(e.info.error === "too_long" && e.info.message === "unapproved" ? t("err_too_long_basic")
+          : e.info.error === "ai_failed" && e.info.message ? e.info.message : t(`err_${e.info.error}` as Key));
       } else setErr(t("err_network"));
       void refresh();
     } finally { setBusy(false); }
@@ -124,6 +139,9 @@ export default function Workspace() {
         <div className="card stack">
           <h3>{t("abstract_h")}</h3>
           <p className="muted">{t("abstract_d")}</p>
+          <ProjectPicker title={project} abstract={abstract} projectId={projectId}
+            onPick={(p: Project | null) => { if (p) { setProjectId(p.id); setProject(p.title); setAbstract(p.abstract); } else { setProjectId(""); setProject(""); setAbstract(""); } }}
+            onSaved={(id, name) => { setProjectId(id); setProject(name); }} />
           <label>{t("project_label")}<input value={project} onChange={(e) => setProject(e.target.value)} maxLength={120} placeholder={t("project_ph")} /></label>
           <label>Abstract / Proposal
             <textarea rows={11} value={abstract} onChange={(e) => setAbstract(e.target.value)} placeholder={t("abstract_ph")} />
@@ -138,7 +156,8 @@ export default function Workspace() {
       {step === 2 && (
         <div className="card stack">
           <h3>{t("upload_h")}</h3>
-          <p className="muted">{t("upload_d", { mb: MAX_FILE_BYTES / 1048576 })}</p>
+          <p className="muted">{t("upload_d", { mb: maxMb })}</p>
+          <div className={`limit-note ${approved ? "ok" : "warn"}`}><Icon name={approved ? "checkCircle" : "info"} size={16} /> <span>{approved ? t("limit_approved", { mb: maxMb }) : t("limit_basic", { mb: maxMb })}</span></div>
           {out && !busy ? <ContactAdmin /> : (
             <>
               <div className={`drop ${drag ? "drag" : ""} ${file ? "has" : ""}`} role="button" tabIndex={0}
@@ -193,7 +212,7 @@ export default function Workspace() {
       )}
 
       {step === 4 && res && (
-        <CiteStep meta={res.meta} passages={res.passages.filter((p) => sel.has(p.id))} project={project}
+        <CiteStep meta={res.meta} passages={res.passages.filter((p) => sel.has(p.id))} ctx={{ score: res.score, projectId, abstractHash, abstractTitle: (project.trim() || abstract.trim().split(/\s+/).slice(0, 10).join(" ")).slice(0, 120) }}
           onBack={() => setStep(3)} onAnother={newDoc} onNewProject={reset} />
       )}
     </div>

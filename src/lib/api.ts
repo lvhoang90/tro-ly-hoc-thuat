@@ -25,8 +25,9 @@ export const extractDoc = (file: File) =>
   call<{ text: string }>("/api/extract-doc", { method: "POST", headers: { "content-type": "application/octet-stream" }, body: file });
 
 export interface VisitStats { enabled: boolean; total?: number; today?: number; days?: { d: string; n: number }[]; countries?: { c: string; n: number }[] }
-export async function visit(): Promise<VisitStats> {
+/** Ghi một lượt truy cập (mỗi phiên một lần) và trả thống kê; `days` là số ngày của chuỗi theo ngày. */
+export async function visit(days = 30): Promise<VisitStats> {
   let first = false;
   try { first = !sessionStorage.getItem("tl-visit"); if (first) sessionStorage.setItem("tl-visit", "1"); } catch { /* bỏ qua */ }
-  try { return await (await fetch("/api/visit", { method: first ? "POST" : "GET" })).json(); } catch { return { enabled: false }; }
+  try { return await (await fetch(`/api/visit?days=${days}`, { method: first ? "POST" : "GET" })).json(); } catch { return { enabled: false }; }
 }

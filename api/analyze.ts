@@ -2,10 +2,11 @@ import Anthropic from "@anthropic-ai/sdk";
 import { adminClient, fail, json, quotaOf, requireUser } from "./_lib/common.ts";
 import { SCHEMA, SYSTEM, userPrompt } from "./_lib/prompt.ts";
 import { recommend } from "./_lib/recommend.ts";
+import { costUsd } from "./_lib/pricing.ts";
 import { detectLang } from "../shared/lang.ts";
 import { locateQuote, prepare } from "../shared/quotes.ts";
 import {
-  MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, PASS_SCORE,
+  MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MAX_TEXT_CHARS_BASIC, MIN_ABSTRACT_WORDS, PASS_SCORE,
   type AnalysisResult, type Bi, type Passage, type SourceMeta,
 } from "../shared/types.ts";
 
@@ -29,7 +30,10 @@ export async function POST(request: Request): Promise<Response> {
   if (abstract.split(/\s+/).length < MIN_ABSTRACT_WORDS || abstract.length > MAX_ABSTRACT_CHARS)
     return fail("bad_request", 400, "Abstract/Proposal quá ngắn hoặc quá dài.");
   if (text.replace(/\[\[p\.\d+\]\]/g, "").trim().length < 400) return fail("no_text", 422);
-  if (text.length > MAX_TEXT_CHARS) return fail("too_long", 413);
+  // Người dùng chưa được quản trị viên xác nhận có hạn mức văn bản thấp hơn (tương ứng tệp tối đa 5 MB).
+  const pre = await quotaOf(auth.sb, auth.id);
+  const limit = pre?.approved ? MAX_TEXT_CHARS : MAX_TEXT_CHARS_BASIC;
+  if (text.length > limit) return fail("too_long", 413, pre?.approved ? undefined : "unapproved");
 
   // Chặn sớm tài liệu ngôn ngữ khác (chưa tốn lượt, chưa gọi AI).
   if (detectLang(text) === "other") return fail("unsupported_language", 422);
@@ -43,7 +47,14 @@ export async function POST(request: Request): Promise<Response> {
     return fail(c.reason === "suspended" ? "suspended" : "quota_exhausted", c.reason === "suspended" ? 403 : 402, undefined, q);
   }
   const source = c.source as string;
+  const logId = c.log_id as number;
   const refund = () => sb.rpc("refund_credit", { p_user: id, p_source: source });
+  // Ghi chi phí API thực tế (kể cả khi hoàn lượt vì AI lỗi: token đã tiêu thật).
+  const track = async (u: { input_tokens?: number; output_tokens?: number } | undefined, score: number | null) => {
+    if (!u || !logId) return;
+    const inT = u.input_tokens ?? 0, outT = u.output_tokens ?? 0;
+    await sb.rpc("record_usage", { p_log: logId, p_model: MODEL, p_in: inT, p_out: outT, p_cost: costUsd(MODEL, inT, outT), p_score: score });
+  };
 
   try {
     const client = new Anthropic();
@@ -55,13 +66,13 @@ export async function POST(request: Request): Promise<Response> {
       messages: [{ role: "user", content: userPrompt({ abstract, text, fileName: s(body.fileName) || "document", profile: s(body.profile).slice(0, 800) }) }],
     } as Anthropic.MessageCreateParamsNonStreaming);
 
-    if (msg.stop_reason === "refusal") { await refund(); return fail("ai_refused", 422); }
-    if (msg.stop_reason === "max_tokens") { await refund(); return fail("ai_failed", 502, "Phản hồi AI bị cắt giữa chừng."); }
+    if (msg.stop_reason === "refusal") { await track(msg.usage, null); await refund(); return fail("ai_refused", 422); }
+    if (msg.stop_reason === "max_tokens") { await track(msg.usage, null); await refund(); return fail("ai_failed", 502, "Phản hồi AI bị cắt giữa chừng."); }
     const raw = msg.content.find((b) => b.type === "text");
-    if (!raw || raw.type !== "text") { await refund(); return fail("ai_failed", 502); }
+    if (!raw || raw.type !== "text") { await track(msg.usage, null); await refund(); return fail("ai_failed", 502); }
     const r = JSON.parse(raw.text);
 
-    if (r.language !== "en" && r.language !== "vi") { await refund(); return fail("unsupported_language", 422); }
+    if (r.language !== "en" && r.language !== "vi") { await track(msg.usage, null); await refund(); return fail("unsupported_language", 422); }
 
     const b = r.breakdown;
     const breakdown = {
@@ -94,6 +105,7 @@ export async function POST(request: Request): Promise<Response> {
       pages: s(m.pages), doi: s(m.doi), url: s(m.url),
     };
 
+    await track(msg.usage, score);
     const recommendations = score < PASS_SCORE ? await recommend({ advice: bi(r.advice_vi, r.advice_en), queries: r.queries ?? [], keywords: (r.keywords ?? []).map(s).filter(Boolean), disciplines: r.disciplines ?? [] }) : null;
 
     const out: AnalysisResult = {
