@@ -466,6 +466,7 @@ const D = {
   foot_contact_pending: { vi: "Thông tin liên hệ đang được cập nhật.", en: "Contact details are being updated." },
   foot_contact_admin: { vi: "Quản trị viên: cập nhật tại Quản trị → Cài đặt.", en: "Administrators: set them under Admin → Settings." },
   foot_zalo: { vi: "Nhắn Zalo", en: "Message on Zalo" },
+  foot_vanthu: { vi: "Trợ lý văn thư", en: "Records Assistant" },
   foot_related: { vi: "Hệ sinh thái", en: "Ecosystem" },
   foot_designed: { vi: "Thiết kế và phát triển bởi tác giả.", en: "Designed and developed by the author." },
   foot_visits: { vi: "{n} lượt truy cập", en: "{n} visits" },

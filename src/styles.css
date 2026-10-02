@@ -327,8 +327,8 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .tip b { display: block; color: var(--muted); font-weight: 600; margin-bottom: .2rem; }
 .tip-row { display: flex; align-items: center; gap: .45rem; } .tip-row i { width: 12px; height: 3px; border-radius: 2px; flex: none; } .tip-row strong { font-size: .95rem; } .tip-row span { color: var(--muted); }
 .hbars { list-style: none; padding: 0; margin: .3rem 0 0; display: grid; gap: .5rem; }
-.hbars li { display: grid; grid-template-columns: minmax(90px, 34%) 1fr auto; align-items: center; gap: .6rem; padding: .15rem .25rem; border-radius: 8px; outline: none; } .hbars li.hot, .hbars li:focus-visible { background: color-mix(in srgb, var(--accent) 9%, transparent); }
-.hb-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: .84rem; } .hb-label small { color: var(--muted); margin-left: .35rem; }
+.hbars li { display: grid; grid-template-columns: minmax(110px, 38%) 1fr auto; align-items: center; gap: .6rem; padding: .15rem .25rem; border-radius: 8px; outline: none; } .hbars li.hot, .hbars li:focus-visible { background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.hb-label { white-space: normal; overflow-wrap: anywhere; line-height: 1.25; font-size: .84rem; } .hb-label small { color: var(--muted); margin-left: .35rem; }
 .hb-track { height: 16px; display: block; } .hb-bar { display: block; height: 16px; max-width: 100%; border-radius: 0 4px 4px 0; }
 .hb-val { font-size: .86rem; font-variant-numeric: tabular-nums; }
 .chart-empty { padding: 1.2rem 0; } .tview { max-height: 260px; overflow: auto; }

@@ -246,6 +246,7 @@ export function Footer() {
             {a.orcid && <li><a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noopener noreferrer"><span className="orcid-dot">iD</span> {a.orcid}</a></li>}
             {a.website && <li><a href={a.website} target="_blank" rel="noopener noreferrer"><Icon name="external" size={14} /> {a.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></li>}
             <li><a href={a.edufind} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={14} /> EduFind <small>{t("foot_related")}</small></a></li>
+            <li><a href={a.vanthu} target="_blank" rel="noopener noreferrer"><Icon name="file" size={14} /> {t("foot_vanthu")} <small>{t("foot_related")}</small></a></li>
           </ul>
         </section>
 
