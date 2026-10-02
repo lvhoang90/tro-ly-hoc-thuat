@@ -5,6 +5,7 @@ import { useApp } from "../ctx.tsx";
 import { APP } from "../lib/config.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
 import { Flag, Icon } from "./Icon.tsx";
+import { AuthorBadge } from "./AuthorCard.tsx";
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
   <img src="/favicon.svg" width={size} height={size} alt="" aria-hidden="true" />
@@ -219,8 +220,6 @@ export function Footer() {
   const { t, lang } = useI18n();
   const { contact, profile } = useApp();
   const a = APP.author;
-  const initials = a.name.split(/\s+/).map((w) => w[0]).slice(-2).join("");
-  const role = a.role[lang];
   const zalo = (contact?.zalo || contact?.phone || "").replace(/\D/g, "");
   const has = !!(contact && (contact.email || contact.phone || zalo));
   const note = lang === "vi" ? contact?.note_vi : contact?.note_en;
@@ -234,14 +233,7 @@ export function Footer() {
 
         <section className="sf-col" aria-label={t("author")}>
           <h5>{t("author")}</h5>
-          <div className="sf-author">
-            <span className="sf-mono" aria-hidden="true">{initials}</span>
-            <div>
-              <b>{a.name}</b>
-              <span>{a.org}</span>
-              {role && <span>{role}</span>}
-            </div>
-          </div>
+          <AuthorBadge />
           <ul className="sf-links">
             {a.orcid && <li><a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noopener noreferrer"><span className="orcid-dot">iD</span> {a.orcid}</a></li>}
             {a.website && <li><a href={a.website} target="_blank" rel="noopener noreferrer"><Icon name="external" size={14} /> {a.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></li>}
