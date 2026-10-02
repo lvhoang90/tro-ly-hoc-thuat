@@ -413,3 +413,98 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .sf-guide { color: #7dd3fc; font-size: .88rem; font-weight: 600; text-underline-offset: 3px; } .sf-guide:hover { color: #fff; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 .err-detail { display: block; margin-top: .4rem; font-size: .76rem; opacity: .85; word-break: break-word; font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+/* ===== Thương hiệu: tên ứng dụng ở đầu trang cùng phông chữ với chân trang ===== */
+.brand-text b { font-family: var(--serif); font-weight: 700; font-size: 1.1rem; letter-spacing: 0; }
+
+/* Thanh phần trăm hoàn thiện hồ sơ: nhãn nằm trong thẻ, không bị cắt */
+.meter { margin-bottom: 1.35rem; }
+
+/* ===== Điện thoại: ưu tiên nội dung chính (tên bài báo, tạp chí, đoạn trích), gọn các thành phần phụ ===== */
+@media (max-width: 640px) {
+  /* Đầu trang: một hàng thương hiệu + công cụ, hàng thứ hai là thanh điều hướng cuộn ngang; không dính để nhường chỗ nội dung */
+  .topbar { position: static; padding: .5rem 12px; gap: .35rem .5rem; }
+  .brand { flex: 1; min-width: 0; gap: .5rem; } .brand-text b { font-size: 1.02rem; white-space: nowrap; }
+  .top-actions { margin-left: 0; gap: .35rem; }
+  .flagseg { padding: 2px; gap: 2px; } .flagseg button { padding: .25rem .4rem; } .flagseg button span { display: none; }
+  .signout { padding: .4rem .55rem; } .signout .lbl { display: none; }
+  .icon-btn { width: 36px; height: 36px; }
+  .nav { order: 3; width: 100%; margin: 0; flex-wrap: nowrap; overflow-x: auto; gap: .15rem; scrollbar-width: none; } .nav::-webkit-scrollbar { display: none; }
+  .nav a { padding: .35rem .75rem; font-size: .88rem; white-space: nowrap; }
+
+  .main { padding: .6rem 12px 1.25rem; }
+  .page, .stack, .stack.gap { gap: .65rem; }
+  .card { padding: .8rem .9rem; border-radius: 12px; }
+  h2 { font-size: 1.3rem; } .page h2.serif, .page .between h2 { margin-bottom: .1rem; }
+
+  /* Các bước: chỉ bước hiện tại có chữ */
+  .stepper { gap: .35rem; flex-wrap: nowrap; }
+  .stepper li:not(.on) button { font-size: 0; gap: 0; padding: .3rem; } .stepper li:not(.on) button span { font-size: .78rem; }
+  .stepper button { white-space: nowrap; }
+
+  /* Kết quả: điểm và nhãn nằm cùng hàng, tiêu đề bài báo chiếm trọn chiều ngang */
+  .result-head { grid-template-columns: auto 1fr; gap: .45rem .9rem; align-items: center; justify-items: stretch; }
+  .result-head .grow { display: contents; }
+  .result-head .gauge { width: 104px; height: 104px; margin-bottom: 1rem; } .result-head .gauge svg { width: 104px; height: 104px; } .gauge-n b { font-size: 1.75rem; }
+  .result-head .verdict { grid-column: 2; justify-self: start; margin: 0; font-size: .7rem; letter-spacing: .02em; } .gauge-cap { display: none; } .result-head .gauge { margin-bottom: 0; }
+  .result-head h3, .result-head p { grid-column: 1 / -1; margin: 0; }
+  .result-head h3 { font-size: 1.12rem; line-height: 1.3; }
+  .criteria { gap: .5rem .75rem; grid-template-columns: repeat(3, 1fr); } .crit { font-size: .76rem; }
+  .toolbar { margin-top: .25rem; }
+
+  /* Khối nhận xét gọn hơn; bỏ số La Mã, xem trước tối đa 2 dòng */
+  .panel-head { padding: .65rem .8rem; gap: .6rem; } .panel-ico { width: 30px; height: 30px; } .panel-title small { display: none; } .panel-toggle .lbl { display: none; }
+  .panel-title b { font-size: 1.02rem; } .panel-title em { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.35; }
+  .panel-body { padding: .15rem .85rem .85rem; }
+  .decision { padding: .85rem .85rem 1rem; } .choice { padding: .7rem .8rem; min-height: 0; gap: .7rem; } .choice-ico { width: 38px; height: 38px; }
+
+  /* Bảng tạp chí thành thẻ: tên tạp chí dòng đầu, rồi ISSN, hạng, ghi chú */
+  .jtbl thead { display: none; } .jtbl, .jtbl tbody { display: block; }
+  .jtbl tr { display: grid; grid-template-columns: 1fr auto; gap: .15rem .6rem; align-items: center; padding: .6rem 0; border-bottom: 1px solid var(--line); }
+  .jtbl td { display: block; padding: 0; border: 0; }
+  .jtbl td:nth-child(1) { grid-column: 1 / -1; } .jtbl td:nth-child(2) { grid-column: 1; } .jtbl td:nth-child(3) { grid-column: 2; grid-row: 2; justify-self: end; } .jtbl td:nth-child(4) { grid-column: 1 / -1; }
+  .works li { padding: .55rem .7rem; }
+
+  /* Trang đầu: các bước thành lưới 2 cột */
+  .flow { grid-template-columns: 1fr 1fr; gap: .5rem; } .feat { padding: .75rem .8rem; }
+  .passage { padding: .65rem .75rem; }
+  .id-card { gap: .75rem; } .avatar { width: 56px; height: 56px; font-size: 1.15rem; }
+}
+
+@media (max-width: 640px) {
+  /* Đoạn trích: bớt chip, chữ trích đậm vừa phải, hai nút cùng một hàng */
+  .p-meta { gap: .25rem; margin-bottom: .25rem; } .p-meta .badge { font-size: .68rem; padding: .08rem .45rem; }
+  blockquote { font-size: .98rem; line-height: 1.5; } blockquote mark { line-height: 1.5; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+  .passages { gap: .5rem; } .why { font-size: .86rem; margin: 0; }
+  .btn.sm { padding: .32rem .6rem; font-size: .8rem; }
+  .q-list { gap: .45rem; } .passage .row { gap: .35rem; }
+
+  /* Lịch sử: tên bài báo là trọng tâm, nhãn mức phù hợp xuống dòng dưới */
+  .page > p.muted { font-size: .84rem; margin: 0; }
+  .src-head { display: grid; grid-template-columns: 1fr auto; gap: .25rem .5rem; align-items: start; }
+  .src-title { grid-column: 1; min-width: 0; font-family: var(--serif); font-size: 1.05rem; line-height: 1.3; align-items: flex-start; }
+  .src-head > .icon-btn { grid-column: 2; grid-row: 1; margin: 0; } .src-head > .fit { grid-column: 1 / -1; justify-self: start; }
+  .entry-controls { gap: .35rem .6rem; margin: .25rem 0; }
+  .topic-head { padding: .2rem 0; }
+
+  /* Hồ sơ: ảnh đại diện cạnh tên, huy hiệu và thanh hoàn thiện chiếm trọn chiều ngang */
+  .profile .id-card { display: grid; grid-template-columns: auto 1fr; gap: .15rem .8rem; align-items: center; }
+  .profile .id-main { display: contents; } .profile .avatar { grid-row: 1 / 3; align-self: center; }
+  .profile .id-main h2 { grid-column: 2; margin: 0; font-size: 1.12rem; line-height: 1.25; } .profile .id-main > p { grid-column: 2; margin: 0; font-size: .86rem; }
+  .profile .id-badges { grid-column: 1 / -1; margin-top: .45rem; } .profile .id-card .meter { grid-column: 1 / -1; margin-top: .3rem; }
+  .form-grid { gap: .65rem; } .form-grid h3 { margin: .4rem 0 0; }
+
+  /* Trang trích dẫn: ẩn chú giải dài ở khung chọn kiểu để kết quả lên sớm hơn */
+  .cite-side .muted.small { display: none; } .cite-side .csl .muted.small, .cite-side .style small { display: block; }
+  .cite-side { gap: .65rem; } .cite-out { font-size: .95rem; }
+}
+
+.flow > *, .features > * { min-width: 0; }
+@media (max-width: 400px) {
+  .flow { grid-template-columns: 1fr; }
+  .nav a { padding: .35rem .55rem; font-size: .84rem; }
+  .brand-text b { font-size: .98rem; }
+}
+@media (max-width: 640px) {
+  .visit-chip { font-size: .72rem; padding: .2rem .55rem; gap: .3rem; opacity: .9; }
+}

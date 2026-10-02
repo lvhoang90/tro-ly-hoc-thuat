@@ -20,7 +20,7 @@ export function Panel({ n, title, icon, accent, open, onToggle, preview, badge, 
           {!open && preview && <em>{preview}</em>}
         </span>
         {badge}
-        <span className="panel-toggle">{open ? t("collapse") : t("expand")}<Icon name="chevron" size={16} className="chev" /></span>
+        <span className="panel-toggle"><span className="lbl">{open ? t("collapse") : t("expand")}</span><Icon name="chevron" size={16} className="chev" /></span>
       </button>
       {open && <div className="panel-body">{children}</div>}
     </section>
