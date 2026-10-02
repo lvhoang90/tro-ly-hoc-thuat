@@ -7,7 +7,7 @@ Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác gi
 
 1. **Đăng ký + xác thực email** (Supabase Auth). Chưa xác thực thì không đăng nhập và không gọi được API.
 2. **Nhập Abstract/Proposal** (tối thiểu 40 từ). Đây là chuẩn để đo độ phù hợp.
-3. **Tải tài liệu** PDF/DOC/DOCX dưới 10 MB (được chứa ảnh). Văn bản được trích **ngay trên máy người dùng**; chỉ văn bản gửi lên.
+3. **Tải tài liệu** PDF/DOC/DOCX tối đa 5 MB (15 MB với tài khoản đã được quản trị viên xác nhận; được chứa ảnh). Văn bản được trích **ngay trên máy người dùng**; chỉ văn bản gửi lên.
 4. **AI đánh giá**: điểm 0-100 theo 5 tiêu chí (chủ đề 40, khái niệm 20, phương pháp 15, bằng chứng 15, cập nhật 10), tóm tắt, điểm phù hợp/hạn chế.
    - **≥ 60 điểm**: danh sách đoạn nên trích, xếp hạng và tô màu ưu tiên cao/trung bình/thấp, kèm số trang. Mỗi đoạn là nguyên văn đã **đối chiếu với văn bản gốc**; đoạn AI "bịa" bị loại.
    - **< 60 điểm**: gợi ý nên tìm gì thay thế, công trình tương tự (OpenAlex) và tạp chí đối chiếu với CSDL **EduFind**: AI chọn 1 đến 3 trong 28 lĩnh vực phù hợp với đề tài, gợi ý tạp chí quốc tế (hạng Q của SJR) và trong nước (điểm tối đa HĐGSNN), kèm liên kết đúng trang lĩnh vực.
@@ -71,7 +71,7 @@ Chạy cục bộ: `npm i && npm run dev` (giao diện). Để thử cả `/api`
 
 - PDF quét ảnh cần OCR trên máy người dùng (chậm hơn, độ chính xác phụ thuộc chất lượng bản quét). Hình, bảng biểu trong tài liệu không được phân tích, chỉ văn bản.
 - Kiểu CSL tải từ jsDelivr nên cần mạng; nếu CDN bị chặn, chọn một trong 9 kiểu có sẵn.
-- `.doc` cũ tối đa ~4 MB (giới hạn thân yêu cầu của Vercel); `.docx`/PDF tới 10 MB. Tài liệu quá 400.000 ký tự bị từ chối, yêu cầu tách phần.
+- `.doc` cũ tối đa ~4 MB (giới hạn thân yêu cầu của Vercel); `.docx`/PDF tới 5 MB hoặc 15 MB tùy tài khoản (chỉnh trong Quản trị → Cài đặt). Tài liệu quá 400.000 ký tự bị từ chối, yêu cầu tách phần.
 - Số trang của DOCX không xác định được (không có trang cố định); PDF thì có.
 - Siêu dữ liệu thư mục (tác giả, năm, DOI) do AI trích từ nội dung và có thể thiếu: người dùng được sửa trước khi sao chép. Hãy đối chiếu DOI với Crossref khi trích dẫn chính thức.
 - Điểm số là đánh giá hỗ trợ, không thay thế phán đoán của nhà nghiên cứu.

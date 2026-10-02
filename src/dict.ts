@@ -28,7 +28,7 @@ const D = {
   flow1: { vi: "Nhập Abstract/Proposal", en: "Enter your abstract" },
   flow1d: { vi: "Mô tả nghiên cứu của bạn", en: "Describe your own study" },
   flow2: { vi: "Tải tài liệu", en: "Upload a source" },
-  flow2d: { vi: "PDF, DOC, DOCX dưới 10 MB", en: "PDF, DOC, DOCX under 10 MB" },
+  flow2d: { vi: "PDF, DOC, DOCX tối đa 5 MB (15 MB nếu đã xác nhận)", en: "PDF, DOC, DOCX up to 5 MB (15 MB if verified)" },
   flow3: { vi: "Xem đánh giá", en: "Review the fit" },
   flow3d: { vi: "Điểm, tóm tắt, đoạn nên trích", en: "Score, summary, passages to cite" },
   flow4: { vi: "Sao chép trích dẫn", en: "Copy the citation" },
