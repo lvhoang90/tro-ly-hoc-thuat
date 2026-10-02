@@ -496,7 +496,7 @@ const D = {
   foot_contact_admin: { vi: "Quản trị viên: cập nhật tại Quản trị → Cài đặt.", en: "Administrators: set them under Admin → Settings." },
   foot_zalo: { vi: "Nhắn Zalo", en: "Message on Zalo" },
   foot_guide: { vi: "Hướng dẫn sử dụng", en: "User guide" },
-  foot_vanthu: { vi: "Trợ lý văn thư (Mây)", en: "Document Assistant (Mary)" },
+  foot_vanthu: { vi: "Trợ lý văn thư Mây", en: "Mary, Document Assistant" },
   eco_title: { vi: "Hệ sinh thái ISA cho người làm khoa học", en: "ISA ecosystem for researchers" },
   eco_1: { vi: "Chọn tạp chí", en: "Choose a journal" },
   eco_1d: { vi: "EduFind: điểm Hội đồng Giáo sư Nhà nước, Scopus, Q1–Q4", en: "EduFind: State Council scores, Scopus, Q1–Q4" },
