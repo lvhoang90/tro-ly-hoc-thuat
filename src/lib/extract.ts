@@ -3,9 +3,10 @@
 // và bảo đảm hệ thống không lưu tài liệu. PDF: pdf.js (Apache-2.0). DOCX: mammoth (BSD-2). DOC: máy chủ (word-extractor, MIT).
 import { MAX_FILE_BYTES } from "../../shared/types.ts";
 import { extractDoc } from "./api.ts";
+import { classifyReadError, errorDetail } from "./extract-errors.ts";
 
-export type ExtractError = "type" | "size" | "empty" | "no_text" | "corrupt" | "ocr_too_long" | "ocr_failed" | "cancelled";
-export class ExtractFailure extends Error { constructor(public code: ExtractError, public kind?: Kind) { super(code); } }
+export type ExtractError = "type" | "size" | "empty" | "no_text" | "corrupt" | "password" | "read" | "engine" | "ocr_too_long" | "ocr_failed" | "cancelled";
+export class ExtractFailure extends Error { constructor(public code: ExtractError, public kind?: Kind, public detail?: string) { super(code); } }
 
 /** OCR (tesseract.js, Apache-2.0) chạy trong trình duyệt, chỉ khi người dùng đồng ý; mô hình ngôn ngữ tải từ CDN và được trình duyệt lưu đệm. */
 export const OCR_MAX_PAGES = 60;
@@ -14,10 +15,24 @@ export interface Progress { done: number; total: number; phase: "text" | "ocr" |
 
 export type Kind = "pdf" | "docx" | "doc";
 
+/** Đọc byte của tệp; trên iOS, `arrayBuffer()` đôi khi lỗi với tệp ở iCloud/Drive nên thử thêm FileReader. */
+async function readBytes(blob: Blob): Promise<ArrayBuffer> {
+  try { return await blob.arrayBuffer(); } catch (first) {
+    try {
+      return await new Promise<ArrayBuffer>((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result as ArrayBuffer);
+        r.onerror = () => rej(r.error ?? first);
+        r.readAsArrayBuffer(blob);
+      });
+    } catch (e) { console.error("read failed", e); throw new ExtractFailure("read", undefined, errorDetail(e)); }
+  }
+}
+
 async function sniff(file: File): Promise<Kind> {
   const ext = file.name.split(".").pop()?.toLowerCase();
   if (!ext || !["pdf", "doc", "docx"].includes(ext)) throw new ExtractFailure("type");
-  const h = new Uint8Array(await file.slice(0, 8).arrayBuffer());
+  const h = new Uint8Array(await readBytes(file.slice(0, 8)));
   const is = (...b: number[]) => b.every((x, i) => h[i] === x);
   if (ext === "pdf" && is(0x25, 0x50, 0x44, 0x46)) return "pdf";
   if (ext === "docx" && is(0x50, 0x4b)) return "docx";
@@ -25,11 +40,21 @@ async function sniff(file: File): Promise<Kind> {
   throw new ExtractFailure("type"); // đuôi tệp không khớp nội dung
 }
 
+function needsMainThreadPdf(): boolean {
+  try {
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    return ios || new URLSearchParams(location.search).get("pdfworker") === "main";
+  } catch { return false; }
+}
+
 async function pdfText(buf: ArrayBuffer, onProgress: (p: Progress) => void, ocr: boolean, signal?: AbortSignal): Promise<string> {
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const worker = (await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url")).default;
   pdfjs.GlobalWorkerOptions.workerSrc = worker;
-  const task = pdfjs.getDocument({ data: new Uint8Array(buf) });
+  // iOS (mọi trình duyệt trên iPhone/iPad dùng WebKit) có thể không khởi động được Web Worker của pdf.js: chạy bộ đọc ngay trên luồng chính.
+  // pdf.js ghi nhớ kết quả khởi tạo worker nên phải chọn cách chạy trước khi mở tệp. Thêm `?pdfworker=main` vào địa chỉ để thử cách này trên thiết bị khác.
+  if (needsMainThreadPdf()) (globalThis as { pdfjsWorker?: unknown }).pdfjsWorker = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs");
+  const task = pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)) });
   const doc = await task.promise;
   const out: string[] = [];
   const n = doc.numPages;
@@ -88,13 +113,13 @@ export async function extractText(file: File, onProgress: (p: Progress) => void 
   const kind = await sniff(file);
   let text = "";
   try {
-    if (kind === "pdf") text = await pdfText(await file.arrayBuffer(), onProgress, !!opts.ocr, opts.signal);
-    else if (kind === "docx") text = await docxText(await file.arrayBuffer());
+    if (kind === "pdf") text = await pdfText(await readBytes(file), onProgress, !!opts.ocr, opts.signal);
+    else if (kind === "docx") text = await docxText(await readBytes(file));
     else text = (await extractDoc(file)).text;
   } catch (e) {
     if (e instanceof ExtractFailure) throw e;
     console.error("extract failed", e);
-    throw new ExtractFailure("corrupt");
+    throw new ExtractFailure(classifyReadError(e), kind, errorDetail(e));
   }
   text = text.replace(/\u0000/g, "").replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
   if (text.replace(/\[\[p\.\d+\]\]/g, "").trim().length < 400) throw new ExtractFailure("no_text", kind); // PDF quét ảnh, không có lớp chữ
