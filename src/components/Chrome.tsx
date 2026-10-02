@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import type { Lang } from "../../shared/types.ts";
 import { useApp } from "../ctx.tsx";
-import { APP } from "../lib/config.ts";
+import { APP, withUtm } from "../lib/config.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
 import { Flag, Icon } from "./Icon.tsx";
 import { AuthorBadge } from "./AuthorCard.tsx";
@@ -238,8 +238,8 @@ export function Footer() {
           <ul className="sf-links">
             {a.orcid && <li><a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noopener noreferrer"><span className="orcid-dot">iD</span> {a.orcid}</a></li>}
             {a.website && <li><a href={a.website} target="_blank" rel="noopener noreferrer"><Icon name="external" size={14} /> {a.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></li>}
-            <li><a href={a.edufind} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={14} /> EduFind <small>{t("foot_related")}</small></a></li>
-            <li><a href={a.vanthu} target="_blank" rel="noopener noreferrer"><Icon name="file" size={14} /> {t("foot_vanthu")} <small>{t("foot_related")}</small></a></li>
+            <li><a href={withUtm(a.edufind)} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={14} /> EduFind <small>{t("foot_related")}</small></a></li>
+            <li><a href={withUtm(a.vanthu)} target="_blank" rel="noopener noreferrer"><Icon name="file" size={14} /> {t("foot_vanthu")} <small>{t("foot_related")}</small></a></li>
           </ul>
         </section>
 
@@ -255,6 +255,15 @@ export function Footer() {
           {note && <p className="sf-muted">{note}</p>}
         </section>
       </div>
+
+      <nav className="sf-eco" aria-label={t("eco_title")}>
+        <h2 className="sf-h">{t("eco_title")}</h2>
+        <ol>
+          <li><a href={withUtm(a.ecoEdufind)} target="_blank" rel="noopener noreferrer"><small>1. {t("eco_1")}</small><b>EduFind</b><span>{t("eco_1d")}</span></a></li>
+          <li className="self"><a href="/" aria-current="page"><small>2. {t("eco_2")}</small><b>{APP.name[lang]}</b><span>{t("eco_2d")}</span></a></li>
+          <li><a href={withUtm(a.vanthu)} target="_blank" rel="noopener noreferrer"><small>3. {t("eco_3")}</small><b>{t("foot_vanthu")}</b><span>{t("eco_3d")}</span></a></li>
+        </ol>
+      </nav>
 
       <div className="sf-bottom">
         <div className="sf-legal">

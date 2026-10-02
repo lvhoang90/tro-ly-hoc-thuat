@@ -21,8 +21,13 @@ export const APP = {
     website: "https://isavietnam.app/",
     edufind: "https://edufind.isavn.edu.vn/",
     vanthu: "https://trolyvanthu.isavn.edu.vn/",
+    // Hệ sinh thái ISA: ba bước nối tiếp (chọn tạp chí, đọc và trích dẫn, chuẩn hóa thể thức). Đồng bộ với trolyvanthu.isavn.edu.vn/he-sinh-thai.
+    ecoEdufind: "https://edufind.isavn.edu.vn/giao-duc/",
   },
 };
 
 export const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 export const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+
+/** Thêm tham số theo dõi nguồn truy cập cho liên kết chéo giữa các ứng dụng ISA. */
+export const withUtm = (url: string, campaign = "footer") => { try { const u = new URL(url); u.searchParams.set("utm_source", "tro-ly-hoc-thuat"); u.searchParams.set("utm_medium", "ecosystem"); u.searchParams.set("utm_campaign", campaign); return u.toString(); } catch { return url; } };
