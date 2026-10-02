@@ -42,7 +42,7 @@ export default function App() {
       <div className="shell">
         <Header route={route} go={setRoute} />
         <main className="main">{body}</main>
-        <Footer />
+        {(ready || !configured) && <Footer />}
       </div>
       <VisitChip />
       <ScrollTop />

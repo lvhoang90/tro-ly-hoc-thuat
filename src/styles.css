@@ -369,7 +369,7 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .sf-inner { max-width: 1080px; margin: 0 auto; padding: 2.2rem 16px 1.6rem; display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 2.2rem; }
 .sf-brand .sf-logo { display: flex; gap: .75rem; align-items: center; } .sf-logo b { display: block; color: #eef2fb; font-family: var(--serif); font-size: 1.12rem; line-height: 1.2; } .sf-logo span { color: #7f8aa3; font-size: .8rem; }
 .sf-brand p { margin: .8rem 0 0; font-size: .9rem; line-height: 1.65; max-width: 46ch; }
-.site-footer h5 { margin: 0 0 .7rem; font-family: var(--font); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #7f8aa3; font-weight: 700; }
+.site-footer .sf-h { margin: 0 0 .7rem; font-family: var(--font); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #7f8aa3; font-weight: 700; }
 .sf-author { display: flex; gap: .75rem; align-items: center; margin-bottom: .7rem; } .sf-author b { display: block; color: #eef2fb; font-size: .98rem; } .sf-author span:not(.sf-mono) { display: block; font-size: .82rem; color: #93a0ba; line-height: 1.4; }
 .sf-mono { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-weight: 700; color: #eef2fb; background: radial-gradient(circle at 30% 25%, #1c2a52, #0e1630); border: 1px solid rgba(148, 163, 184, .35); box-shadow: 0 0 0 3px rgba(56, 189, 248, .12); }
 .sf-links { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; font-size: .86rem; }
@@ -410,3 +410,5 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .am-h { margin: 1.2rem 0 .4rem; font-family: var(--font); font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
 .am-links { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: .45rem; } .am-links a { display: inline-flex; align-items: center; gap: .35rem; padding: .3rem .75rem; border: 1px solid var(--line); border-radius: 999px; color: var(--accent); text-decoration: none; font-size: .86rem; font-weight: 600; } .am-links a:hover { border-color: var(--accent); }
 @media (max-width: 480px) { .am-head { flex-direction: column; align-items: flex-start; padding-right: 0; margin-top: 1.4rem; } .am-head img { width: 96px; height: 96px; } }
+.sf-guide { color: #7dd3fc; font-size: .88rem; font-weight: 600; text-underline-offset: 3px; } .sf-guide:hover { color: #fff; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
