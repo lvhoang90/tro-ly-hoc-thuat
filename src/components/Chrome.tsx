@@ -71,7 +71,7 @@ export function Header({ route, go }: { route: Route; go: (r: Route) => void }) 
       <div className="top-actions">
         <LangSwitch />
         <ThemeToggle />
-        {session && <button className="btn ghost sm" onClick={signOut}>{t("sign_out")}</button>}
+        {session && <button className="btn ghost sm signout" onClick={signOut} title={t("sign_out")}><Icon name="logout" size={16} /><span className="lbl">{t("sign_out")}</span></button>}
       </div>
     </header>
   );

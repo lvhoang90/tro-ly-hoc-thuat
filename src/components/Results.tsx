@@ -139,7 +139,7 @@ export function RecoJournals({ rec }: { rec: Reco }) {
     <div className="stack">
       {rec.journals.length === 0 ? <p className="muted">{t("reco_none")}</p> : (
         <div className="table-wrap">
-          <table className="tbl">
+          <table className="tbl jtbl">
             <thead><tr><th>{t("journal")}</th><th>ISSN</th><th>{t("rank")}</th><th>{t("note")}</th></tr></thead>
             <tbody>
               {rec.journals.map((j) => (
