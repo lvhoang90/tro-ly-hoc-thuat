@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type DragEvent } from "react";
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { analyze, ApiFailure } from "../lib/api.ts";
-import { ExtractFailure, extractText } from "../lib/extract.ts";
+import { ExtractFailure, extractText, OCR_MAX_PAGES, type Progress } from "../lib/extract.ts";
 import { detectLang } from "../../shared/lang.ts";
 import { MAX_ABSTRACT_CHARS, MAX_FILE_BYTES, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, PASS_SCORE, type AnalysisResult } from "../../shared/types.ts";
 import { QuotaBar, remaining } from "../components/Quota.tsx";
@@ -25,7 +25,9 @@ export default function Workspace() {
   const [project, setProject] = useState(() => store.get("tl-project"));
   const [file, setFile] = useState<File | null>(null);
   const [text, setText] = useState("");
-  const [prog, setProg] = useState(0);
+  const [prog, setProg] = useState<Progress | null>(null);
+  const [ocrFile, setOcrFile] = useState<File | null>(null);
+  const abort = useRef<AbortController | null>(null);
   const [reading, setReading] = useState(false);
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState(0);
@@ -49,19 +51,21 @@ export default function Workspace() {
   const left = remaining(quota);
   const out = quota != null && left <= 0;
 
-  async function pick(f: File | undefined | null) {
+  async function pick(f: File | undefined | null, ocr = false) {
     if (!f) return;
-    setErr(""); setFile(null); setText(""); setProg(0); setNeedContact(false);
+    setErr(""); setFile(null); setText(""); setProg(null); setNeedContact(false); setOcrFile(null);
     setReading(true);
+    abort.current = new AbortController();
     try {
-      const r = await extractText(f, setProg);
+      const r = await extractText(f, setProg, { ocr, signal: abort.current.signal });
       if (r.text.length > MAX_TEXT_CHARS) { setErr(t("err_too_long")); return; }
       const dl = detectLang(r.text);
       if (dl === "other") { setErr(t("err_unsupported_language")); return; }
       setFile(f); setText(r.text);
     } catch (e) {
       const code = e instanceof ExtractFailure ? e.code : "corrupt";
-      setErr(t(`err_file_${code}` as Key, { mb: MAX_FILE_BYTES / 1048576 }));
+      if (code === "no_text" && !ocr && e instanceof ExtractFailure && e.kind === "pdf") setOcrFile(f); // đề nghị OCR
+      else if (code !== "cancelled") setErr(t(`err_file_${code}` as Key, { mb: MAX_FILE_BYTES / 1048576, n: OCR_MAX_PAGES }));
     } finally { setReading(false); }
   }
 
@@ -130,7 +134,11 @@ export default function Workspace() {
                 <input ref={input} type="file" hidden accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                   onChange={(e) => { void pick(e.target.files?.[0]); e.target.value = ""; }} />
                 {reading ? (
-                  <div><b>{t("reading")}</b><div className="bar"><div style={{ width: `${Math.max(5, prog * 100)}%` }} /></div></div>
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <b>{prog?.phase === "model" ? t("ocr_model") : prog?.phase === "ocr" ? t("ocr_running", { a: prog.done, b: prog.total }) : t("reading")}</b>
+                    <div className="bar"><div style={{ width: `${Math.max(5, prog ? (prog.done / Math.max(prog.total, 1)) * 100 : 0)}%` }} /></div>
+                    {prog && prog.phase !== "text" && <button className="btn sm" onClick={() => abort.current?.abort()}>{t("cancel")}</button>}
+                  </div>
                 ) : file ? (
                   <div><b>📄 {file.name}</b><div className="muted small">{(file.size / 1048576).toFixed(2)} MB · {t("chars", { n: text.length.toLocaleString() })}</div><div className="small">{t("replace_file")}</div></div>
                 ) : (
@@ -139,6 +147,14 @@ export default function Workspace() {
               </div>
               <p className="muted small">🔒 {t("privacy_note")}</p>
             </>
+          )}
+          {ocrFile && !reading && (
+            <div className="card inner warnbox">
+              <h4>{t("ocr_title")}</h4>
+              <p className="small">{t("ocr_body", { n: OCR_MAX_PAGES })}</p>
+              <div className="row wrap"><button className="btn primary sm" onClick={() => void pick(ocrFile, true)}>{t("ocr_run")}</button>
+                <button className="btn sm" onClick={() => setOcrFile(null)}>{t("cancel")}</button></div>
+            </div>
           )}
           {err && <div className="err box" role="alert">{err}</div>}
           {needContact && <ContactAdmin />}

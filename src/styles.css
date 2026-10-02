@@ -29,6 +29,7 @@ h1 { font-size: clamp(1.9rem, 4.2vw, 3rem); } h2 { font-size: 1.5rem; } h3 { fon
 p { margin: 0 0 .75rem; } ul { padding-left: 1.2rem; margin: .25rem 0 .75rem; }
 .muted { color: var(--muted); } .small { font-size: .85rem; } .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
 .err { color: var(--bad); } .ok { color: var(--good); } .warn { color: var(--warn); }
+.warnbox { border: 1px solid var(--warn); }
 .box.err { border: 1px solid var(--bad); border-radius: 10px; padding: .75rem 1rem; background: color-mix(in srgb, var(--bad) 10%, transparent); }
 .bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 .shell { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
@@ -176,3 +177,6 @@ blockquote { margin: .25rem 0 .4rem; padding: 0; font-family: Georgia, "Times Ne
   .flow, .features, .form-grid { grid-template-columns: 1fr; } .brand-text small { display: none; } .card { padding: 1rem; }
 }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+.csl { margin-top: .5rem; } .csl-list { list-style: none; padding: 0; margin: 0; max-height: 240px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
+.csl-list button { display: flex; width: 100%; justify-content: space-between; gap: .75rem; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--text); padding: .45rem .75rem; font: inherit; font-size: .88rem; cursor: pointer; }
+.csl-list button:hover, .csl-list button.on { background: color-mix(in srgb, var(--accent) 12%, transparent); } .csl-list small { color: var(--muted); white-space: nowrap; }

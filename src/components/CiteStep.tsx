@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { copyRich } from "../lib/clipboard.ts";
-import { STYLES, formatCitation, isNumbered, toHtml, toPlain, type StyleId } from "../../shared/citation.ts";
+import { STYLES, formatCitation, isNumbered, toHtml, toPlain, type Citation, type StyleId } from "../../shared/citation.ts";
+import { CSL_FORMAT, formatCsl, loadCslIndex, type CslEntry } from "../lib/csl.ts";
 import type { Author, Lang, Passage, SourceMeta, SourceType } from "../../shared/types.ts";
 
 const TYPES: SourceType[] = ["article", "book", "chapter", "conference", "thesis", "report", "web"];
@@ -26,31 +27,88 @@ function AuthorsEditor({ value, onChange }: { value: Author[]; onChange: (a: Aut
   );
 }
 
+function CslPicker({ value, onPick }: { value: string; onPick: (id: string) => void }) {
+  const { t } = useI18n();
+  const [list, setList] = useState<CslEntry[] | null>(null);
+  const [q, setQ] = useState("");
+  const [open, setOpen] = useState(!!value);
+  const [fail, setFail] = useState(false);
+  useEffect(() => { if (open && !list) loadCslIndex().then(setList).catch(() => setFail(true)); }, [open, list]);
+  const shown = useMemo(() => {
+    if (!list) return [];
+    const k = q.trim().toLowerCase();
+    return (k ? list.filter((x) => x.title.toLowerCase().includes(k) || x.id.includes(k)) : list.filter((x) => !x.dependent)).slice(0, 40);
+  }, [list, q]);
+  const cur = list?.find((x) => x.id === value);
+  return (
+    <div className="csl">
+      <button className="btn sm" onClick={() => setOpen(!open)} aria-expanded={open}>{t("csl_more")} {open ? "▴" : "▾"}</button>
+      {open && (
+        <div className="stack">
+          <p className="muted small">{t("csl_hint")}</p>
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("csl_search")} aria-label={t("csl_search")} />
+          {fail && <p className="err small">{t("csl_fail")}</p>}
+          {!list && !fail && <p className="muted small">…</p>}
+          <ul className="csl-list">
+            {shown.map((x) => (
+              <li key={x.id}><button className={x.id === value ? "on" : ""} onClick={() => onPick(x.id)}>
+                <span>{x.title}</span><small>{CSL_FORMAT[x.format] ?? ""}</small></button></li>
+            ))}
+            {list && shown.length === 0 && <li className="muted small">{t("reco_none")}</li>}
+          </ul>
+          {cur && <p className="small">{t("csl_selected")}: <b>{cur.title}</b> <span className="badge">{CSL_FORMAT[cur.format]}</span></p>}
+          <p className="muted small">{t("csl_credit")}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function CiteStep({ meta: initial, passages, project, onBack }: {
   meta: SourceMeta; passages: Passage[]; project: string; onBack: () => void;
 }) {
   const { t, lang: ui } = useI18n();
   const { toast, session } = useApp();
   const [meta, setMeta] = useState<SourceMeta>(initial);
-  const [style, setStyle] = useState<StyleId>("apa");
+  const [style, setStyle] = useState<string>("apa");
+  const [cslId, setCslId] = useState("");
+  const isCsl = style === "csl";
+  const [cslRes, setCslRes] = useState<{ base: Citation; per: Record<string, string> } | null>(null);
+  const [cslBusy, setCslBusy] = useState(false);
+  const [cslErr, setCslErr] = useState(false);
   const [cl, setCl] = useState<Lang>(ui);
   const [pages, setPages] = useState<Record<string, string>>(() => Object.fromEntries(passages.map((p) => [p.id, p.page])));
   const saved = useRef(new Set<string>());
   const [open, setOpen] = useState(!initial.title || !initial.authors.length || !initial.year);
 
   const m = (k: keyof SourceMeta, v: string) => setMeta({ ...meta, [k]: v });
-  const base = useMemo(() => formatCitation(meta, { style, lang: cl }), [meta, style, cl]);
-  const items = useMemo(() => passages.map((p) => ({ p, c: formatCitation(meta, { style, lang: cl, page: pages[p.id] }) })), [passages, meta, style, cl, pages]);
-  const numbered = isNumbered(style);
+  useEffect(() => {
+    if (!isCsl || !cslId) { setCslRes(null); return; }
+    let live = true;
+    setCslBusy(true); setCslErr(false);
+    const id = setTimeout(() => {
+      formatCsl(meta, cslId, cl, pages).then((r) => { if (live) setCslRes({ base: { reference: r.reference, inText: r.inText }, per: r.perPage }); })
+        .catch(() => { if (live) { setCslRes(null); setCslErr(true); } })
+        .finally(() => { if (live) setCslBusy(false); });
+    }, 250);
+    return () => { live = false; clearTimeout(id); };
+  }, [isCsl, cslId, meta, cl, pages]);
+
+  const base: Citation = useMemo(() => isCsl ? (cslRes?.base ?? { reference: "", inText: "" }) : formatCitation(meta, { style: style as StyleId, lang: cl }), [meta, style, cl, isCsl, cslRes]);
+  const items = useMemo(() => passages.map((p) => ({ p, c: isCsl ? { reference: base.reference, inText: cslRes?.per[p.id] ?? base.inText } : formatCitation(meta, { style: style as StyleId, lang: cl, page: pages[p.id] }) })),
+    [passages, meta, style, cl, pages, isCsl, cslRes, base]);
+  const numbered = !isCsl && isNumbered(style as StyleId);
   const noInText = style === "bibtex" || style === "ris";
+  const styleKey = isCsl ? `csl:${cslId}` : style;
+  const noRef = isCsl && !base.reference;
   const cite = (it?: { p: Passage; c: ReturnType<typeof formatCitation> }) => it ? it.c.inText : base.inText;
 
   async function record(kind: string, ref: string, inText: string, quote: string, page: string, priority: string) {
-    const key = [style, cl, ref, inText, quote].join("|");
+    const key = [styleKey, cl, ref, inText, quote].join("|");
     if (saved.current.has(key) || !session) return;
     saved.current.add(key);
     const { error } = await supabase.from("citations").insert({
-      user_id: session.user.id, style, cite_lang: cl, reference: toPlain(ref), in_text: toPlain(inText), quote, page, priority, project, source: meta,
+      user_id: session.user.id, style: styleKey, cite_lang: cl, reference: toPlain(ref), in_text: toPlain(inText), quote, page, priority, project, source: meta,
     });
     if (error) { saved.current.delete(key); toast(error.message, "err"); }
     void kind;
@@ -102,6 +160,7 @@ export default function CiteStep({ meta: initial, passages, project, onBack }: {
             </button>
           ))}
         </div>
+        <CslPicker value={isCsl ? cslId : ""} onPick={(id) => { setCslId(id); setStyle("csl"); }} />
         {cl === "en" && ui === "vi" && <p className="muted small">{t("cl_en_note")}</p>}
       </div>
 
@@ -135,8 +194,11 @@ export default function CiteStep({ meta: initial, passages, project, onBack }: {
       <div className="card">
         <div className="between">
           <h3>{t("reference_entry")}</h3>
-          <button className="btn primary sm" onClick={copyRef}>{t("copy")}</button>
+          <button className="btn primary sm" onClick={copyRef} disabled={noRef}>{t("copy")}</button>
         </div>
+        {cslBusy && <p className="muted small">…</p>}
+        {cslErr && <p className="err small">{t("csl_fail")}</p>}
+        {isCsl && !cslId && <p className="muted">{t("csl_choose")}</p>}
         <pre className={`cite-out ${noInText ? "code" : ""}`} dangerouslySetInnerHTML={{ __html: toHtml(base.reference) }} />
         {!noInText && (
           <div className="between top">

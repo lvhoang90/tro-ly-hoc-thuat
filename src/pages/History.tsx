@@ -50,7 +50,7 @@ export default function History() {
         <ul className="hist">
           {shown.map((r) => (
             <li key={r.id} className="card">
-              <div className="between"><span className="muted small">{new Date(r.created_at).toLocaleString()} · <b>{STYLES.find((s) => s.id === r.style)?.label ?? r.style}</b>{r.project ? ` · ${r.project}` : ""}</span>
+              <div className="between"><span className="muted small">{new Date(r.created_at).toLocaleString()} · <b>{STYLES.find((s) => s.id === r.style)?.label ?? (r.style.startsWith("csl:") ? `CSL · ${r.style.slice(4)}` : r.style)}</b>{r.project ? ` · ${r.project}` : ""}</span>
                 <button className="icon-btn" aria-label={t("delete")} onClick={() => del(r.id)}>🗑</button></div>
               {r.quote && <blockquote>“{r.quote}”{r.page && <small className="muted"> ({t("page")} {r.page})</small>}</blockquote>}
               <pre className="cite-out">{r.reference}</pre>

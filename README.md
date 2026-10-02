@@ -35,7 +35,11 @@ Vì sao trích văn bản ở trình duyệt: **tiết kiệm băng thông** (v�
 ## Mã nguồn mở đang dùng (xem `THIRD_PARTY_NOTICES.md`)
 
 React, Vite, TypeScript, supabase-js, @anthropic-ai/sdk, **pdf.js** (Apache-2.0), **mammoth** (BSD-2), **word-extractor** (MIT); dữ liệu **OpenAlex** (CC0).
-Đã cân nhắc và để dành cho giai đoạn sau: **tesseract.js** (Apache-2.0, OCR PDF quét ảnh), **citeproc-js + kho CSL** (CSL-styles CC BY-SA, hàng nghìn kiểu trích dẫn), **Crossref API** (tự điền DOI/siêu dữ liệu).
+**Giai đoạn 2**: **tesseract.js** (Apache-2.0) OCR PDF quét ảnh ngay trên trình duyệt; **citeproc-js** (CPAL-1.0 hoặc AGPL-1.0, dùng theo CPAL) + kho **CSL** (CC BY-SA 3.0) cho hơn 10.000 kiểu trích dẫn của tạp chí và trường. Để dành: **Crossref API** (tự điền DOI/siêu dữ liệu).
+
+### OCR và kho CSL (giai đoạn 2)
+- **OCR**: khi PDF không có lớp chữ, hệ thống đề nghị OCR (Việt + Anh) chạy trên máy người dùng, tối đa 60 trang, có nút hủy. Lần đầu tải mô hình khoảng 6 MB từ jsDelivr (trình duyệt lưu đệm). Tệp vẫn không rời khỏi máy.
+- **CSL**: mục *Kiểu khác* tìm trong chỉ mục `public/csl/index.json` (10.865 kiểu), rồi tải tệp `.csl` cần dùng theo yêu cầu. Kiểu phụ thuộc (tạp chí) tự dùng kiểu cha. Cập nhật chỉ mục: `npm run build:csl`.
 
 ## Cài đặt
 
@@ -48,6 +52,8 @@ Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel; tùy ch�
 4. Đăng nhập bằng email master → **Quản trị → Cài đặt**: nhập email/SĐT/Zalo liên hệ và số lượt miễn phí/ngày.
 5. Cập nhật CSDL EduFind: `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind-journals.json`. Ngành khác: `EDUFIND_DISCIPLINE=<slug>`.
 
+Hướng dẫn Supabase chi tiết từng bước: [`docs/SUPABASE.md`](docs/SUPABASE.md).
+
 Chạy cục bộ: `npm i && npm run dev` (giao diện). Để thử cả `/api`, dùng `vercel dev`. Kiểm thử: `npm test` (đối chiếu trích đoạn, nhận diện ngôn ngữ, định dạng trích dẫn).
 
 ## Bảo mật
@@ -59,7 +65,8 @@ Chạy cục bộ: `npm i && npm run dev` (giao diện). Để thử cả `/api`
 
 ## Giới hạn đã biết
 
-- PDF **quét ảnh không có lớp chữ** chưa đọc được (cần OCR, xem lộ trình). Hình, bảng biểu trong tài liệu không được phân tích, chỉ văn bản.
+- PDF quét ảnh cần OCR trên máy người dùng (chậm hơn, độ chính xác phụ thuộc chất lượng bản quét). Hình, bảng biểu trong tài liệu không được phân tích, chỉ văn bản.
+- Kiểu CSL tải từ jsDelivr nên cần mạng; nếu CDN bị chặn, chọn một trong 9 kiểu có sẵn.
 - `.doc` cũ tối đa ~4 MB (giới hạn thân yêu cầu của Vercel); `.docx`/PDF tới 10 MB. Tài liệu quá 400.000 ký tự bị từ chối, yêu cầu tách phần.
 - Số trang của DOCX không xác định được (không có trang cố định); PDF thì có.
 - Siêu dữ liệu thư mục (tác giả, năm, DOI) do AI trích từ nội dung và có thể thiếu: người dùng được sửa trước khi sao chép. Hãy đối chiếu DOI với Crossref khi trích dẫn chính thức.
