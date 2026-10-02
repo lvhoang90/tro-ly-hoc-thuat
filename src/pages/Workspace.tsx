@@ -36,6 +36,7 @@ export default function Workspace() {
   const [busy, setBusy] = useState(false);
   const [phase, setPhase] = useState(0);
   const [err, setErr] = useState<string>("");
+  const [errDetail, setErrDetail] = useState<string>("");
   const [needContact, setNeedContact] = useState(false);
   const [res, setRes] = useState<AnalysisResult | null>(null);
   const [sel, setSel] = useState<Set<string>>(new Set());
@@ -79,7 +80,7 @@ export default function Workspace() {
 
   async function pick(f: File | undefined | null, ocr = false) {
     if (!f) return;
-    setErr(""); setFile(null); setText(""); setProg(null); setNeedContact(false); setOcrFile(null);
+    setErr(""); setErrDetail(""); setFile(null); setText(""); setProg(null); setNeedContact(false); setOcrFile(null);
     setReading(true);
     abort.current = new AbortController();
     try {
@@ -92,7 +93,7 @@ export default function Workspace() {
       const code = e instanceof ExtractFailure ? e.code : "corrupt";
       if (code === "no_text" && !ocr && e instanceof ExtractFailure && e.kind === "pdf") setOcrFile(f); // đề nghị OCR
       else if (code === "size") setErr(approved ? t("err_file_size", { mb: maxMb }) : t("err_file_size_basic", { mb: maxMb }));
-      else if (code !== "cancelled") setErr(t(`err_file_${code}` as Key, { mb: maxMb, n: OCR_MAX_PAGES }));
+      else if (code !== "cancelled") { setErr(t(`err_file_${code}` as Key, { mb: maxMb, n: OCR_MAX_PAGES })); setErrDetail(e instanceof ExtractFailure ? e.detail ?? "" : ""); }
     } finally { setReading(false); }
   }
 
@@ -188,7 +189,7 @@ export default function Workspace() {
                 <button className="btn sm" onClick={() => setOcrFile(null)}>{t("cancel")}</button></div>
             </div>
           )}
-          {err && <div className="err box" role="alert">{err}</div>}
+          {err && <div className="err box" role="alert">{err}{errDetail && <small className="err-detail">{t("tech_detail")}: {errDetail}</small>}</div>}
           {needContact && <ContactAdmin />}
           {busy && (
             <div className="busy" aria-live="polite">
