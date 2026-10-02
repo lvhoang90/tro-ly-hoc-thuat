@@ -26,8 +26,8 @@ Thời gian khoảng 20 phút. Bạn cần: tài khoản Supabase (gói Free đ�
 1. **Authentication** → **Sign In / Providers** (hoặc **Providers**) → **Email** → bật **Enable Email provider**.
 2. Bật **Confirm email** (bắt buộc xác thực email mới dùng được).
 3. **Authentication** → **URL Configuration**:
-   - **Site URL**: địa chỉ ứng dụng, ví dụ `https://tro-ly-hoc-thuat.vercel.app` (hoặc tên miền riêng).
-   - **Redirect URLs**: thêm `https://tro-ly-hoc-thuat.vercel.app/**` và `http://localhost:5173/**` (khi chạy thử máy bạn).
+   - **Site URL**: địa chỉ ứng dụng, ví dụ `https://aaa.isavietnam.app` (hoặc tên miền riêng).
+   - **Redirect URLs**: thêm `https://aaa.isavietnam.app/**` và `http://localhost:5173/**` (khi chạy thử máy bạn).
 4. (Khuyến nghị) **Authentication** → **Emails** → **SMTP Settings**: gắn SMTP riêng (Resend, Brevo, Gmail SMTP…). Email mặc định của Supabase bị giới hạn số thư mỗi giờ và dễ vào Spam, đủ để thử nhưng không đủ cho người dùng thật.
 5. (Tùy chọn) **Authentication** → **Emails** → **Templates**: sửa tiêu đề và nội dung thư *Confirm signup* sang tiếng Việt/Anh.
 
