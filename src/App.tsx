@@ -9,6 +9,8 @@ import Workspace from "./pages/Workspace.tsx";
 
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const History = lazy(() => import("./pages/History.tsx"));
+import { Ami } from "./mascot/Ami.tsx";
+import { useMascot } from "./mascot/ctx.tsx";
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 
 const fromHash = (): Route => {
@@ -21,6 +23,14 @@ export default function App() {
   const { ready, session, profile, contact } = useApp();
   const [route, setRoute] = useState<Route>(fromHash);
   useEffect(() => { const f = () => setRoute(fromHash()); addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
+
+  const ami = useMascot();
+  useEffect(() => {
+    if (!session || !ready) return;
+    if (route === "history") ami.say(t("ami_history"), "happy", 7000);
+    else if (route === "profile") ami.say(t("ami_profile"), "idle", 7000);
+    else if (route === "admin") ami.say(t("ami_admin"), "wave", 6000);
+  }, [route, session, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let body;
   if (!configured) body = <div className="card setup"><h2>{t("setup_title")}</h2><p>{t("setup_body")}</p><pre>VITE_SUPABASE_URL=…{"\n"}VITE_SUPABASE_ANON_KEY=…</pre></div>;
@@ -45,6 +55,7 @@ export default function App() {
         {(ready || !configured) && <Footer />}
       </div>
       <VisitChip />
+      {ready && session && <Ami variant="companion" />}
       <ScrollTop />
       <Toasts />
     </>

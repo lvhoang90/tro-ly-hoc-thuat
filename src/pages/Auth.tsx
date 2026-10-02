@@ -1,4 +1,6 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { Ami } from "../mascot/Ami.tsx";
+import { useMascot } from "../mascot/ctx.tsx";
 import { useI18n } from "../i18n.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { Logo } from "../components/Chrome.tsx";
@@ -18,6 +20,12 @@ export default function Auth() {
   const [err, setErr] = useState("");
   const [info, setInfo] = useState("");
   const [unverified, setUnverified] = useState(false);
+
+  const ami = useMascot();
+  useEffect(() => {
+    ami.say(t(mode === "up" ? "ami_signup" : mode === "reset" ? "ami_reset" : mode === "sent" ? "ami_sent" : "ami_hello"), mode === "in" ? "wave" : "happy", 9000);
+  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (err) ami.say(t("ami_oops"), "care", 6000); }, [err]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const redirect = APP.siteUrl || location.origin;
 
@@ -70,6 +78,7 @@ export default function Auth() {
   return (
     <div className="landing">
       <section className="hero">
+        <Ami variant="hero" />
         <div className="eyebrow">{t("hero_eyebrow")}</div>
         <h1>{APP.name[lang]}<span className="grad"> | {lang === "vi" ? APP.name.en : APP.name.vi} {APP.version}</span></h1>
         <p className="lead">{t("hero_lead")}</p>
