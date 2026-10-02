@@ -377,6 +377,12 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .sf-links small { color: #7f8aa3; margin-left: .2rem; }
 .orcid-dot, .zalo-dot { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; font-size: .62rem; font-weight: 800; flex: none; } .orcid-dot { background: #a6ce39; color: #1b2a00; } .zalo-dot { background: #0068ff; color: #fff; }
 .sf-muted { margin: 0 0 .4rem; font-size: .84rem; color: #7f8aa3; line-height: 1.55; }
+.sf-eco { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem 1.4rem; }
+.sf-eco ol { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+.sf-eco a { display: grid; gap: 2px; height: 100%; padding: .7rem .9rem; border: 1px solid rgba(148, 163, 184, .22); border-radius: 12px; text-decoration: none; color: #aab4c8; }
+.sf-eco a:hover { border-color: #38bdf8; } .sf-eco .self a { border-color: #38bdf8; background: rgba(56, 189, 248, .08); }
+.sf-eco small { color: #7dd3fc; font-weight: 700; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; } .sf-eco b { color: #eef2fb; font-size: .95rem; } .sf-eco span { font-size: .8rem; line-height: 1.4; }
+@media (max-width: 720px) { .sf-eco ol { grid-template-columns: 1fr; } }
 .sf-bottom { border-top: 1px solid rgba(148, 163, 184, .16); }
 .sf-bottom > * { max-width: 1080px; }
 .sf-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.5rem; padding: 1rem max(16px, calc((100% - 1080px) / 2 + 16px)); }
