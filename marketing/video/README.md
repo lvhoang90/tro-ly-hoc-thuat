@@ -1,6 +1,6 @@
 # Clip "Hành trình cùng Ami" (30 giây, 1080×1920, tiếng Anh)
 
-- `ami-journey-30s.mp4`: clip dọc 9:16, 30 giây, 30 khung/giây, giọng Ami (tiếng Anh) + nhạc nền + hiệu ứng âm thanh.
+- `ami-journey-30s.mp4`: clip dọc 9:16, 30 giây, 30 khung/giây, giọng Ami nam (tiếng Anh) + nhạc nền + hiệu ứng âm thanh.
 - `ami-journey-cover.png`: ảnh bìa (khung hình ở giây 4,6).
 - `ami-journey-30s.en.srt`: phụ đề tiếng Anh (clip đã in sẵn lời thoại trong bong bóng của Ami).
 
@@ -17,6 +17,6 @@
 Dữ liệu trong clip là dữ liệu minh họa.
 
 ## Cách dựng lại
-- `audio.py`: tổng hợp nhạc nền và hiệu ứng bằng numpy, trộn với giọng nói (Piper TTS, giọng `en_US-amy-medium`, giấy phép MIT/CC0 theo mô hình giọng).
+- `audio.py`: tổng hợp nhạc nền và hiệu ứng bằng numpy, trộn với giọng nói (Piper TTS, giọng nam `en_US-ryan-high`, giấy phép MIT/CC0 theo mô hình giọng).
 - `overlay.js`: các cảnh, bong bóng lời thoại, chuyển động theo thời gian `t` (dựng khung hình xác định).
 - `render.cjs`: chạy lượt `bg` (nền + cảnh) và lượt `ami` (Ami 3D thật từ ứng dụng, nền trong suốt) bằng Playwright; sau đó ghép bằng ffmpeg (xem lệnh `overlay` với hiệu ứng Ami xuất hiện).
