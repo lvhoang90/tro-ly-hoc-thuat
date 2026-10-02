@@ -95,7 +95,7 @@ export function Toasts() {
           </div>
         ))}
       </div>
-      <div className="toasts" aria-live="polite" aria-label={t("notifications")}>{toasts.filter((x) => x.kind !== "win").map((x) => <div key={x.id} className={`toast ${x.kind}`}>{x.text}</div>)}</div>
+      <div className="toasts" role="status" aria-live="polite" aria-label={t("notifications")}>{toasts.filter((x) => x.kind !== "win").map((x) => <div key={x.id} className={`toast ${x.kind}`}>{x.text}</div>)}</div>
     </>
   );
 }
@@ -123,9 +123,9 @@ export function ShareButtons({ compact = false }: { compact?: boolean }) {
     <div className={`share ${compact ? "compact" : ""}`}>
       {!compact && <span className="muted">{t("share")}</span>}
       {links.map(([name, href, glyph]) => (
-        <a key={name} className="share-btn" href={href} target="_blank" rel="noopener noreferrer" title={name} aria-label={`${t("share")} ${name}`}>{glyph}</a>
+        <a key={name} className="share-btn" href={href} target="_blank" rel="noopener noreferrer" title={`${t("share")} ${name}`}><span aria-hidden="true">{glyph}</span><span className="sr-only">{`${t("share")} ${name}`}</span></a>
       ))}
-      <button className="share-btn zalo" title="Zalo" aria-label={`${t("share")} Zalo`} onClick={() => copy(t("zalo_copied"))}>Z</button>
+      <button className="share-btn zalo" title={`${t("share")} Zalo`} onClick={() => copy(t("zalo_copied"))}><span aria-hidden="true">Z</span><span className="sr-only">{`${t("share")} Zalo`}</span></button>
       <button className="share-btn" title={t("copy_link")} aria-label={t("copy_link")} onClick={() => copy(t("link_copied"))}><Icon name="copy" size={15} /></button>
     </div>
   );
@@ -229,10 +229,11 @@ export function Footer() {
         <section className="sf-brand">
           <div className="sf-logo"><Logo size={36} /><div><b>{APP.name[lang]} {APP.version}</b><span>{lang === "vi" ? APP.name.en : APP.name.vi}</span></div></div>
           <p>{t("foot_about")}</p>
+          <p><a className="sf-guide" href={lang === "vi" ? "/huong-dan" : "/en/guide"}>{t("foot_guide")}</a></p>
         </section>
 
         <section className="sf-col" aria-label={t("author")}>
-          <h5>{t("author")}</h5>
+          <h2 className="sf-h">{t("author")}</h2>
           <AuthorBadge />
           <ul className="sf-links">
             {a.orcid && <li><a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noopener noreferrer"><span className="orcid-dot">iD</span> {a.orcid}</a></li>}
@@ -243,7 +244,7 @@ export function Footer() {
         </section>
 
         <section className="sf-col" aria-label={t("foot_contact")}>
-          <h5>{t("foot_contact")}</h5>
+          <h2 className="sf-h">{t("foot_contact")}</h2>
           {has ? (
             <ul className="sf-links">
               {contact!.email && <li><a href={`mailto:${contact!.email}`}><Icon name="mail" size={14} /> {contact!.email}</a></li>}

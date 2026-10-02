@@ -11,7 +11,7 @@ export function AuthorBadge() {
   const role = a.role[lang];
   return (
     <>
-      <button type="button" className="sf-author sf-author-btn" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={`${t("author_open")}: ${a.name}`}>
+      <button type="button" className="sf-author sf-author-btn" onClick={() => setOpen(true)} aria-haspopup="dialog" title={t("author_open")}>
         <img className="sf-photo" src={a.photo} alt="" width={48} height={48} loading="lazy" />
         <span>
           <b>{a.name}</b>
