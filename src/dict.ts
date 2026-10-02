@@ -310,7 +310,8 @@ const D = {
   visits_off: { vi: "Bộ đếm truy cập chưa bật (cần cấu hình Upstash Redis, xem README).", en: "Visit counter is off (configure Upstash Redis, see README)." },
 
   // ----- Chân trang, chia sẻ -----
-  foot_about: { vi: "Trợ lý AI giúp đọc tài liệu, tóm tắt thông tin và trích dẫn theo chuẩn khoa học.", en: "An AI assistant that helps you read sources, summarise them and cite to scholarly standards." },
+  foot_about: { vi: "Trợ lý AI giúp đọc tài liệu, tóm tắt thông tin và trích dẫn theo chuẩn khoa học.", en: "An AI academic agent that helps you read sources, summarise them and cite to scholarly standards." },
+  brand_meaning: { vi: "Biểu tượng ba chữ A lồng nhau lan tỏa từ lõi: sức mạnh công nghệ tối ưu việc nghiên cứu học thuật và khoa học. A cũng là hạng ưu, tinh hoa mà ai cũng mong có mặt.", en: "Three nested letter A's radiating from a core: technology that amplifies academic and scientific research. A is also the mark of top grade and excellence everyone aspires to." },
   author: { vi: "Tác giả", en: "Author" },
   author_note: { vi: "Thiết kế và phát triển bởi tác giả; mọi quyền được bảo lưu.", en: "Designed and developed by the author; all rights reserved." },
   visits_head: { vi: "Lượt truy cập", en: "Visits" },

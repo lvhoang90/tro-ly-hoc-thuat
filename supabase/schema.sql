@@ -1,5 +1,5 @@
 -- =====================================================================
--- Trợ lý học thuật | AI Academic Assistant 1.0 - lược đồ Supabase (Postgres)
+-- Trợ lý học thuật | AI Academic Agent 1.0 - lược đồ Supabase (Postgres)
 -- Chạy toàn bộ tệp này trong Supabase → SQL Editor (một lần, chạy lại an toàn).
 -- Nguyên tắc: không lưu tài liệu người dùng tải lên; chỉ lưu hồ sơ, hạn mức
 -- và lịch sử trích dẫn đã thực hiện.

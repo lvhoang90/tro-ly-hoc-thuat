@@ -1,4 +1,4 @@
-# Trợ lý học thuật | AI Academic Assistant 1.0
+# Trợ lý học thuật | AI Academic Agent 1.0
 
 Ứng dụng web song ngữ Việt/Anh giúp nhà nghiên cứu **đọc tài liệu, chấm mức độ phù hợp, tóm tắt, chọn đoạn đáng trích dẫn và sao chép trích dẫn đúng chuẩn quốc tế**.
 Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác giả: Lương Việt Hoàng (ISA Vietnam).

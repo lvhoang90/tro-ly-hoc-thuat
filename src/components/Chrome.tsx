@@ -5,17 +5,7 @@ import { APP } from "../lib/config.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-    <defs>
-      <linearGradient id="lg" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#38bdf8" /><stop offset="1" stopColor="#a78bfa" />
-      </linearGradient>
-    </defs>
-    <rect x="2" y="2" width="44" height="44" rx="12" fill="url(#lg)" />
-    <path d="M14 33c4-1 7-4 10-9s6-8 10-9" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" />
-    <path d="M14 15c4 1 7 4 10 9s6 8 10 9" fill="none" stroke="#fff" strokeOpacity=".65" strokeWidth="2.6" strokeLinecap="round" />
-    <circle cx="24" cy="24" r="2.6" fill="#fff" />
-  </svg>
+  <img src="/favicon.svg" width={size} height={size} alt="" aria-hidden="true" />
 );
 
 export function LangSwitch() {
@@ -138,6 +128,7 @@ export function Footer() {
         <div>
           <div className="foot-title">{APP.name[lang]} {APP.version}</div>
           <p className="muted small">{t("foot_about")}</p>
+          <p className="brand-mean"><Logo size={22} /> <span className="muted small">{t("brand_meaning")}</span></p>
           <ShareButtons />
         </div>
         <div>

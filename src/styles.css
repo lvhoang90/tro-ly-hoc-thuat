@@ -180,3 +180,4 @@ blockquote { margin: .25rem 0 .4rem; padding: 0; font-family: Georgia, "Times Ne
 .csl { margin-top: .5rem; } .csl-list { list-style: none; padding: 0; margin: 0; max-height: 240px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; }
 .csl-list button { display: flex; width: 100%; justify-content: space-between; gap: .75rem; text-align: left; border: 0; border-bottom: 1px solid var(--line); background: transparent; color: var(--text); padding: .45rem .75rem; font: inherit; font-size: .88rem; cursor: pointer; }
 .csl-list button:hover, .csl-list button.on { background: color-mix(in srgb, var(--accent) 12%, transparent); } .csl-list small { color: var(--muted); white-space: nowrap; }
+.brand-mean { display: flex; gap: .5rem; align-items: flex-start; margin: .5rem 0 .25rem; } .brand-mean img { flex: none; margin-top: .15rem; }
