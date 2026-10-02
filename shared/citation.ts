@@ -46,6 +46,10 @@ function initials(given: string, spaced = true, dots = true): string {
   return out.join(spaced ? " " : "");
 }
 
+// Quy ước trích dẫn tiếng Việt: tác giả người Việt ghi đầy đủ "Họ Tên đệm Tên" (không viết tắt, không đảo họ) cả ở danh mục lẫn trong văn bản.
+const VI_CH = /[ăâđêôơưàáạảãằắặẳẵầấậẩẫèéẹẻẽềếệểễìíịỉĩòóọỏõồốộổỗờớợởỡùúụủũừứựửữỳýỵỷỹ]/i;
+const isViName = (a: Author, m: SourceMeta) => VI_CH.test(a.family + a.given) || m.lang === "vi";
+const fullName = (a: Author) => clean(`${a.family} ${a.given}`);
 const fam = (a: Author) => clean(a.family);
 const given = (a: Author) => clean(a.given);
 const hasNames = (m: SourceMeta) => m.authors.some((a) => fam(a));
@@ -60,27 +64,32 @@ function joinList(items: string[], last: string, oxford: boolean): string {
 const dot = (s: string) => (!s ? "" : /[.?!]$/.test(s.replace(/\*+$/, "")) ? s : s + ".");
 
 // ---------- Danh sách tác giả theo từng kiểu ----------
-function apaAuthors(m: SourceMeta, w: typeof W.en): string {
-  const list = authors(m).map((a) => (given(a) ? `${fam(a)}, ${initials(given(a))}` : fam(a)));
+function apaAuthors(m: SourceMeta, w: typeof W.en, vi: boolean): string {
+  const list = authors(m).map((a) => (vi && isViName(a, m) ? fullName(a) : given(a) ? `${fam(a)}, ${initials(given(a))}` : fam(a)));
   if (list.length > 20) return `${list.slice(0, 19).join(", ")}, ... ${list[list.length - 1]}`;
   if (list.length === 1) return list[0];
-  return `${list.slice(0, -1).join(", ")}, ${w.and} ${list[list.length - 1]}`;
+  // Tiếng Việt không dùng dấu phẩy trước "và"; tiếng Anh (APA) luôn có dấu phẩy trước "&".
+  return `${list.slice(0, -1).join(", ")}${vi ? "" : ","} ${w.and} ${list[list.length - 1]}`;
 }
-function harvardAuthors(m: SourceMeta, w: typeof W.en): string {
-  const list = authors(m).map((a) => (given(a) ? `${fam(a)}, ${initials(given(a))}` : fam(a)));
+function harvardAuthors(m: SourceMeta, w: typeof W.en, vi: boolean): string {
+  const list = authors(m).map((a) => (vi && isViName(a, m) ? fullName(a) : given(a) ? `${fam(a)}, ${initials(given(a))}` : fam(a)));
   if (list.length > 3) return `${list[0]} ${w.etAl}`;
   return joinList(list, w.andWord, false);
 }
-function mlaAuthors(m: SourceMeta, w: typeof W.en): string {
+function mlaAuthors(m: SourceMeta, w: typeof W.en, vi: boolean): string {
   const a = authors(m);
+  if (vi && a.every((x) => isViName(x, m))) {
+    const names = a.map(fullName);
+    return names.length >= 3 ? `${names[0]} ${w.etAl}` : joinList(names, w.andWord, false);
+  }
   const first = given(a[0]) ? `${fam(a[0])}, ${given(a[0])}` : fam(a[0]);
   if (a.length === 1) return first;
   if (a.length >= 3) return `${first}, ${w.etAl}`;
   return `${first}, ${w.andWord} ${given(a[1]) ? given(a[1]) + " " : ""}${fam(a[1])}`;
 }
-function chicagoAuthors(m: SourceMeta, w: typeof W.en): string {
+function chicagoAuthors(m: SourceMeta, w: typeof W.en, vi: boolean): string {
   const a = authors(m);
-  const list = a.map((x, i) => (i === 0 ? (given(x) ? `${fam(x)}, ${given(x)}` : fam(x)) : `${given(x) ? given(x) + " " : ""}${fam(x)}`));
+  const list = a.map((x, i) => (vi && isViName(x, m) ? fullName(x) : i === 0 ? (given(x) ? `${fam(x)}, ${given(x)}` : fam(x)) : `${given(x) ? given(x) + " " : ""}${fam(x)}`));
   if (list.length > 10) return `${list.slice(0, 7).join(", ")}, ${w.etAl}`;
   return joinList(list, w.andWord, true);
 }
@@ -96,8 +105,8 @@ function numAuthors(m: SourceMeta, w: typeof W.en, max: number, shown: number): 
 }
 
 // ---------- Trích dẫn trong văn bản ----------
-function inTextName(m: SourceMeta, w: typeof W.en, joiner: string, etAlAt: number): string {
-  const a = authors(m).map(fam);
+function inTextName(m: SourceMeta, w: typeof W.en, joiner: string, etAlAt: number, vi: boolean): string {
+  const a = authors(m).map((x) => (vi && isViName(x, m) ? fullName(x) : fam(x)));
   if (a.length === 0) return `*${shortTitle(m.title)}*`;
   if (a.length === 1) return a[0];
   if (a.length === 2 && etAlAt > 2) return `${a[0]} ${joiner} ${a[1]}`;
@@ -120,8 +129,8 @@ export function formatCitation(m: SourceMeta, o: CiteOpts): Citation {
 
   switch (o.style) {
     case "apa": {
-      const A = noAuth ? "" : apaAuthors(m, w);
-      const head = noAuth ? `${dot(m.type === "article" || m.type === "chapter" ? T : `*${T}*`)} (${Y}).` : `${dot(A)} (${Y}).`;
+      const A = noAuth ? "" : apaAuthors(m, w, o.lang === "vi");
+      const head = noAuth ? `${dot(m.type === "article" || m.type === "chapter" ? T : `*${T}*`)} (${Y}).` : `${A} (${Y}).`;
       let body = "";
       switch (m.type) {
         case "article": body = `${noAuth ? "" : dot(T) + " "}${nonEmpty([C && `*${C}*`, V && (I ? `*${V}*(${I})` : `*${V}*`), P && dash(P)]).join(", ")}.`.replace(/^ /, ""); break;
@@ -131,11 +140,11 @@ export function formatCitation(m: SourceMeta, o: CiteOpts): Citation {
         default: body = `${noAuth ? "" : `*${T}*. `}${dot(PUB || C)}`.trim();
       }
       const ref = `${head} ${body}${L ? " " + L : ""}`.replace(/\s+/g, " ").replace(/\.\./g, ".").trim();
-      const nm = inTextName(m, w, w.and, 3);
+      const nm = inTextName(m, w, w.and, 3, o.lang === "vi");
       return { reference: ref, inText: `(${nm}, ${Y}${page ? `, ${w.p} ${page}` : ""})` };
     }
     case "harvard": {
-      const A = noAuth ? "" : harvardAuthors(m, w);
+      const A = noAuth ? "" : harvardAuthors(m, w, o.lang === "vi");
       const lead = noAuth ? `${m.type === "article" || m.type === "chapter" ? `'${T}'` : `*${T}*`} (${Y})` : `${A} (${Y})`;
       let body = "";
       switch (m.type) {
@@ -147,11 +156,11 @@ export function formatCitation(m: SourceMeta, o: CiteOpts): Citation {
       }
       const ref = `${lead}${body ? " " + body.replace(/^\s+|\.$/g, "") : ""}.${m.doi ? ` doi:${normDoi(m.doi)}.` : m.url ? ` Available at: ${m.url}.` : ""}`
         .replace(/\s+/g, " ").replace(/\.\./g, ".").trim();
-      const nm = inTextName(m, w, w.andWord, 4);
+      const nm = inTextName(m, w, w.andWord, 4, o.lang === "vi");
       return { reference: ref, inText: `(${nm}, ${Y}${page ? `, ${w.p} ${page}` : ""})` };
     }
     case "chicago": {
-      const A = noAuth ? "" : chicagoAuthors(m, w);
+      const A = noAuth ? "" : chicagoAuthors(m, w, o.lang === "vi");
       const lead = noAuth ? `${dot(m.type === "article" || m.type === "chapter" ? `"${T}"` : `*${T}*`)} ${Y}.` : `${dot(A)} ${Y}.`;
       let body = "";
       switch (m.type) {
@@ -162,11 +171,11 @@ export function formatCitation(m: SourceMeta, o: CiteOpts): Citation {
         default: body = `${noAuth ? "" : `*${T}*. `}${dot(PUB || C)}`;
       }
       const ref = `${lead} ${body}${L ? " " + L + "." : ""}`.replace(/\s+/g, " ").replace(/\.\./g, ".").trim();
-      const nm = inTextName(m, w, w.andWord, 4);
+      const nm = inTextName(m, w, w.andWord, 4, o.lang === "vi");
       return { reference: ref, inText: `(${nm} ${Y}${page ? `, ${page}` : ""})` };
     }
     case "mla": {
-      const A = noAuth ? "" : mlaAuthors(m, w);
+      const A = noAuth ? "" : mlaAuthors(m, w, o.lang === "vi");
       let body = "";
       switch (m.type) {
         case "article": body = `"${dot(T)}" *${C}*${nonEmpty([V && `${w.vol} ${V}`, I && `${w.no} ${I}`, Y, P && `${w.pp} ${hyphen(P)}`]).map((x, i) => (i === 0 ? ", " + x : ", " + x)).join("")}.`; break;
@@ -176,7 +185,7 @@ export function formatCitation(m: SourceMeta, o: CiteOpts): Citation {
         default: body = `*${T}*. ${PUB ? PUB + ", " : ""}${Y}.`;
       }
       const ref = `${A ? dot(A) + " " : ""}${body}${L ? " " + L + "." : ""}`.replace(/\s+/g, " ").replace(/\.\./g, ".").trim();
-      const nm = inTextName(m, w, w.andWord, 3);
+      const nm = inTextName(m, w, w.andWord, 3, o.lang === "vi");
       return { reference: ref, inText: `(${nm}${page ? " " + page : ""})` };
     }
     case "ieee": {

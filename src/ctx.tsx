@@ -3,7 +3,7 @@ import type { Session } from "@supabase/supabase-js";
 import { configured, supabase, type Contact, type Profile } from "./lib/supabase.ts";
 import type { Quota } from "../shared/types.ts";
 
-interface Toast { id: number; text: string; kind: "ok" | "err" }
+export interface Toast { id: number; text: string; kind: "ok" | "err" | "win"; body?: string; note?: string }
 interface AppCtx {
   ready: boolean;
   session: Session | null;
@@ -14,6 +14,7 @@ interface AppCtx {
   refresh: () => Promise<void>;
   signOut: () => Promise<void>;
   toast: (text: string, kind?: "ok" | "err") => void;
+  celebrate: (title: string, body: string, note?: string) => void;
   toasts: Toast[];
 }
 const Ctx = createContext<AppCtx>(null as never);
@@ -31,6 +32,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const id = ++seq.current;
     setToasts((x) => [...x, { id, text, kind }]);
     setTimeout(() => setToasts((x) => x.filter((y) => y.id !== id)), 4200);
+  }, []);
+
+  // Thông báo thành quả (sao chép trích dẫn thành công): lớn, ở giữa phía trên, kèm bản xem trước nội dung đã sao chép.
+  const celebrate = useCallback((title: string, body: string, note?: string) => {
+    const id = ++seq.current;
+    setToasts((x) => [...x.filter((y) => y.kind !== "win"), { id, text: title, kind: "win", body, note }]);
+    setTimeout(() => setToasts((x) => x.filter((y) => y.id !== id)), 6000);
   }, []);
 
   const load = useCallback(async (s: Session | null) => {
@@ -54,8 +62,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [load]);
 
   const signOut = useCallback(async () => { await supabase.auth.signOut(); }, []);
-  const value = useMemo(() => ({ ready, session, profile, quota, setQuota, contact, refresh, signOut, toast, toasts }),
-    [ready, session, profile, quota, contact, refresh, signOut, toast, toasts]);
+  const value = useMemo(() => ({ ready, session, profile, quota, setQuota, contact, refresh, signOut, toast, celebrate, toasts }),
+    [ready, session, profile, quota, contact, refresh, signOut, toast, celebrate, toasts]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 export const useApp = () => useContext(Ctx);

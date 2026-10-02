@@ -24,13 +24,16 @@ export interface SourceMeta {
   titleEn?: string;       // bản dịch tiếng Anh của nhan đề (tài liệu tiếng Việt)
 }
 
+/** Nội dung song ngữ: phân tích sinh một lần, giao diện đổi ngôn ngữ thì đổi theo ngay, không gọi AI lần nữa. */
+export interface Bi<T = string> { vi: T; en: T }
+
 export interface Passage {
   id: string;
   quote: string;          // nguyên văn, đã đối chiếu với văn bản gốc
   page: string;           // số trang (PDF) hoặc rỗng
   priority: Priority;
   rank: number;           // 1 = nên trích trước
-  reason: string;
+  reason: Bi;
   use: "definition" | "evidence" | "method" | "finding" | "theory" | "context";
 }
 
@@ -50,25 +53,30 @@ export interface WorkRec {
 export interface JournalRec {
   title: string; issn: string[]; publisher: string; quartile: string; sjr: number | null; openAccess: boolean;
   domestic: boolean; maxScore?: number; why: string;
+  discipline: Bi;         // lĩnh vực EduFind chứa tạp chí
+  url: string;            // trang lĩnh vực trên EduFind
 }
 
+export interface EdufindLink { slug: string; name: Bi; url: string }
+
 export interface Recommendations {
-  advice: string;
+  advice: Bi;
   queries: string[];
   keywords: string[];
   works: WorkRec[];
   journals: JournalRec[];
-  edufind: { url: string; name: string } | null;
+  disciplines: EdufindLink[];   // lĩnh vực EduFind phù hợp nhất với nghiên cứu của người dùng
+  edufind: { url: string };     // cổng chung https://edufind.isavn.edu.vn/
 }
 
 export interface AnalysisResult {
   language: "en" | "vi";
   score: number;
   breakdown: ScoreBreakdown;
-  verdict: string;
-  summary: string;
-  strengths: string[];
-  gaps: string[];
+  verdict: Bi;
+  summary: Bi;
+  strengths: Bi<string[]>;
+  gaps: Bi<string[]>;
   meta: SourceMeta;
   passages: Passage[];          // rỗng nếu score < 60
   droppedPassages: number;      // số trích đoạn bị loại vì không khớp văn bản gốc

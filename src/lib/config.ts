@@ -7,7 +7,7 @@ export const APP = {
   author: {
     name: "Lương Việt Hoàng",
     org: "ISA Vietnam",
-    edufind: "https://edufind-khgd.vercel.app",
+    edufind: "https://edufind.isavn.edu.vn/",
   },
 };
 

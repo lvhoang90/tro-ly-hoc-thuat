@@ -1,27 +1,21 @@
-// Gợi ý khi điểm < 60: tìm công trình thay thế trên OpenAlex (CC0) và đối chiếu tạp chí với CSDL EduFind.
-import edu from "../../data/edufind-journals.ts";
-import type { JournalRec, Recommendations, WorkRec } from "../../shared/types.ts";
-
-interface IntlJ { t: string; i: string[]; p: string; q: string; s: number | null; oa: boolean; c: string[]; co: string }
-interface DomJ { t: string; i: string[]; p: string; id: string; max: number; idx: unknown[] }
-const INTL = edu.intl as IntlJ[];
-const DOM = edu.dom as unknown as DomJ[];
+// Gợi ý khi điểm < 60: tìm công trình thay thế trên OpenAlex (CC0) và đối chiếu tạp chí với CSDL EduFind (28 lĩnh vực).
+import edu from "../../data/edufind.ts";
+import { edufindUrl } from "../../shared/edufind-types.ts";
+import type { Bi, EdufindLink, JournalRec, Recommendations, WorkRec } from "../../shared/types.ts";
 
 const issnKey = (s: string) => s.replace(/[^0-9Xx]/g, "").toUpperCase();
-const byIssn = new Map<string, { j: IntlJ | DomJ; domestic: boolean }>();
-for (const j of INTL) for (const i of j.i) byIssn.set(issnKey(i), { j, domestic: false });
-for (const j of DOM) for (const i of j.i) byIssn.set(issnKey(i), { j, domestic: true });
+const tokens = (s: string) => s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/đ/g, "d").match(/[a-z0-9]{4,}/g) ?? [];
+const D = edu.disciplines;
+const dName = (i: number): Bi => ({ vi: D[i].vi, en: D[i].en });
+const dUrl = (i: number) => edufindUrl(edu.origin, D[i].path);
 
-const tokens = (s: string) => s.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").match(/[a-z0-9]{4,}/g) ?? [];
-
-function toJournal(j: IntlJ | DomJ, domestic: boolean, why: string): JournalRec {
-  if (domestic) {
-    const d = j as DomJ;
-    return { title: d.t, issn: d.i, publisher: d.p, quartile: "", sjr: null, openAccess: false, domestic: true, maxScore: d.max, why };
-  }
-  const x = j as IntlJ;
-  return { title: x.t, issn: x.i, publisher: x.p, quartile: x.q, sjr: x.s, openAccess: x.oa, domestic: false, why };
-}
+const byIssn = new Map<string, JournalRec>();
+const intlRec = (j: (typeof edu.intl)[number], why: string, prefer?: Set<number>): JournalRec => {
+  const di = (prefer && j.d.find((x) => prefer.has(x))) ?? j.d[0];
+  return { title: j.t, issn: j.i, publisher: j.p, quartile: j.q, sjr: j.s, openAccess: j.oa, domestic: false, why, discipline: dName(di), url: dUrl(di) };
+};
+const domRec = (j: (typeof edu.dom)[number], why: string): JournalRec =>
+  ({ title: j.t, issn: j.i, publisher: j.p, quartile: "", sjr: null, openAccess: false, domestic: true, maxScore: j.max, why, discipline: dName(j.d), url: dUrl(j.d) });
 
 interface OAWork {
   title?: string; publication_year?: number; doi?: string; cited_by_count?: number;
@@ -44,10 +38,14 @@ async function searchOpenAlex(q: string, mailto: string): Promise<OAWork[]> {
   } catch { return []; }
 }
 
-export async function recommend(advice: string, queries: string[], keywords: string[]): Promise<Recommendations> {
+export async function recommend(a: { advice: Bi; queries: string[]; keywords: string[]; disciplines: string[] }): Promise<Recommendations> {
   const mailto = process.env.CONTACT_EMAIL ?? "";
-  const qs = queries.map((q) => q.trim()).filter(Boolean).slice(0, 3);
+  const qs = a.queries.map((q) => q.trim()).filter(Boolean).slice(0, 3);
   const batches = await Promise.all(qs.map((q) => searchOpenAlex(q, mailto)));
+
+  // Lĩnh vực EduFind do AI chọn theo nghiên cứu của người dùng (bỏ mã không tồn tại).
+  const chosen = [...new Set(a.disciplines.map((s) => D.findIndex((d) => d.slug === s)).filter((i) => i >= 0))].slice(0, 3);
+  const prefer = new Set(chosen);
 
   const seen = new Set<string>();
   const works: WorkRec[] = [];
@@ -65,7 +63,7 @@ export async function recommend(advice: string, queries: string[], keywords: str
       works.push({
         title: w.title, year: w.publication_year ?? null, venue: w.primary_location?.source?.display_name ?? "",
         doi: (w.doi ?? "").replace(/^https?:\/\/doi\.org\//, ""), citedBy: w.cited_by_count ?? 0,
-        authors: (w.authorships ?? []).slice(0, 4).map((a) => a.author?.display_name ?? "").filter(Boolean).join(", ")
+        authors: (w.authorships ?? []).slice(0, 4).map((x) => x.author?.display_name ?? "").filter(Boolean).join(", ")
           + ((w.authorships?.length ?? 0) > 4 ? ", et al." : ""),
         url: w.open_access?.oa_url ?? w.primary_location?.landing_page_url ?? (w.doi ?? ""),
         openAccess: !!w.open_access?.is_oa, issn,
@@ -73,28 +71,29 @@ export async function recommend(advice: string, queries: string[], keywords: str
     }
   }
 
-  // Tạp chí: (1) nơi các công trình tương tự được đăng và có trong EduFind; (2) khớp từ khóa với tên/chuyên ngành.
   const journals: JournalRec[] = [];
   const have = new Set<string>();
   const add = (j: JournalRec) => { const k = j.title.toLowerCase(); if (!have.has(k)) { have.add(k); journals.push(j); } };
-  for (const i of venueIssn) {
-    const hit = byIssn.get(i);
-    if (hit) add(toJournal(hit.j, hit.domestic, "venue"));
-  }
-  const kw = new Set(tokens([...keywords, ...qs].join(" ")));
-  const scored = [...INTL.map((j) => ({ j, domestic: false })), ...DOM.map((j) => ({ j, domestic: true }))]
-    .map(({ j, domestic }) => {
-      const t = new Set(tokens(j.t + " " + ("c" in j ? j.c.join(" ") : "")));
-      let n = 0; kw.forEach((k) => t.has(k) && n++);
-      const q = "q" in j ? ({ Q1: 4, Q2: 3, Q3: 2, Q4: 1 } as Record<string, number>)[j.q] ?? 0 : 2;
-      return { j, domestic, n, q };
-    })
-    .filter((x) => x.n > 0)
-    .sort((a, b) => b.n - a.n || b.q - a.q);
-  for (const x of scored) { if (journals.length >= 8) break; add(toJournal(x.j, x.domestic, "keyword")); }
 
+  // (1) Nơi các công trình tương tự được đăng và có trong EduFind (mọi lĩnh vực).
+  if (byIssn.size === 0) for (const j of edu.intl) for (const i of j.i) byIssn.set(issnKey(i), intlRec(j, "venue", prefer));
+  for (const i of venueIssn) { const h = byIssn.get(i); if (h) add({ ...h, why: "venue" }); }
+
+  // (2) Khớp từ khóa trong đúng lĩnh vực của người dùng: quốc tế (theo hạng SJR) rồi trong nước (theo điểm Hội đồng).
+  const kw = new Set(tokens([...a.keywords, ...qs].join(" ")));
+  const overlap = (title: string) => { const t = new Set(tokens(title)); let n = 0; kw.forEach((k) => t.has(k) && n++); return n; };
+  const Q: Record<string, number> = { Q1: 4, Q2: 3, Q3: 2, Q4: 1 };
+  const intl = edu.intl.filter((j) => j.d.some((x) => prefer.has(x)))
+    .map((j) => ({ j, n: overlap(j.t), q: Q[j.q] ?? 0, s: j.s ?? 0 }))
+    .sort((x, y) => y.n - x.n || y.q - x.q || y.s - x.s);
+  for (const x of intl) { if (journals.filter((j) => !j.domestic).length >= 6) break; add(intlRec(x.j, x.n ? "keyword" : "field", prefer)); }
+  const dom = edu.dom.filter((j) => prefer.has(j.d))
+    .map((j) => ({ j, n: overlap(j.t) })).sort((x, y) => y.n - x.n || y.j.max - x.j.max);
+  for (const x of dom.slice(0, 4)) add(domRec(x.j, x.n ? "keyword" : "field"));
+
+  const disciplines: EdufindLink[] = chosen.map((i) => ({ slug: D[i].slug, name: dName(i), url: dUrl(i) }));
   return {
-    advice, queries: qs, keywords, works: works.slice(0, 8), journals: journals.slice(0, 8),
-    edufind: { url: edu.url, name: edu.nameVi },
+    advice: a.advice, queries: qs, keywords: a.keywords, works: works.slice(0, 8), journals: journals.slice(0, 12),
+    disciplines, edufind: { url: edufindUrl(edu.origin) },
   };
 }

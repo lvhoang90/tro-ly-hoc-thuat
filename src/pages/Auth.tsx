@@ -3,6 +3,7 @@ import { useI18n } from "../i18n.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { Logo } from "../components/Chrome.tsx";
 import { APP } from "../lib/config.ts";
+import { Icon, type IconName } from "../components/Icon.tsx";
 
 type Mode = "in" | "up" | "reset" | "sent";
 
@@ -62,8 +63,8 @@ export default function Auth() {
     if (error) setErr(msg(error.message)); else setInfo(t("resent"));
   }
 
-  const features: [string, string, string][] = [
-    ["📄", t("f1_t"), t("f1_d")], ["🎯", t("f2_t"), t("f2_d")], ["🔖", t("f3_t"), t("f3_d")], ["🔒", t("f4_t"), t("f4_d")],
+  const features: [IconName, string, string][] = [
+    ["target", t("f1_t"), t("f1_d")], ["quote", t("f2_t"), t("f2_d")], ["book", t("f3_t"), t("f3_d")], ["shield", t("f4_t"), t("f4_d")],
   ];
 
   return (
@@ -78,7 +79,7 @@ export default function Auth() {
           ))}
         </ol>
         <div className="features">
-          {features.map(([i, h, d]) => <div key={h} className="feat"><span className="ico">{i}</span><b>{h}</b><p>{d}</p></div>)}
+          {features.map(([i, h, d]) => <div key={h} className="feat"><span className="ico"><Icon name={i} size={22} /></span><b>{h}</b><p>{d}</p></div>)}
         </div>
       </section>
 

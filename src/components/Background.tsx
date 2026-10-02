@@ -17,13 +17,13 @@ export default function Background() {
     const ctx = cv.getContext("2d");
     if (!ctx) return;
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let w = 0, h = 0, dpr = 1, raf = 0, last = 0, t = 0, running = true;
+    let w = 0, h = 0, dpr = 1, raf = 0, last = 0, t = 0, running = true, scrolling = false, scrollTimer = 0;
     let glyphs: Glyph[] = [];
     const css = () => getComputedStyle(document.documentElement);
     let c1 = "56,189,248", c2 = "167,139,250", c3 = "52,211,153";
 
     const resize = () => {
-      dpr = Math.min(devicePixelRatio || 1, 1.5);
+      dpr = 1; // nền chỉ là họa tiết mờ: không cần độ phân giải màn hình retina
       w = innerWidth; h = innerHeight;
       cv.width = w * dpr; cv.height = h * dpr; cv.style.width = w + "px"; cv.style.height = h + "px";
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -38,7 +38,7 @@ export default function Background() {
 
     const waves = () => {
       // Hai nguồn sóng giao thoa: vẽ các đường mật độ xác suất |ψ|² theo hàng ngang.
-      const rows = 7;
+      const rows = 5;
       for (let r = 0; r < rows; r++) {
         const y0 = h * (0.18 + (r / rows) * 0.7);
         ctx.beginPath();
@@ -57,7 +57,7 @@ export default function Background() {
 
     const dna = () => {
       // Xoắn kép ADN ở mép phải, nghiêng nhẹ; các "cặp base" nối hai mạch.
-      const cx = w * (w > 900 ? 0.86 : 0.93), len = h * 1.1, amp = w > 900 ? 46 : 24, n = 46;
+      const cx = w * (w > 900 ? 0.86 : 0.93), len = h * 1.1, amp = w > 900 ? 46 : 24, n = 34;
       for (let i = 0; i < n; i++) {
         const p = i / n, y = -h * 0.05 + p * len, ph = p * 14 + t * 0.8;
         const x1 = cx + Math.sin(ph) * amp + p * 30, x2 = cx - Math.sin(ph) * amp + p * 30;
@@ -84,20 +84,22 @@ export default function Background() {
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
-      if (!running || now - last < 33) return;
-      last = now; t += 0.033;
+      if (!running || scrolling || now - last < 42) return; // ~24 khung/giây, tạm dừng khi đang cuộn trang
+      last = now; t += 0.042;
       ctx.clearRect(0, 0, w, h);
       waves(); dna(); text();
     };
 
     resize();
     addEventListener("resize", resize);
+    const onScroll = () => { scrolling = true; clearTimeout(scrollTimer); scrollTimer = window.setTimeout(() => { scrolling = false; }, 180); };
+    addEventListener("scroll", onScroll, { passive: true });
     const vis = () => { running = !document.hidden; };
     document.addEventListener("visibilitychange", vis);
     const mo = new MutationObserver(resize);
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     if (reduce) { waves(); dna(); text(); } else raf = requestAnimationFrame(frame);
-    return () => { cancelAnimationFrame(raf); removeEventListener("resize", resize); document.removeEventListener("visibilitychange", vis); mo.disconnect(); };
+    return () => { cancelAnimationFrame(raf); removeEventListener("resize", resize); removeEventListener("scroll", onScroll); document.removeEventListener("visibilitychange", vis); mo.disconnect(); };
   }, []);
   return <canvas ref={ref} className="bg-canvas" aria-hidden="true" />;
 }

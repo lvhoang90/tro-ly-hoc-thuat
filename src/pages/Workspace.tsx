@@ -4,10 +4,11 @@ import { useApp } from "../ctx.tsx";
 import { analyze, ApiFailure } from "../lib/api.ts";
 import { ExtractFailure, extractText, OCR_MAX_PAGES, type Progress } from "../lib/extract.ts";
 import { detectLang } from "../../shared/lang.ts";
-import { MAX_ABSTRACT_CHARS, MAX_FILE_BYTES, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, PASS_SCORE, type AnalysisResult } from "../../shared/types.ts";
+import { MAX_ABSTRACT_CHARS, MAX_FILE_BYTES, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, type AnalysisResult } from "../../shared/types.ts";
 import { QuotaBar, remaining } from "../components/Quota.tsx";
 import { ContactAdmin } from "../components/Chrome.tsx";
-import { Breakdown, PassageList, Recommendations, ScoreGauge } from "../components/Results.tsx";
+import { Icon } from "../components/Icon.tsx";
+import ResultView from "../components/ResultView.tsx";
 import CiteStep from "../components/CiteStep.tsx";
 import type { Key } from "../dict.ts";
 
@@ -48,6 +49,18 @@ export default function Workspace() {
 
   const wc = words(abstract);
   const abstractOk = wc >= MIN_ABSTRACT_WORDS && abstract.length <= MAX_ABSTRACT_CHARS;
+  // Bối cảnh học thuật người dùng đã khai báo: giúp AI chọn thuật ngữ và đánh giá theo đúng lĩnh vực.
+  const profileContext = () => {
+    if (!profile) return "";
+    const parts = [
+      profile.research_fields.length && `Declared research fields: ${profile.research_fields.join("; ")}`,
+      profile.keywords.length && `Research keywords: ${profile.keywords.join("; ")}`,
+      profile.title && `Academic title: ${profile.title}`,
+      profile.affiliation && `Affiliation: ${profile.affiliation}`,
+      profile.country && `Country: ${profile.country}`,
+    ].filter(Boolean);
+    return parts.join("\n");
+  };
   const left = remaining(quota);
   const out = quota != null && left <= 0;
 
@@ -75,7 +88,7 @@ export default function Workspace() {
     if (!file) return;
     setErr(""); setBusy(true); setPhase(0); setNeedContact(false);
     try {
-      const r = await analyze({ abstract, text, fileName: file.name, ui: lang, fields: profile?.research_fields.join("; ") });
+      const r = await analyze({ abstract, text, fileName: file.name, profile: profileContext() });
       setRes(r); setSel(new Set(r.passages.filter((p) => p.priority === "high").map((p) => p.id)));
       if (r.quota) setQuota(r.quota);
       setStep(3);
@@ -96,7 +109,7 @@ export default function Workspace() {
     <ol className="stepper" aria-label="Steps">
       {([1, 2, 3, 4] as const).map((n) => (
         <li key={n} className={step === n ? "on" : step > n ? "done" : ""}>
-          <button disabled={n > step || (n >= 3 && !res)} onClick={() => setStep(n)}><span>{step > n ? "✓" : n}</span>{t(`step${n}` as "step1")}</button>
+          <button disabled={n > step || (n >= 3 && !res)} onClick={() => setStep(n)}><span>{step > n ? <Icon name="check" size={13} /> : n}</span>{t(`step${n}` as "step1")}</button>
         </li>
       ))}
     </ol>
@@ -117,7 +130,7 @@ export default function Workspace() {
           </label>
           <div className="between">
             <span className={wc >= MIN_ABSTRACT_WORDS ? "muted small" : "warn small"}>{t("word_count", { n: wc, min: MIN_ABSTRACT_WORDS })}</span>
-            <button className="btn primary" disabled={!abstractOk} onClick={() => setStep(2)}>{t("next")} →</button>
+            <button className="btn primary" disabled={!abstractOk} onClick={() => setStep(2)}>{t("next")} <Icon name="right" size={16} /></button>
           </div>
         </div>
       )}
@@ -140,12 +153,12 @@ export default function Workspace() {
                     {prog && prog.phase !== "text" && <button className="btn sm" onClick={() => abort.current?.abort()}>{t("cancel")}</button>}
                   </div>
                 ) : file ? (
-                  <div><b>📄 {file.name}</b><div className="muted small">{(file.size / 1048576).toFixed(2)} MB · {t("chars", { n: text.length.toLocaleString() })}</div><div className="small">{t("replace_file")}</div></div>
+                  <div><b><Icon name="file" size={16} /> {file.name}</b><div className="muted small">{(file.size / 1048576).toFixed(2)} MB · {t("chars", { n: text.length.toLocaleString() })}</div><div className="small">{t("replace_file")}</div></div>
                 ) : (
                   <div><b>{t("drop_here")}</b><div className="muted small">PDF · DOC · DOCX</div></div>
                 )}
               </div>
-              <p className="muted small">🔒 {t("privacy_note")}</p>
+              <p className="muted small privacy"><Icon name="shield" size={15} /> {t("privacy_note")}</p>
             </>
           )}
           {ocrFile && !reading && (
@@ -165,7 +178,7 @@ export default function Workspace() {
             </div>
           )}
           <div className="between">
-            <button className="btn" onClick={() => setStep(1)} disabled={busy}>← {t("back")}</button>
+            <button className="btn" onClick={() => setStep(1)} disabled={busy}><Icon name="left" size={16} /> {t("back")}</button>
             <button className="btn primary" disabled={!file || busy || reading || out} onClick={run}>{busy ? "…" : t("analyze")}</button>
           </div>
           {quota && !quota.unlimited && !out && <p className="muted small">{t("will_use")}</p>}
@@ -173,53 +186,15 @@ export default function Workspace() {
       )}
 
       {step === 3 && res && (
-        <div className="stack gap">
-          <div className="card result-head">
-            <ScoreGauge score={res.score} />
-            <div className="grow">
-              <div className={`verdict ${res.score >= PASS_SCORE ? "pass" : "fail"}`}>{res.score >= PASS_SCORE ? t("pass") : t("fail")}</div>
-              <h3>{res.meta.title || file?.name}</h3>
-              <p className="muted small">{res.meta.authors.map((a) => a.family).join(", ")}{res.meta.year ? ` · ${res.meta.year}` : ""}{res.meta.container ? ` · ${res.meta.container}` : ""} · {res.language === "vi" ? t("lang_vi") : t("lang_en")}</p>
-              <p>{res.verdict}</p>
-            </div>
-            <Breakdown b={res.breakdown} />
-          </div>
-
-          <div className="card">
-            <h3>{t("summary")}</h3>
-            <p className="prose">{res.summary}</p>
-            <div className="two">
-              {res.strengths.length > 0 && <div><h4>👍 {t("strengths")}</h4><ul>{res.strengths.map((s) => <li key={s}>{s}</li>)}</ul></div>}
-              {res.gaps.length > 0 && <div><h4>⚠ {t("gaps")}</h4><ul>{res.gaps.map((s) => <li key={s}>{s}</li>)}</ul></div>}
-            </div>
-          </div>
-
-          {res.score >= PASS_SCORE ? (
-            <div className="card">
-              <div className="between"><h3>{t("passages_h")}</h3>
-                <div className="row wrap"><span className="muted small">{t("selected_n", { n: sel.size })}</span>
-                  <button className="btn primary sm" disabled={sel.size === 0} onClick={() => setStep(4)}>{t("cite_selected")} →</button></div>
-              </div>
-              <p className="muted small">{t("passages_d")}</p>
-              {res.passages.length === 0 ? <p className="muted">{t("no_passages")}</p> :
-                <PassageList passages={res.passages} dropped={res.droppedPassages} selected={sel}
-                  toggle={(id) => setSel((s) => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; })} />}
-              <div className="actions"><button className="btn sm" onClick={() => { setSel(new Set()); setStep(4); }}>{t("cite_whole")}</button></div>
-            </div>
-          ) : (
-            <div className="card">
-              <h3>{t("reco_h")}</h3>
-              <p className="muted small">{t("reco_d")}</p>
-              {res.recommendations && <Recommendations rec={res.recommendations} />}
-              <div className="actions"><button className="btn sm" onClick={() => { setSel(new Set()); setStep(4); }}>{t("cite_anyway")}</button></div>
-            </div>
-          )}
-          <div className="actions"><button className="btn" onClick={newDoc}>{t("another_doc")}</button><button className="btn ghost" onClick={reset}>{t("new_project")}</button></div>
-        </div>
+        <ResultView res={res} fileName={file?.name ?? ""} sel={sel}
+          toggle={(id) => setSel((x) => { const n = new Set(x); n.has(id) ? n.delete(id) : n.add(id); return n; })}
+          onCiteSelected={() => setStep(4)} onCiteSource={() => { setSel(new Set()); setStep(4); }}
+          onAnother={newDoc} onEditAbstract={() => { setRes(null); setSel(new Set()); setFile(null); setText(""); setStep(1); }} onNewProject={reset} />
       )}
 
       {step === 4 && res && (
-        <CiteStep meta={res.meta} passages={res.passages.filter((p) => sel.has(p.id))} project={project} onBack={() => setStep(3)} />
+        <CiteStep meta={res.meta} passages={res.passages.filter((p) => sel.has(p.id))} project={project}
+          onBack={() => setStep(3)} onAnother={newDoc} onNewProject={reset} />
       )}
     </div>
   );

@@ -6,14 +6,16 @@ import { detectLang } from "../shared/lang.ts";
 import { locateQuote, prepare } from "../shared/quotes.ts";
 import {
   MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MIN_ABSTRACT_WORDS, PASS_SCORE,
-  type AnalysisResult, type Lang, type Passage, type SourceMeta,
+  type AnalysisResult, type Bi, type Passage, type SourceMeta,
 } from "../shared/types.ts";
 
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-opus-5-5";
 const clampInt = (n: unknown, max: number) => Math.max(0, Math.min(max, Math.round(Number(n) || 0)));
 const s = (v: unknown) => (typeof v === "string" ? v.trim() : "");
+const bi = (vi: unknown, en: unknown): Bi => ({ vi: s(vi), en: s(en) });
+const bis = (vi: unknown, en: unknown): Bi<string[]> => ({ vi: ((vi as unknown[]) ?? []).map(s).filter(Boolean), en: ((en as unknown[]) ?? []).map(s).filter(Boolean) });
 
-interface Body { abstract?: string; text?: string; fileName?: string; ui?: Lang; fields?: string }
+interface Body { abstract?: string; text?: string; fileName?: string; profile?: string }
 
 export async function POST(request: Request): Promise<Response> {
   const auth = await requireUser(request);
@@ -24,7 +26,6 @@ export async function POST(request: Request): Promise<Response> {
   try { body = await request.json(); } catch { return fail("bad_request", 400); }
   const abstract = s(body.abstract);
   const text = s(body.text);
-  const ui: Lang = body.ui === "en" ? "en" : "vi";
   if (abstract.split(/\s+/).length < MIN_ABSTRACT_WORDS || abstract.length > MAX_ABSTRACT_CHARS)
     return fail("bad_request", 400, "Abstract/Proposal quá ngắn hoặc quá dài.");
   if (text.replace(/\[\[p\.\d+\]\]/g, "").trim().length < 400) return fail("no_text", 422);
@@ -48,10 +49,10 @@ export async function POST(request: Request): Promise<Response> {
     const client = new Anthropic();
     const msg = await client.messages.create({
       model: MODEL,
-      max_tokens: 12000,
+      max_tokens: 16000,
       system: SYSTEM,
       output_config: { effort: "medium", format: { type: "json_schema", schema: SCHEMA } },
-      messages: [{ role: "user", content: userPrompt({ abstract, text, ui, fileName: s(body.fileName) || "document", fields: s(body.fields) }) }],
+      messages: [{ role: "user", content: userPrompt({ abstract, text, fileName: s(body.fileName) || "document", profile: s(body.profile).slice(0, 800) }) }],
     } as Anthropic.MessageCreateParamsNonStreaming);
 
     if (msg.stop_reason === "refusal") { await refund(); return fail("ai_refused", 422); }
@@ -76,11 +77,11 @@ export async function POST(request: Request): Promise<Response> {
       const norm = prepare(text);
       const found: Passage[] = [];
       const used = new Set<number>();
-      for (const p of r.passages as { quote: string; priority: Passage["priority"]; reason: string; use: Passage["use"] }[]) {
+      for (const p of r.passages as { quote: string; priority: Passage["priority"]; reason_vi: string; reason_en: string; use: Passage["use"] }[]) {
         const loc = locateQuote(text, p.quote, norm);
         if (!loc || used.has(loc.start)) { dropped++; continue; }
         used.add(loc.start);
-        found.push({ id: "", quote: loc.text, page: loc.page, priority: p.priority, rank: 0, reason: s(p.reason), use: p.use });
+        found.push({ id: "", quote: loc.text, page: loc.page, priority: p.priority, rank: 0, reason: bi(p.reason_vi, p.reason_en), use: p.use });
       }
       passages = found.map((p, i) => ({ ...p, id: `p${i + 1}`, rank: i + 1 }));
     }
@@ -93,11 +94,11 @@ export async function POST(request: Request): Promise<Response> {
       pages: s(m.pages), doi: s(m.doi), url: s(m.url),
     };
 
-    const recommendations = score < PASS_SCORE ? await recommend(s(r.advice), r.queries ?? [], r.keywords ?? []) : null;
+    const recommendations = score < PASS_SCORE ? await recommend({ advice: bi(r.advice_vi, r.advice_en), queries: r.queries ?? [], keywords: (r.keywords ?? []).map(s).filter(Boolean), disciplines: r.disciplines ?? [] }) : null;
 
     const out: AnalysisResult = {
-      language: r.language, score, breakdown, verdict: s(r.verdict), summary: s(r.summary),
-      strengths: (r.strengths ?? []).map(s).filter(Boolean), gaps: (r.gaps ?? []).map(s).filter(Boolean),
+      language: r.language, score, breakdown, verdict: bi(r.verdict_vi, r.verdict_en), summary: bi(r.summary_vi, r.summary_en),
+      strengths: bis(r.strengths_vi, r.strengths_en), gaps: bis(r.gaps_vi, r.gaps_en),
       meta, passages, droppedPassages: dropped, recommendations, quota: await quotaOf(sb, id), truncated: false,
     };
     return json(out);
