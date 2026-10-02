@@ -14,7 +14,7 @@ Các thành phần dưới đây dùng theo giấy phép của chúng; không th
 | word-extractor | MIT | Đọc văn bản DOC (Word cũ) trên máy chủ |
 | tesseract.js | Apache-2.0 | OCR PDF quét ảnh trong trình duyệt (mô hình Tesseract tessdata_fast, Apache-2.0) |
 | citeproc-js | CPAL-1.0 hoặc AGPL-1.0 (dùng theo CPAL-1.0) | Định dạng trích dẫn theo kiểu CSL |
-| three.js | MIT | Vẽ nhân vật trợ lý Ami dạng 3D (WebGL), tải lười; nhân vật do dự án tự dựng từ hình khối, không dùng mô hình hay hình ảnh bên ngoài |
+| three.js | MIT | Vẽ nhân vật trợ lý Ali dạng 3D (WebGL), tải lười; nhân vật do dự án tự dựng từ hình khối, không dùng mô hình hay hình ảnh bên ngoài |
 | @vercel/analytics | MPL-2.0 | (đã cài sẵn, chưa bật) |
 
 Dữ liệu:

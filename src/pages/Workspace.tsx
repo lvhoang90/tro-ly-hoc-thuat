@@ -60,14 +60,14 @@ export default function Workspace() {
     return () => clearInterval(id);
   }, [busy]);
 
-  // Ami phản ứng theo từng bước, theo việc đọc tệp, phân tích và điểm số.
-  const ami = useMascot();
-  useEffect(() => { if (step === 1) ami.say(t("ami_step1"), "idle", 9000); else if (step === 2 && !reading && !busy) ami.say(t("ami_step2"), "idle", 9000); else if (step === 4) ami.say(t("ami_step4"), "happy", 8000); }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (reading) ami.say(t("ami_reading"), "read", 0); }, [reading]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (file && !reading && !busy) ami.say(t("ami_read_ok"), "happy", 8000); }, [file]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (busy) ami.say(t("ami_busy"), "think", 0); }, [busy]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (res) { const r = scoreReaction(res.score); ami.say(t(r.key), r.mood, 9000); } }, [res]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => { if (err) ami.say(t("ami_oops"), "care", 7000); }, [err]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Ali phản ứng theo từng bước, theo việc đọc tệp, phân tích và điểm số.
+  const ali = useMascot();
+  useEffect(() => { if (step === 1) ali.say(t("ali_step1"), "idle", 9000); else if (step === 2 && !reading && !busy) ali.say(t("ali_step2"), "idle", 9000); else if (step === 4) ali.say(t("ali_step4"), "happy", 8000); }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (reading) ali.say(t("ali_reading"), "read", 0); }, [reading]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (file && !reading && !busy) ali.say(t("ali_read_ok"), "happy", 8000); }, [file]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (busy) ali.say(t("ali_busy"), "think", 0); }, [busy]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (res) { const r = scoreReaction(res.score); ali.say(t(r.key), r.mood, 9000); } }, [res]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (err) ali.say(t("ali_oops"), "care", 7000); }, [err]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const maxMb = quota?.max_file_mb ?? 2;
   const approved = quota?.approved ?? false;

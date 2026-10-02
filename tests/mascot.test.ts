@@ -20,5 +20,5 @@ test("phản ứng theo điểm: ≥80 ăn mừng, ≥60 vui, dưới 60 quan t�
   assert.equal(scoreReaction(79).mood, "happy");
   assert.equal(scoreReaction(60).mood, "happy");
   assert.equal(scoreReaction(59).mood, "care");
-  assert.equal(scoreReaction(0).key, "ami_score_lo");
+  assert.equal(scoreReaction(0).key, "ali_score_lo");
 });

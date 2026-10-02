@@ -9,7 +9,7 @@ import Workspace from "./pages/Workspace.tsx";
 
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const History = lazy(() => import("./pages/History.tsx"));
-import { Ami } from "./mascot/Ami.tsx";
+import { Ali } from "./mascot/Ali.tsx";
 import { useMascot } from "./mascot/ctx.tsx";
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 
@@ -24,12 +24,12 @@ export default function App() {
   const [route, setRoute] = useState<Route>(fromHash);
   useEffect(() => { const f = () => setRoute(fromHash()); addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
 
-  const ami = useMascot();
+  const ali = useMascot();
   useEffect(() => {
     if (!session || !ready) return;
-    if (route === "history") ami.say(t("ami_history"), "happy", 7000);
-    else if (route === "profile") ami.say(t("ami_profile"), "idle", 7000);
-    else if (route === "admin") ami.say(t("ami_admin"), "wave", 6000);
+    if (route === "history") ali.say(t("ali_history"), "happy", 7000);
+    else if (route === "profile") ali.say(t("ali_profile"), "idle", 7000);
+    else if (route === "admin") ali.say(t("ali_admin"), "wave", 6000);
   }, [route, session, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let body;
@@ -55,7 +55,7 @@ export default function App() {
         {(ready || !configured) && <Footer />}
       </div>
       <VisitChip />
-      {ready && session && <Ami variant="companion" />}
+      {ready && session && <Ali variant="companion" />}
       <ScrollTop />
       <Toasts />
     </>

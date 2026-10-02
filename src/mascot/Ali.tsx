@@ -11,27 +11,27 @@ function webglOk(): boolean {
 }
 function lowPower(): boolean {
   const n = navigator as Navigator & { connection?: { saveData?: boolean }; deviceMemory?: number };
-  if (location.search.includes("ami3d") || location.search.includes("amidebug")) return false; // ép bật 3D khi xem thử
+  if (location.search.includes("ali3d") || location.search.includes("alidebug")) return false; // ép bật 3D khi xem thử
   // Trình duyệt tự động (kiểm thử, đo tốc độ) thường vẽ WebGL bằng CPU rất chậm: dùng robot 2D để không ảnh hưởng số đo.
   return !!n.connection?.saveData || n.webdriver === true || (n.deviceMemory !== undefined && n.deviceMemory <= 1);
 }
 const prefersReduced = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 /** Robot 2D dùng khi chưa tải xong 3D, không có WebGL hoặc máy yếu. */
-export function AmiSvg({ mood = "idle" }: { mood?: Mood }) {
+export function AliSvg({ mood = "idle" }: { mood?: Mood }) {
   const happy = mood === "happy" || mood === "celebrate" || mood === "wave";
   return (
-    <svg className="ami-svg" viewBox="0 0 160 190" role="img" aria-hidden="true">
+    <svg className="ali-svg" viewBox="0 0 160 190" role="img" aria-hidden="true">
       <defs>
-        <linearGradient id="amiA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#38bdf8" /><stop offset="1" stopColor="#7c5cf0" /></linearGradient>
-        <radialGradient id="amiB" cx="35%" cy="30%"><stop offset="0" stopColor="#fff" /><stop offset="1" stopColor="#cfd8f0" /></radialGradient>
+        <linearGradient id="aliA" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stopColor="#38bdf8" /><stop offset="1" stopColor="#7c5cf0" /></linearGradient>
+        <radialGradient id="aliB" cx="35%" cy="30%"><stop offset="0" stopColor="#fff" /><stop offset="1" stopColor="#cfd8f0" /></radialGradient>
       </defs>
       <ellipse cx="80" cy="182" rx="38" ry="6" fill="rgba(10,16,40,.28)" />
       <path d="M52 126h56l-8 38H60z" fill="#1b2a5c" /><ellipse cx="80" cy="168" rx="26" ry="5" fill="#38bdf8" opacity=".8" />
-      <ellipse cx="80" cy="116" rx="40" ry="38" fill="url(#amiB)" /><rect x="64" y="100" width="32" height="32" rx="9" fill="url(#amiA)" />
+      <ellipse cx="80" cy="116" rx="40" ry="38" fill="url(#aliB)" /><rect x="64" y="100" width="32" height="32" rx="9" fill="url(#aliA)" />
       <path d="M72 124l8-18 8 18z" fill="#fff" />
       <circle cx="36" cy="106" r="12" fill="#38bdf8" /><circle cx="124" cy="106" r="12" fill="#38bdf8" />
-      <rect x="32" y="40" width="96" height="72" rx="28" fill="url(#amiB)" /><rect x="42" y="52" width="76" height="46" rx="18" fill="#070b18" />
+      <rect x="32" y="40" width="96" height="72" rx="28" fill="url(#aliB)" /><rect x="42" y="52" width="76" height="46" rx="18" fill="#070b18" />
       {happy ? <><path d="M54 78q8-12 16 0" stroke="#7dd3fc" strokeWidth="5" fill="none" strokeLinecap="round" /><path d="M90 78q8-12 16 0" stroke="#7dd3fc" strokeWidth="5" fill="none" strokeLinecap="round" /></>
         : <><rect x="54" y="62" width="16" height="22" rx="8" fill="#7dd3fc" /><rect x="90" y="62" width="16" height="22" rx="8" fill="#7dd3fc" /></>}
       <path d="M72 90q8 6 16 0" stroke="#7dd3fc" strokeWidth="3.5" fill="none" strokeLinecap="round" />
@@ -41,8 +41,8 @@ export function AmiSvg({ mood = "idle" }: { mood?: Mood }) {
   );
 }
 
-/** Nhân vật trợ lý Ami: robot 3D tải lười (không chặn trang), có lời nhắn và cảm xúc theo ngữ cảnh. */
-export function Ami({ variant }: { variant: "hero" | "companion" }) {
+/** Nhân vật trợ lý Ali: robot 3D tải lười (không chặn trang), có lời nhắn và cảm xúc theo ngữ cảnh. */
+export function Ali({ variant }: { variant: "hero" | "companion" }) {
   const { t } = useI18n();
   const { toasts } = useApp();
   const { mood, text, nonce, enabled, say, setEnabled } = useMascot();
@@ -59,32 +59,32 @@ export function Ami({ variant }: { variant: "hero" | "companion" }) {
     return () => { if (w.requestIdleCallback && w.cancelIdleCallback) w.cancelIdleCallback(id); else window.clearTimeout(id); };
   }, [ok]);
 
-  // Nhận thưởng (sao chép trích dẫn): Ami ăn mừng.
+  // Nhận thưởng (sao chép trích dẫn): Ali ăn mừng.
   const win = toasts.filter((x) => x.kind === "win").at(-1)?.id;
-  useEffect(() => { if (win && variant === "companion") say(t("ami_copied"), "celebrate", 6000); }, [win]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (win && variant === "companion") say(t("ali_copied"), "celebrate", 6000); }, [win]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (text) setOpen(true); }, [text, nonce]);
   useEffect(() => { // báo cho CSS để nút lên đầu trang nhường chỗ cho nhân vật ở góc phải
     if (variant !== "companion") return;
-    document.documentElement.dataset.ami = enabled ? "on" : "min";
-    return () => { delete document.documentElement.dataset.ami; };
+    document.documentElement.dataset.ali = enabled ? "on" : "min";
+    return () => { delete document.documentElement.dataset.ali; };
   }, [variant, enabled]);
 
   if (variant === "companion" && !enabled) {
-    return <button className="ami-show" onClick={() => { setEnabled(true); say(t("ami_back"), "wave", 5000); }} aria-label={t("ami_show")} title={t("ami_show")}><AmiSvg /></button>;
+    return <button className="ali-show" onClick={() => { setEnabled(true); say(t("ali_back"), "wave", 5000); }} aria-label={t("ali_show")} title={t("ali_show")}><AliSvg /></button>;
   }
   return (
-    <aside className={`ami ami-${variant}`} aria-label={t("ami_name")}>
+    <aside className={`ali ali-${variant}`} aria-label={t("ali_name")}>
       {text && open && (
-        <div className="ami-bubble" role="status" aria-live="polite">
+        <div className="ali-bubble" role="status" aria-live="polite">
           <span>{text}</span>
-          {variant === "companion" && <button className="ami-x" onClick={() => setOpen(false)} aria-label={t("ami_hide_tip")}>×</button>}
+          {variant === "companion" && <button className="ali-x" onClick={() => setOpen(false)} aria-label={t("ali_hide_tip")}>×</button>}
         </div>
       )}
-      <div className="ami-stage" role="button" tabIndex={0} aria-label={t("ami_name")} onClick={() => say(t("ami_tap"), "wave", 4500)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); say(t("ami_tap"), "wave", 4500); } }}>
-        {variant === "hero" && <div className="ami-orbit" aria-hidden="true"><i>0–100</i><i>APA</i><i>“ ”</i><i>DOI</i></div>}
-        {ok && ready3d ? <Suspense fallback={<AmiSvg mood={mood} />}><Robot3D mood={mood} nonce={nonce} reduced={reduced} fps={variant === "companion" ? 40 : 60} /></Suspense> : <AmiSvg mood={mood} />}
+      <div className="ali-stage" role="button" tabIndex={0} aria-label={t("ali_name")} onClick={() => say(t("ali_tap"), "wave", 4500)} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); say(t("ali_tap"), "wave", 4500); } }}>
+        {variant === "hero" && <div className="ali-orbit" aria-hidden="true"><i>0–100</i><i>APA</i><i>“ ”</i><i>DOI</i></div>}
+        {ok && ready3d ? <Suspense fallback={<AliSvg mood={mood} />}><Robot3D mood={mood} nonce={nonce} reduced={reduced} fps={variant === "companion" ? 40 : 60} /></Suspense> : <AliSvg mood={mood} />}
       </div>
-      {variant === "companion" && <button className="ami-off" onClick={() => setEnabled(false)} aria-label={t("ami_hide")} title={t("ami_hide")}>–</button>}
+      {variant === "companion" && <button className="ali-off" onClick={() => setEnabled(false)} aria-label={t("ali_hide")} title={t("ali_hide")}>–</button>}
     </aside>
   );
 }

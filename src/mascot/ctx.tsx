@@ -11,7 +11,7 @@ interface MascotApi extends MascotState {
 }
 
 const Ctx = createContext<MascotApi | null>(null);
-const KEY = "tl-ami";
+const KEY = "tl-ali";
 
 export function MascotProvider({ children }: { children: ReactNode }) {
   const [s, setS] = useState<MascotState>({ mood: "idle", text: "", nonce: 0 });
@@ -26,12 +26,12 @@ export function MascotProvider({ children }: { children: ReactNode }) {
   const setMood = useCallback((mood: Mood) => setS((p) => (p.mood === mood ? p : { ...p, mood, nonce: p.nonce + 1 })), []);
   const setEnabled = useCallback((v: boolean) => { setEnabledState(v); try { localStorage.setItem(KEY, v ? "on" : "off"); } catch { /* bỏ qua */ } }, []);
   useEffect(() => () => window.clearTimeout(timer.current), []);
-  // Gỡ lỗi/xem thử cảm xúc: thêm ?amidebug vào địa chỉ rồi gửi sự kiện window "ami:debug" với detail { mood, text }.
+  // Gỡ lỗi/xem thử cảm xúc: thêm ?alidebug vào địa chỉ rồi gửi sự kiện window "ali:debug" với detail { mood, text }.
   useEffect(() => {
-    if (!location.search.includes("amidebug")) return;
+    if (!location.search.includes("alidebug")) return;
     const h = (e: Event) => { const d = (e as CustomEvent<{ mood: Mood; text?: string }>).detail; say(d.text ?? "", d.mood, 0); };
-    window.addEventListener("ami:debug", h);
-    return () => window.removeEventListener("ami:debug", h);
+    window.addEventListener("ali:debug", h);
+    return () => window.removeEventListener("ali:debug", h);
   }, [say]);
 
   const value = useMemo(() => ({ ...s, enabled, say, setMood, setEnabled }), [s, enabled, say, setMood, setEnabled]);
