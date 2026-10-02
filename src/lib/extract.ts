@@ -82,9 +82,9 @@ async function docxText(buf: ArrayBuffer): Promise<string> {
   return (await mammoth.extractRawText({ arrayBuffer: buf })).value;
 }
 
-export async function extractText(file: File, onProgress: (p: Progress) => void = () => {}, opts: { ocr?: boolean; signal?: AbortSignal } = {}): Promise<{ text: string; kind: Kind }> {
+export async function extractText(file: File, onProgress: (p: Progress) => void = () => {}, opts: { ocr?: boolean; signal?: AbortSignal; maxBytes?: number } = {}): Promise<{ text: string; kind: Kind }> {
   if (file.size === 0) throw new ExtractFailure("empty");
-  if (file.size > MAX_FILE_BYTES) throw new ExtractFailure("size");
+  if (file.size > Math.min(opts.maxBytes ?? MAX_FILE_BYTES, MAX_FILE_BYTES)) throw new ExtractFailure("size");
   const kind = await sniff(file);
   let text = "";
   try {

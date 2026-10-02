@@ -15,6 +15,8 @@ Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác gi
 
 Kết quả đánh giá hiển thị song ngữ (đổi ngôn ngữ giao diện là đổi cả nhận xét, không gọi AI lần nữa), viết theo văn phong học thuật phù hợp lĩnh vực mà người dùng khai báo trong hồ sơ. Sau phần nhận xét là hộp **Quyết định của bạn** để chọn hướng đi (trích dẫn, tìm nguồn khác, chỉnh abstract, hoặc vẫn trích dẫn nguồn có điểm thấp). Lịch sử trích dẫn cho đổi kiểu và ngôn ngữ ngay trên từng mục.
 
+Dung lượng tệp: **15 MB** cho người dùng đã được quản trị viên **xác nhận**, **5 MB** cho tài khoản chưa xác nhận (chỉnh được trong Quản trị → Cài đặt). Trang **Quản trị → Thống kê** có chi phí API thực tế (USD và VND) theo ngày, theo người dùng, token, số lượt phân tích, phân bố điểm phù hợp, người dùng mới và lượt truy cập, kèm biểu đồ tương tác và chế độ xem bảng. Lịch sử trích dẫn gom theo **đề tài** (abstract đã lưu) hoặc, nếu chỉ có một đề tài, xếp theo mức ưu tiên và điểm phù hợp.
+
 Hạn mức: **2 lượt/ngày** (đặt lại 00:00 giờ Việt Nam). Hết lượt thì hiện thông tin liên hệ quản trị viên (email/SĐT/Zalo). Quản trị viên cấp thêm lượt trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
 
@@ -28,7 +30,7 @@ Trình duyệt (React + TS, Vite)               Vercel Functions                
  └ supabase-js: hồ sơ, lịch sử, admin RPC     │   ├ đối chiếu trích đoạn (shared/quotes)
                                               │   └ <60: OpenAlex + data/edufind.ts
                                               /api/extract-doc  (chỉ .doc cũ, word-extractor)
-                                              /api/visit        ──► Upstash Redis (đếm truy cập)
+                                              /api/visit        ──► Supabase (đếm truy cập)
 Supabase: Auth + Postgres (RLS)  ◄── supabase/schema.sql
 ```
 
@@ -45,11 +47,11 @@ React, Vite, TypeScript, supabase-js, @anthropic-ai/sdk, **pdf.js** (Apache-2.0)
 
 ## Cài đặt
 
-Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel; tùy chọn Upstash Redis.
+Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel.
 
 1. **Supabase**: tạo dự án; *SQL Editor* → dán và chạy `supabase/schema.sql`. Bỏ comment dòng cuối, thay email của bạn để thành **master**, chạy lại. *Authentication → Providers → Email*: bật **Confirm email**. *Authentication → URL Configuration*: đặt Site URL và Redirect URL là địa chỉ ứng dụng. Khuyến nghị cấu hình SMTP riêng (gói miễn phí giới hạn số email/giờ).
 2. **Biến môi trường** (Vercel → Settings → Environment Variables; mẫu ở `.env.example`):
-   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (bí mật), `ANTHROPIC_API_KEY` (bí mật), `ANTHROPIC_MODEL` (mặc định `claude-opus-5-5`; đặt `claude-sonnet-5-5` để rẻ hơn), `CONTACT_EMAIL`, `KV_REST_API_URL` + `KV_REST_API_TOKEN` (đếm truy cập; có thể dùng chung Upstash với EduFind, khóa riêng tiền tố `troly:`).
+   `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `VITE_SITE_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` (bí mật), `ANTHROPIC_API_KEY` (bí mật), `ANTHROPIC_MODEL` (mặc định `claude-opus-5-5`; đặt `claude-sonnet-5-5` để rẻ hơn), `CONTACT_EMAIL`.
 3. **Vercel**: import repo, framework Vite (đã có `vercel.json`). `api/analyze` cần thời gian chạy tới 120 giây; dùng gói/tùy chọn Vercel cho phép (Fluid compute).
 4. Đăng nhập bằng email master → **Quản trị → Cài đặt**: nhập email/SĐT/Zalo liên hệ và số lượt miễn phí/ngày.
 5. Cập nhật CSDL EduFind (cả 28 lĩnh vực, địa chỉ gốc lấy từ `site.config.json` của EduFind, hiện là https://edufind.isavn.edu.vn/): cập nhật bản sao repo `edufind-khgd`, chạy `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind.ts`. Mỗi lĩnh vực giữ 400 tạp chí SJR cao nhất (đổi bằng `EDUFIND_TOP`) và toàn bộ tạp chí trong nước của Hội đồng.

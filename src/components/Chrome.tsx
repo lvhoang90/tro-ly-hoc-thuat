@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import type { Lang } from "../../shared/types.ts";
 import { useApp } from "../ctx.tsx";
@@ -130,21 +130,71 @@ export function ShareButtons({ compact = false }: { compact?: boolean }) {
   );
 }
 
-// ---------- Bộ đếm truy cập ----------
-export function VisitCounter() {
-  const { t } = useI18n();
+// ---------- Bộ đếm truy cập (cùng cách hiển thị với EduFind) ----------
+function useVisits() {
   const [s, setS] = useState<VisitStats | null>(null);
-  useEffect(() => { void visit().then(setS); }, []);
-  if (!s?.enabled) return null;
-  const fmt = (n = 0) => n.toLocaleString();
-  const max = Math.max(1, ...(s.days ?? []).map((d) => d.n));
+  useEffect(() => { void visit(14).then(setS); }, []);
+  return s;
+}
+const nf = new Intl.NumberFormat("en-US");
+
+/** Khối thống kê dùng chung cho chân trang và cửa sổ nổi: tổng, hôm nay, 7 ngày, quốc gia nhiều nhất. */
+function VisitBody({ s }: { s: VisitStats }) {
+  const { t, lang } = useI18n();
+  const week = (s.days ?? []).slice(-7);
+  const max = Math.max(1, ...week.map((d) => d.n));
+  const dn = useMemo(() => new Intl.DisplayNames([lang], { type: "region" }), [lang]);
+  const top = (s.countries ?? []).slice(0, 5);
+  const cmax = Math.max(1, ...top.map((c) => c.n));
   return (
-    <div className="visits" title={t("visits_title")}>
-      <span><b>{fmt(s.total)}</b> {t("visits_total")}</span>
-      <span><b>{fmt(s.today)}</b> {t("visits_today")}</span>
-      <span className="spark" aria-hidden="true">{(s.days ?? []).map((d) => <i key={d.d} style={{ height: `${Math.max(12, (d.n / max) * 100)}%` }} />)}</span>
+    <div className="visit-body">
+      <div className="visit-nums"><div><b>{nf.format(s.total ?? 0)}</b><span>{t("visits_total")}</span></div><div><b>{nf.format(s.today ?? 0)}</b><span>{t("visits_today")}</span></div><div><b>{nf.format(week.reduce((a, d) => a + d.n, 0))}</b><span>{t("visits_7d")}</span></div></div>
+      <div className="spark big" aria-label={t("visits_7d")}>{week.map((d) => <i key={d.d} title={`${d.d}: ${d.n}`} style={{ height: `${Math.max(10, (d.n / max) * 100)}%` }}><em>{d.d.slice(8)}</em></i>)}</div>
+      {top.length > 0 && <ul className="mini-bars">{top.map((c) => <li key={c.c}><span>{dn.of(c.c) ?? c.c}</span><span className="mb-track"><i style={{ width: `${(c.n / cmax) * 100}%` }} /></span><b>{nf.format(c.n)}</b></li>)}</ul>}
     </div>
   );
+}
+
+export function VisitCounter() {
+  const s = useVisits();
+  if (!s?.enabled) return null;
+  return <VisitBody s={s} />;
+}
+
+/** Nút nổi góc dưới trái: số lượt truy cập, bấm mở chi tiết (đóng bằng Esc hoặc bấm ra ngoài). */
+export function VisitChip() {
+  const { t } = useI18n();
+  const s = useVisits();
+  const [open, setOpen] = useState(false);
+  const box = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const c = (e: MouseEvent) => { if (box.current && !box.current.contains(e.target as Node)) setOpen(false); };
+    addEventListener("keydown", k); addEventListener("mousedown", c);
+    return () => { removeEventListener("keydown", k); removeEventListener("mousedown", c); };
+  }, [open]);
+  if (!s?.enabled) return null;
+  return (
+    <div className="visits" ref={box}>
+      {open && <div className="popover visit-pop" role="dialog" aria-label={t("visits_head")}><div className="pop-title">{t("visits_head")}</div><VisitBody s={s} /><p className="muted small">{t("visits_title")}</p></div>}
+      <button className="visit-chip" onClick={() => setOpen(!open)} aria-expanded={open} title={t("visits_title")}><Icon name="eye" size={14} /> <b>{nf.format(s.total ?? 0)}</b></button>
+    </div>
+  );
+}
+
+/** Nút lên đầu trang: chỉ hiện khi trang đã cuộn xuống đủ xa. */
+export function ScrollTop() {
+  const { t } = useI18n();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const f = () => setShow(window.scrollY > 700);
+    f(); addEventListener("scroll", f, { passive: true });
+    return () => removeEventListener("scroll", f);
+  }, []);
+  if (!show) return null;
+  const go = () => window.scrollTo({ top: 0, behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+  return <button className="to-top" onClick={go} aria-label={t("to_top")} title={t("to_top")}><Icon name="up" size={20} /></button>;
 }
 
 export function Footer() {
