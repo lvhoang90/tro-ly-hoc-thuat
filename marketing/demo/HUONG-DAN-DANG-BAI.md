@@ -16,7 +16,7 @@ Dữ liệu trong ảnh là dữ liệu minh họa, không phải của người
 
 ## Lời dẫn từng cảnh (đọc hoặc làm phụ đề) / Voice-over per scene
 
-1. **VI:** Bạn đang đọc hàng chục bài báo để tìm đúng tài liệu cho đề tài? Đăng ký miễn phí, mỗi ngày có 2 lượt phân tích. **EN:** Reading dozens of papers to find the right source? Sign up free and get 2 analyses a day.
+1. **VI:** Bạn đang đọc hàng chục bài báo để tìm đúng tài liệu cho đề tài? Đăng ký miễn phí, mỗi ngày có 1 lượt phân tích. **EN:** Reading dozens of papers to find the right source? Sign up free and get 1 analysis a day.
 2. **VI:** Bước một, dán tóm tắt đề tài của bạn. Đây là thước đo để chấm mọi tài liệu. **EN:** Step one, paste your abstract. It is the yardstick for every source.
 3. **VI:** Bước hai, tải tệp PDF, DOC hoặc DOCX. Bản scan cũng đọc được, và tệp không bị lưu lại. **EN:** Step two, upload a PDF, DOC or DOCX. Scans work too, and files are never stored.
 4. **VI:** Chỉ vài phút sau, bạn có điểm phù hợp từ 0 đến 100, theo năm tiêu chí, kèm tóm tắt. **EN:** Minutes later you get a 0 to 100 fit score on five criteria, plus a summary.
@@ -29,9 +29,9 @@ Dữ liệu trong ảnh là dữ liệu minh họa, không phải của người
 
 ## Gợi ý chữ kèm bài đăng / Suggested caption
 
-**VI:** Từ một tài liệu đến trích dẫn đúng chuẩn trong 8 bước, miễn phí 2 lượt mỗi ngày. Dùng thử: https://aaa.isavietnam.app/ #TroLyHocThuat #AIAcademicAgent #NghienCuuKhoaHoc
+**VI:** Từ một tài liệu đến trích dẫn đúng chuẩn trong 8 bước, miễn phí 1 lượt mỗi ngày. Dùng thử: https://aaa.isavietnam.app/ #TroLyHocThuat #AIAcademicAgent #NghienCuuKhoaHoc
 
-**EN:** From a source document to a correctly formatted citation in 8 steps, with 2 free analyses a day. Try it: https://aaa.isavietnam.app/ #AcademicAI #ResearchTools #Citation
+**EN:** From a source document to a correctly formatted citation in 8 steps, with 1 free analysis a day. Try it: https://aaa.isavietnam.app/ #AcademicAI #ResearchTools #Citation
 
 ## Gợi ý dựng video dọc 9:16
 
