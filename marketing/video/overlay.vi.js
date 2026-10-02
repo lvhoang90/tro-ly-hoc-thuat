@@ -13,12 +13,12 @@
   const SC = { A: [0.2, 5.6], B: [5.7, 9.4], C: [9.4, 13.15], D: [13.15, 17.85], E: [17.85, 23.3], F: [23.3, 31] };
   /* Lời thoại (giờ bắt đầu/kết thúc khớp tệp giọng nói) */
   const VO = [
-    { k: "hook", a: 0.45, b: 5.52, c: COL.a, text: "Chào bạn, mình là Ami! Tìm đúng tài liệu mất hàng giờ. Từ nay thì không nữa!" },
-    { k: "upload", a: 5.85, b: 9.15, c: COL.b, text: "Thả vào tệp PDF, Word, hay cả bản quét." },
-    { k: "score", a: 9.5, b: 12.96, c: COL.c, text: "Mình chấm điểm độ phù hợp, từ 0 đến 100." },
-    { k: "pass", a: 13.3, b: 17.64, c: COL.d, text: "Rồi chọn đoạn đáng trích, kèm số trang, đối chiếu từng chữ." },
-    { k: "cite", a: 18.0, b: 22.97, c: COL.e, text: "Chạm một cái, có ngay trích dẫn chuẩn, hơn 10.000 kiểu!" },
-    { k: "end", a: 23.3, b: 28.5, c: COL.f, text: "Tệp của bạn không bị lưu trữ. Dùng thử miễn phí ngay nhé!" },
+    { k: "hook", a: 0.45, b: 5.27, c: COL.a, text: "Chào bạn, mình là Ami! Tìm đúng tài liệu mất hàng giờ. Từ nay thì không nữa!" },
+    { k: "upload", a: 5.85, b: 8.59, c: COL.b, text: "Thả vào tệp PDF, Word, hay cả bản quét." },
+    { k: "score", a: 9.5, b: 12.53, c: COL.c, text: "Mình chấm điểm độ phù hợp, từ 0 đến 100." },
+    { k: "pass", a: 13.3, b: 16.86, c: COL.d, text: "Rồi chọn đoạn đáng trích, kèm số trang, đối chiếu từng chữ." },
+    { k: "cite", a: 18.0, b: 21.54, c: COL.e, text: "Chạm một cái, có ngay trích dẫn chuẩn, hơn 10.000 kiểu!" },
+    { k: "end", a: 23.3, b: 26.72, c: COL.f, text: "Tệp của bạn không bị lưu trữ. Dùng thử miễn phí ngay nhé!" },
   ];
   /* Cảm xúc của Ami theo thời gian */
   const MOODS = [[0.0, "idle"], [0.35, "wave"], [3.7, "celebrate"], [5.85, "read"], [9.5, "think"], [11.4, "happy"], [13.3, "think"], [16.0, "happy"], [18.0, "happy"], [22.15, "celebrate"], [23.4, "wave"], [26.8, "happy"]];

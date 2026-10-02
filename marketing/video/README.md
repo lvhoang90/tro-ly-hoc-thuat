@@ -22,7 +22,7 @@ Dữ liệu trong clip là dữ liệu minh họa.
 - `render.cjs`: chạy lượt `bg` (nền + cảnh) và lượt `ami` (Ami 3D thật từ ứng dụng, nền trong suốt) bằng Playwright; sau đó ghép bằng ffmpeg (xem lệnh `overlay` với hiệu ứng Ami xuất hiện).
 
 ## Bản tiếng Việt
-- `ami-journey-30s.vi.mp4`: cùng hình ảnh và bố cục, chữ trên màn hình và lời Ami bằng tiếng Việt, giọng nam.
-- Giọng: Facebook MMS-TTS tiếng Việt (`facebook/mms-tts-vie`, giấy phép CC-BY-NC 4.0, chỉ dùng phi thương mại), nâng cao độ nhẹ và nén động để nghe hào hứng hơn.
-- `make-vi.py` tạo `overlay.vi.js` từ `overlay.js` (thay chuỗi hiển thị); dựng nền bằng `OVERLAY=overlay.vi.js node render.cjs <thư mục> 0 900 1 bg`, dùng lại khung Ami của bản tiếng Anh.
-- Lời thoại: "Chào bạn, mình là Ami! Tìm đúng tài liệu mất hàng giờ. Từ nay thì không nữa!" / "Thả vào tệp PDF, Word, hay cả bản quét." / "Mình chấm điểm độ phù hợp, từ 0 đến 100." / "Rồi chọn đoạn đáng trích, kèm số trang, đối chiếu từng chữ." / "Chạm một cái, có ngay trích dẫn chuẩn, hơn 10.000 kiểu!" / "Tệp của bạn không bị lưu trữ. Dùng thử miễn phí ngay nhé!"
+- `ami-journey-30s.vi.mp4`: cùng hình ảnh và bố cục, chữ trên màn hình và lời Ami bằng tiếng Việt, giọng nữ trẻ.
+- Giọng: Piper `vi_VN-vais1000-medium` (dữ liệu VAIS-1000, CC BY 4.0), nâng cao độ khoảng 2 nửa cung và nén động để tươi sáng, trẻ hơn. Có thể dùng thương mại, cần ghi nguồn giọng.
+- `make-vi.py` tạo `overlay.vi.js` từ `overlay.js` (thay chuỗi hiển thị, lấy độ dài lời nói từ `vo-vi-speech.json` để chữ và miệng Ami bám theo giọng). Dựng: `OVERLAY=overlay.vi.js node render.cjs <thư mục> 0 900 1 bg` và `... ami`, rồi ghép bằng ffmpeg.
+- Lời thoại: "Chào bạn! Mình là Ami! Tìm đúng tài liệu, mất hàng giờ. Từ nay thì không nữa!" / "Thả vào tệp PDF. Word. Hay cả bản quét!" / "Mình chấm điểm độ phù hợp. Từ 0, đến 100!" / "Rồi chọn đoạn đáng trích. Kèm số trang. Đối chiếu từng chữ!" / "Chạm một cái. Có ngay trích dẫn chuẩn. Hơn 10.000 kiểu!" / "Tệp của bạn không bị lưu trữ. Dùng thử miễn phí ngay nhé!"

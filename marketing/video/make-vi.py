@@ -40,5 +40,10 @@ R = [
 for a, b in R:
     assert a in s, a
     s = s.replace(a, b)
+import json, re
+sp = json.load(open("vo-vi-speech.json"))  # độ dài lời nói thật (giây) để chữ và miệng Ami bám theo giọng
+for k, d in sp.items():
+    m = re.search(r'\{ k: "%s", a: ([0-9.]+), b: ([0-9.]+),' % k, s)
+    a = float(m.group(1)); s = s.replace(m.group(0), '{ k: "%s", a: %s, b: %.2f,' % (k, m.group(1), a + d + 0.1))
 open("overlay.vi.js", "w", encoding="utf-8").write(s)
 print("ok", len(R))
