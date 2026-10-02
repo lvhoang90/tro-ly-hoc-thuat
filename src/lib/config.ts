@@ -7,6 +7,10 @@ export const APP = {
   author: {
     name: "Lương Việt Hoàng",
     org: "ISA Vietnam",
+    // Các trường dưới đây là tùy chọn: điền thì chân trang tự hiển thị, để trống thì ẩn.
+    role: { vi: "", en: "" },          // ví dụ: { vi: "Nghiên cứu sinh, Quản lý giáo dục", en: "Doctoral researcher, Educational Management" }
+    orcid: "",                          // ví dụ: "0000-0002-1825-0097"
+    website: "",                        // ví dụ: "https://isavn.edu.vn"
     edufind: "https://edufind.isavn.edu.vn/",
   },
 };

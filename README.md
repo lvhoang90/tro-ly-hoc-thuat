@@ -56,7 +56,7 @@ Yêu cầu: Node 20+, tài khoản Supabase, Anthropic API key, Vercel.
 4. Đăng nhập bằng email master → **Quản trị → Cài đặt**: nhập email/SĐT/Zalo liên hệ và số lượt miễn phí/ngày.
 5. Cập nhật CSDL EduFind (cả 28 lĩnh vực, địa chỉ gốc lấy từ `site.config.json` của EduFind, hiện là https://edufind.isavn.edu.vn/): cập nhật bản sao repo `edufind-khgd`, chạy `EDUFIND_DIR=../edufind-khgd npm run sync:edufind`, rồi commit `data/edufind.ts`. Mỗi lĩnh vực giữ 400 tạp chí SJR cao nhất (đổi bằng `EDUFIND_TOP`) và toàn bộ tạp chí trong nước của Hội đồng.
 
-Hướng dẫn Supabase chi tiết từng bước: [`docs/SUPABASE.md`](docs/SUPABASE.md).
+Hướng dẫn Supabase chi tiết từng bước: [`docs/SUPABASE.md`](docs/SUPABASE.md). Đồng bộ dữ liệu quản trị sang Google Sheets/Drive: [`docs/GOOGLE-DRIVE.md`](docs/GOOGLE-DRIVE.md).
 
 Chạy cục bộ: `npm i && npm run dev` (giao diện). Để thử cả `/api`, dùng `vercel dev`. Kiểm thử: `npm test` (đối chiếu trích đoạn, nhận diện ngôn ngữ, định dạng trích dẫn).
 

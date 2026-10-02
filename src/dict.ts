@@ -461,8 +461,15 @@ const D = {
   fit_title: { vi: "Điểm phù hợp của tài liệu với đề tài tại thời điểm phân tích", en: "Fit of the source with the study at analysis time" },
 
   // ----- Chân trang, chia sẻ -----
-  foot_about: { vi: "Trợ lý AI giúp đọc tài liệu, tóm tắt thông tin và trích dẫn theo chuẩn khoa học.", en: "An AI academic agent that helps you read sources, summarise them and cite to scholarly standards." },
-  brand_meaning: { vi: "Biểu tượng ba chữ A lồng nhau lan tỏa từ lõi: sức mạnh công nghệ tối ưu việc nghiên cứu học thuật và khoa học. A cũng là hạng ưu, tinh hoa mà ai cũng mong có mặt.", en: "Three nested letter A's radiating from a core: technology that amplifies academic and scientific research. A is also the mark of top grade and excellence everyone aspires to." },
+  foot_about: { vi: "Trợ lý học thuật AI đầu tiên tại Việt Nam giúp đọc tài liệu, tóm tắt thông tin, đánh giá tính phù hợp và trích dẫn tài liệu theo chuẩn nghiên cứu khoa học quốc tế.", en: "Vietnam's first AI academic assistant for reading sources, summarising information, assessing relevance and citing literature to international research standards." },
+  foot_contact: { vi: "Liên hệ", en: "Contact" },
+  foot_contact_pending: { vi: "Thông tin liên hệ đang được cập nhật.", en: "Contact details are being updated." },
+  foot_contact_admin: { vi: "Quản trị viên: cập nhật tại Quản trị → Cài đặt.", en: "Administrators: set them under Admin → Settings." },
+  foot_zalo: { vi: "Nhắn Zalo", en: "Message on Zalo" },
+  foot_related: { vi: "Hệ sinh thái", en: "Ecosystem" },
+  foot_designed: { vi: "Thiết kế và phát triển bởi tác giả.", en: "Designed and developed by the author." },
+  foot_visits: { vi: "{n} lượt truy cập", en: "{n} visits" },
+  foot_today: { vi: "{n} hôm nay", en: "{n} today" },
   author: { vi: "Tác giả", en: "Author" },
   author_note: { vi: "Thiết kế và phát triển bởi tác giả; mọi quyền được bảo lưu.", en: "Designed and developed by the author; all rights reserved." },
   visits_head: { vi: "Lượt truy cập", en: "Visits" },

@@ -362,3 +362,28 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .mini-bars { list-style: none; padding: 0; margin: .3rem 0; display: grid; gap: .3rem; font-size: .8rem; } .mini-bars li { display: grid; grid-template-columns: 1fr 70px auto; gap: .5rem; align-items: center; } .mb-track { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; } .mb-track i { display: block; height: 100%; background: var(--s3); border-radius: 4px; }
 @media (max-width: 980px) { .chart-grid { grid-template-columns: 1fr; } }
 @media (max-width: 560px) { .hbars li { grid-template-columns: 1fr auto; } .hbars .hb-track { grid-column: 1 / -1; grid-row: 2; } .to-top { width: 40px; height: 40px; } }
+
+/* ===== Chân trang tối giản, nền tối cố định ===== */
+.site-footer { position: relative; margin-top: 2.5rem; background: #070b17; color: #aab4c8; border-top: 0; }
+.site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, #38bdf8, #a78bfa, transparent); }
+.sf-inner { max-width: 1080px; margin: 0 auto; padding: 2.2rem 16px 1.6rem; display: grid; grid-template-columns: 1.6fr 1fr 1fr; gap: 2.2rem; }
+.sf-brand .sf-logo { display: flex; gap: .75rem; align-items: center; } .sf-logo b { display: block; color: #eef2fb; font-family: var(--serif); font-size: 1.12rem; line-height: 1.2; } .sf-logo span { color: #7f8aa3; font-size: .8rem; }
+.sf-brand p { margin: .8rem 0 0; font-size: .9rem; line-height: 1.65; max-width: 46ch; }
+.site-footer h5 { margin: 0 0 .7rem; font-family: var(--font); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: #7f8aa3; font-weight: 700; }
+.sf-author { display: flex; gap: .75rem; align-items: center; margin-bottom: .7rem; } .sf-author b { display: block; color: #eef2fb; font-size: .98rem; } .sf-author span:not(.sf-mono) { display: block; font-size: .82rem; color: #93a0ba; line-height: 1.4; }
+.sf-mono { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-weight: 700; color: #eef2fb; background: radial-gradient(circle at 30% 25%, #1c2a52, #0e1630); border: 1px solid rgba(148, 163, 184, .35); box-shadow: 0 0 0 3px rgba(56, 189, 248, .12); }
+.sf-links { list-style: none; margin: 0; padding: 0; display: grid; gap: .45rem; font-size: .86rem; }
+.sf-links a { color: #cbd5e6; text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; } .sf-links a:hover { color: #fff; text-decoration: underline; text-underline-offset: 3px; } .sf-links a:focus-visible { outline: 2px solid #38bdf8; outline-offset: 3px; border-radius: 4px; }
+.sf-links small { color: #7f8aa3; margin-left: .2rem; }
+.orcid-dot, .zalo-dot { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; font-size: .62rem; font-weight: 800; flex: none; } .orcid-dot { background: #a6ce39; color: #1b2a00; } .zalo-dot { background: #0068ff; color: #fff; }
+.sf-muted { margin: 0 0 .4rem; font-size: .84rem; color: #7f8aa3; line-height: 1.55; }
+.sf-bottom { border-top: 1px solid rgba(148, 163, 184, .16); }
+.sf-bottom > * { max-width: 1080px; }
+.sf-bottom { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .8rem 1.5rem; padding: 1rem max(16px, calc((100% - 1080px) / 2 + 16px)); }
+.sf-legal { display: grid; gap: .15rem; font-size: .82rem; color: #aab4c8; max-width: 640px; } .sf-legal small { color: #6f7b95; font-size: .74rem; line-height: 1.5; }
+.sf-tools { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+.sf-visits { display: inline-flex; align-items: center; gap: .35rem; font-size: .78rem; color: #93a0ba; } .sf-visits i { font-style: normal; opacity: .5; }
+.site-footer .share.compact { margin: 0; } .site-footer .share-btn { background: rgba(255, 255, 255, .05); border-color: rgba(148, 163, 184, .22); color: #cbd5e6; width: 30px; height: 30px; font-size: .72rem; }
+.site-footer .share-btn:hover { color: #fff; border-color: #38bdf8; }
+@media (max-width: 860px) { .sf-inner { grid-template-columns: 1fr 1fr; } .sf-brand { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .sf-inner { grid-template-columns: 1fr; gap: 1.5rem; } }
