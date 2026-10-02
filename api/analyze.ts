@@ -30,7 +30,7 @@ export async function POST(request: Request): Promise<Response> {
   if (abstract.split(/\s+/).length < MIN_ABSTRACT_WORDS || abstract.length > MAX_ABSTRACT_CHARS)
     return fail("bad_request", 400, "Abstract/Proposal quá ngắn hoặc quá dài.");
   if (text.replace(/\[\[p\.\d+\]\]/g, "").trim().length < 400) return fail("no_text", 422);
-  // Người dùng chưa được quản trị viên xác nhận có hạn mức văn bản thấp hơn (tương ứng tệp tối đa 5 MB).
+  // Người dùng chưa được quản trị viên xác thực có hạn mức văn bản thấp hơn (tương ứng tệp tối đa 2 MB).
   const pre = await quotaOf(auth.sb, auth.id);
   const limit = pre?.approved ? MAX_TEXT_CHARS : MAX_TEXT_CHARS_BASIC;
   if (text.length > limit) return fail("too_long", 413, pre?.approved ? undefined : "unapproved");

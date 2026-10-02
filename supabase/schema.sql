@@ -117,8 +117,8 @@ create table if not exists public.visit_countries (country text primary key, n b
 
 -- ---------- Cấu hình mặc định ----------
 insert into public.app_settings(key, value) values
-  ('free_daily_limit', '2'::jsonb),
-  ('file_limit_basic_mb', '5'::jsonb),
+  ('free_daily_limit', '1'::jsonb),
+  ('file_limit_basic_mb', '2'::jsonb),
   ('file_limit_approved_mb', '15'::jsonb),
   ('usd_vnd', '25500'::jsonb),
   ('contact', '{"email":"","phone":"","zalo":"","note_vi":"","note_en":""}'::jsonb)
@@ -136,14 +136,14 @@ language sql stable as $$ select (now() at time zone 'Asia/Ho_Chi_Minh')::date; 
 
 create or replace function public.free_limit() returns integer
 language sql stable security definer set search_path = public as $$
-  select coalesce((select (value #>> '{}')::int from public.app_settings where key = 'free_daily_limit'), 2);
+  select coalesce((select (value #>> '{}')::int from public.app_settings where key = 'free_daily_limit'), 1);
 $$;
 
--- Hạn mức dung lượng tệp (MB): người dùng đã được quản trị viên xác nhận dùng mức cao hơn.
+-- Hạn mức dung lượng tệp (MB): người dùng đã được quản trị viên xác thực dùng mức cao hơn.
 create or replace function public.file_limit_mb(p_approved boolean) returns integer
 language sql stable security definer set search_path = public as $$
   select coalesce((select (value #>> '{}')::int from public.app_settings where key = case when p_approved then 'file_limit_approved_mb' else 'file_limit_basic_mb' end),
-                  case when p_approved then 15 else 5 end);
+                  case when p_approved then 15 else 2 end);
 $$;
 
 -- ---------- Tạo hồ sơ khi có tài khoản mới ----------

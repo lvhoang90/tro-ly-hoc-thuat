@@ -57,7 +57,7 @@ export default function Workspace() {
     return () => clearInterval(id);
   }, [busy]);
 
-  const maxMb = quota?.max_file_mb ?? 5;
+  const maxMb = quota?.max_file_mb ?? 2;
   const approved = quota?.approved ?? false;
   const textLimit = approved ? MAX_TEXT_CHARS : MAX_TEXT_CHARS_BASIC;
   const wc = words(abstract);

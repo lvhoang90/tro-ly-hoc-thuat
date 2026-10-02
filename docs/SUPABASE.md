@@ -53,10 +53,10 @@ Thời gian khoảng 20 phút. Bạn cần: tài khoản Supabase (gói Free đ�
 4. Trở lại tài khoản master → **Quản trị → Người dùng** → tìm tài khoản thử → nhập số lượt → bấm **+**. Tài khoản thử dùng tiếp được.
 
 ## Nâng cấp lược đồ lên bản mới (v2)
-Bản v2 thêm: xác nhận người dùng (tệp 5 MB / 15 MB), chi phí API từng lượt, đề tài đã lưu, điểm phù hợp trong lịch sử trích dẫn, và bộ đếm truy cập lưu trong Supabase.
+Bản v2 thêm: xác thực người dùng (tệp 2 MB / 15 MB), chi phí API từng lượt, đề tài đã lưu, điểm phù hợp trong lịch sử trích dẫn, và bộ đếm truy cập lưu trong Supabase.
 1. Mở **SQL Editor**, dán lại **toàn bộ** `supabase/schema.sql` mới nhất và bấm **Run** (chọn *Run and enable RLS* nếu có cảnh báo). Tệp chạy lại an toàn và **giữ nguyên dữ liệu cũ** (đã kiểm tra nâng cấp từ bản v1).
-2. Tài khoản master tự được đánh dấu *đã xác nhận*. Các tài khoản cũ ở trạng thái *chờ xác nhận* cho đến khi bạn bấm **Xác nhận** trong **Quản trị → Người dùng**.
-3. **Quản trị → Cài đặt**: chỉnh dung lượng tệp (mặc định 5 MB và 15 MB) và tỷ giá USD/VND hiển thị trong thống kê.
+2. Tài khoản master tự được đánh dấu *đã xác thực*. Các tài khoản cũ ở trạng thái *chờ xác thực* cho đến khi bạn bấm **Xác nhận** trong **Quản trị → Người dùng**.
+3. **Quản trị → Cài đặt**: chỉnh dung lượng tệp (mặc định 2 MB và 15 MB) và tỷ giá USD/VND hiển thị trong thống kê.
 4. Bộ đếm truy cập không còn cần Upstash. Số liệu bắt đầu đếm từ lúc nâng cấp; bạn có thể xóa các biến `KV_REST_API_URL`, `KV_REST_API_TOKEN` nếu đã thêm trước đó.
 5. Chi phí API chỉ được ghi cho các lượt phân tích **sau** khi triển khai bản mới (lượt cũ không có số token).
 
@@ -70,7 +70,16 @@ Bản v2 thêm: xác nhận người dùng (tệp 5 MB / 15 MB), chi phí API t�
 | `permission denied` khi cấp lượt | Chạy lại toàn bộ `schema.sql`; chỉ tài khoản có `role = admin` mới gọi được hàm `admin_*`. |
 | Muốn đổi số lượt miễn phí | Quản trị → Cài đặt; có hiệu lực ngay với mọi người dùng. |
 | Bộ đếm truy cập không hiện | Chạy lại `schema.sql` (hàm `record_visit`, `visit_stats`) và kiểm tra `SUPABASE_SERVICE_ROLE_KEY` trên Vercel; mở `/api/visit` phải trả `"enabled":true`. |
-| Người dùng báo tệp bị từ chối vì quá 5 MB | Tài khoản chưa được xác nhận: vào Quản trị → Người dùng và bấm Xác nhận. |
+| Người dùng báo tệp bị từ chối vì quá 2 MB | Tài khoản chưa được xác thực: vào Quản trị → Người dùng và bấm Xác thực. |
 
 ## Sao lưu và dữ liệu
 Hệ thống không lưu tài liệu tải lên. Dữ liệu duy nhất cần bảo vệ là hồ sơ, hạn mức và lịch sử trích dẫn: bật **Database → Backups** (gói Pro của Supabase có sao lưu hằng ngày; gói Free thì dùng `pg_dump` định kỳ).
+
+## Đổi hạn mức mặc định trên cơ sở dữ liệu đã chạy
+
+Tệp `schema.sql` chỉ đặt giá trị mặc định khi chưa có (không ghi đè). Muốn đổi sang 1 lượt miễn phí mỗi ngày và 2 MB cho tài khoản chưa xác thực trên dự án đang chạy, vào **Quản trị → Cài đặt** của ứng dụng và lưu, hoặc chạy trong SQL Editor:
+
+```sql
+update public.app_settings set value = '1'::jsonb where key = 'free_daily_limit';
+update public.app_settings set value = '2'::jsonb where key = 'file_limit_basic_mb';
+```

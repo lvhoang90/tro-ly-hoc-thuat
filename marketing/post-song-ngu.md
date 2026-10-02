@@ -14,7 +14,7 @@
 ✅ Chấm mức độ phù hợp từ 0 đến 100 so với tóm tắt đề tài của bạn
 ✅ Gợi ý các đoạn đáng trích, kèm trích dẫn đúng chuẩn APA, Harvard, IEEE và hơn 10.000 kiểu của tạp chí
 ✅ Điểm thấp thì gợi ý hướng tìm nguồn khác và tạp chí phù hợp từ EduFind
-✅ Giao diện song ngữ Việt/Anh, mỗi ngày có 2 lượt miễn phí
+✅ Giao diện song ngữ Việt/Anh, mỗi ngày có 1 lượt miễn phí
 
 🔒 Tài liệu của bạn không bị lưu trữ. Chỉ kết quả trích dẫn và đề tài bạn chủ động bấm Lưu mới được giữ lại.
 
@@ -40,7 +40,7 @@ Reading a long paper just to find out whether it fits your own study can take ho
 ✅ Scores fit from 0 to 100 against your abstract
 ✅ Suggests passages worth quoting, with citations in APA, Harvard, IEEE and over 10,000 journal styles
 ✅ For low scores, points you to other sources and suitable journals from EduFind
-✅ Vietnamese and English interface, 2 free analyses per day
+✅ Vietnamese and English interface, 1 free analysis per day
 
 🔒 Your documents are never stored. Only the citations and projects you choose to save are kept.
 

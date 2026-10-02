@@ -91,8 +91,8 @@ export default function Admin() {
   const [off, setOff] = useState(0);
   const [amount, setAmount] = useState<Record<string, string>>({});
   const [detail, setDetail] = useState<string | null>(null);
-  const [limit, setLimit] = useState("2");
-  const [mbBasic, setMbBasic] = useState("5");
+  const [limit, setLimit] = useState("1");
+  const [mbBasic, setMbBasic] = useState("2");
   const [mbApproved, setMbApproved] = useState("15");
   const [rate, setRate] = useState("25500");
   const [pending, setPending] = useState(false);
@@ -138,8 +138,8 @@ export default function Admin() {
     const a = await supabase.rpc("admin_set_setting", { p_key: "free_daily_limit", p_value: n });
     const b = await supabase.rpc("admin_set_setting", { p_key: "contact", p_value: c });
     const mb = (v: string, d: number) => Math.max(1, Math.min(100, parseInt(v, 10) || d));
-    const e1 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_basic_mb", p_value: mb(mbBasic, 5) });
-    const e2 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_approved_mb", p_value: Math.max(mb(mbApproved, 15), mb(mbBasic, 5)) });
+    const e1 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_basic_mb", p_value: mb(mbBasic, 2) });
+    const e2 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_approved_mb", p_value: Math.max(mb(mbApproved, 15), mb(mbBasic, 2)) });
     const e3 = await supabase.rpc("admin_set_setting", { p_key: "usd_vnd", p_value: Math.max(1, parseInt(rate, 10) || 25500) });
     const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error;
     if (err) toast(err.message, "err"); else { toast(t("saved")); void refresh(); }
