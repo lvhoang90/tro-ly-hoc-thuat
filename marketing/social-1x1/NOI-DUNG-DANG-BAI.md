@@ -1,9 +1,10 @@
-# Bộ 8 ảnh vuông 1:1 (1620×1620) và nội dung đăng mạng xã hội
+# Bộ 9 ảnh vuông 1:1 (1620×1620) và nội dung đăng mạng xã hội
 
-Đăng theo thứ tự 1 → 8 (dạng nhiều ảnh trượt ngang trên Facebook, Instagram, LinkedIn). Ảnh dùng chữ tiếng Việt. Dữ liệu trong ảnh là dữ liệu minh họa.
+Ảnh bìa `00-bia.png` (tên và logo phần mềm, mã QR, thông tin tác giả) đăng đầu tiên, tiếp theo là 8 ảnh bước. Đăng theo thứ tự 0 → 8 (dạng nhiều ảnh trượt ngang trên Facebook, Instagram, LinkedIn). Ảnh dùng chữ tiếng Việt. Dữ liệu trong ảnh là dữ liệu minh họa.
 
 | # | Tệp | Nội dung |
 |---|-----|----------|
+| 0 | `00-bia.png` | Bìa: tên, logo, mã QR, tác giả |
 | 1 | `01-dang-ky.png` | Đăng ký miễn phí |
 | 2 | `02-de-tai.png` | Dán đề tài của bạn |
 | 3 | `03-tai-lieu.png` | Thả tài liệu vào |
@@ -17,7 +18,7 @@
 
 📚 **Trợ lý học thuật | AI Academic Agent 1.0** đã sẵn sàng.
 
-Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút. Lướt 8 ảnh để xem từng bước:
+Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút. Lướt ảnh để xem 8 bước:
 
 1️⃣ Đăng ký miễn phí, mỗi ngày có 1 lượt phân tích
 2️⃣ Dán tóm tắt đề tài (Abstract)
