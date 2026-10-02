@@ -501,7 +501,7 @@ const D = {
   eco_1: { vi: "Chọn tạp chí", en: "Choose a journal" },
   eco_1d: { vi: "EduFind: điểm Hội đồng Giáo sư Nhà nước, Scopus, Q1–Q4", en: "EduFind: State Council scores, Scopus, Q1–Q4" },
   eco_2: { vi: "Đọc và trích dẫn", en: "Read & cite" },
-  eco_2d: { vi: "Bạn đang ở đây", en: "You are here" },
+  eco_2d: { vi: "Bạn đang ở đây cùng Ami", en: "You are here with Ami" },
   eco_3: { vi: "Chuẩn hóa thể thức", en: "Format your manuscript" },
   eco_3d: { vi: "Theo hướng dẫn tác giả của 19 tạp chí", en: "To the author guidelines of 19 journals" },
   foot_related: { vi: "Hệ sinh thái", en: "Ecosystem" },
