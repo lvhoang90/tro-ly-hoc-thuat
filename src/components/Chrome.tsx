@@ -166,7 +166,16 @@ export function VisitChip() {
   const { t } = useI18n();
   const s = useVisits();
   const [open, setOpen] = useState(false);
+  const [atFooter, setAtFooter] = useState(false);
   const box = useRef<HTMLDivElement>(null);
+  // Khi chân trang đã hiện (đã có dòng lượt truy cập), ẩn nút nổi để không chồng lên chữ.
+  useEffect(() => {
+    const el = document.querySelector(".site-footer");
+    if (!el || !("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(([e]) => setAtFooter(e.isIntersecting), { threshold: 0.05 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, [s?.enabled]);
   useEffect(() => {
     if (!open) return;
     const k = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -174,7 +183,7 @@ export function VisitChip() {
     addEventListener("keydown", k); addEventListener("mousedown", c);
     return () => { removeEventListener("keydown", k); removeEventListener("mousedown", c); };
   }, [open]);
-  if (!s?.enabled) return null;
+  if (!s?.enabled || (atFooter && !open)) return null;
   return (
     <div className="visits" ref={box}>
       {open && <div className="popover visit-pop" role="dialog" aria-label={t("visits_head")}><div className="pop-title">{t("visits_head")}</div><VisitBody s={s} /><p className="muted small">{t("visits_title")}</p></div>}
@@ -197,31 +206,68 @@ export function ScrollTop() {
   return <button className="to-top" onClick={go} aria-label={t("to_top")} title={t("to_top")}><Icon name="up" size={20} /></button>;
 }
 
+/** Một dòng gọn cho chân trang: tổng lượt và lượt hôm nay. */
+function VisitInline() {
+  const { t } = useI18n();
+  const s = useVisits();
+  if (!s?.enabled) return null;
+  return <span className="sf-visits"><Icon name="eye" size={14} /> {t("foot_visits", { n: nf.format(s.total ?? 0) })} <i>·</i> {t("foot_today", { n: nf.format(s.today ?? 0) })}</span>;
+}
+
+/** Chân trang tối giản, nền tối cố định (khác phần nội dung): thương hiệu, tác giả, liên hệ; dòng bản quyền, truy cập, chia sẻ. */
 export function Footer() {
   const { t, lang } = useI18n();
+  const { contact, profile } = useApp();
+  const a = APP.author;
+  const initials = a.name.split(/\s+/).map((w) => w[0]).slice(-2).join("");
+  const role = a.role[lang];
+  const zalo = (contact?.zalo || contact?.phone || "").replace(/\D/g, "");
+  const has = !!(contact && (contact.email || contact.phone || zalo));
+  const note = lang === "vi" ? contact?.note_vi : contact?.note_en;
   return (
-    <footer className="footer">
-      <div className="footer-grid">
-        <div>
-          <div className="foot-title">{APP.name[lang]} {APP.version}</div>
-          <p className="muted small">{t("foot_about")}</p>
-          <p className="brand-mean"><Logo size={22} /> <span className="muted small">{t("brand_meaning")}</span></p>
-          <ShareButtons />
-        </div>
-        <div>
-          <div className="foot-title">{t("author")}</div>
-          <p className="small"><b>{APP.author.name}</b> · {APP.author.org}</p>
-          <p className="muted small">{t("author_note")}</p>
-          <p className="small"><a href={APP.author.edufind} target="_blank" rel="noopener noreferrer">EduFind</a> · {t("edufind_note")}</p>
-        </div>
-        <div>
-          <div className="foot-title">{t("visits_head")}</div>
-          <VisitCounter />
-        </div>
+    <footer className="site-footer">
+      <div className="sf-inner">
+        <section className="sf-brand">
+          <div className="sf-logo"><Logo size={36} /><div><b>{APP.name[lang]} {APP.version}</b><span>{lang === "vi" ? APP.name.en : APP.name.vi}</span></div></div>
+          <p>{t("foot_about")}</p>
+        </section>
+
+        <section className="sf-col" aria-label={t("author")}>
+          <h5>{t("author")}</h5>
+          <div className="sf-author">
+            <span className="sf-mono" aria-hidden="true">{initials}</span>
+            <div>
+              <b>{a.name}</b>
+              <span>{a.org}</span>
+              {role && <span>{role}</span>}
+            </div>
+          </div>
+          <ul className="sf-links">
+            {a.orcid && <li><a href={`https://orcid.org/${a.orcid}`} target="_blank" rel="noopener noreferrer"><span className="orcid-dot">iD</span> {a.orcid}</a></li>}
+            {a.website && <li><a href={a.website} target="_blank" rel="noopener noreferrer"><Icon name="external" size={14} /> {a.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}</a></li>}
+            <li><a href={a.edufind} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={14} /> EduFind <small>{t("foot_related")}</small></a></li>
+          </ul>
+        </section>
+
+        <section className="sf-col" aria-label={t("foot_contact")}>
+          <h5>{t("foot_contact")}</h5>
+          {has ? (
+            <ul className="sf-links">
+              {contact!.email && <li><a href={`mailto:${contact!.email}`}><Icon name="mail" size={14} /> {contact!.email}</a></li>}
+              {contact!.phone && <li><a href={`tel:${contact!.phone}`}><Icon name="phone" size={14} /> {contact!.phone}</a></li>}
+              {zalo && <li><a href={`https://zalo.me/${zalo}`} target="_blank" rel="noopener noreferrer"><span className="zalo-dot">Z</span> {t("foot_zalo")}</a></li>}
+            </ul>
+          ) : <p className="sf-muted">{t("foot_contact_pending")}{profile?.role === "admin" && <><br />{t("foot_contact_admin")}</>}</p>}
+          {note && <p className="sf-muted">{note}</p>}
+        </section>
       </div>
-      <div className="copyright">
-        <p>© {APP.year} {APP.author.name} ({APP.author.org}). {t("rights")}</p>
-        <p className="muted small">{t("rights_detail")}</p>
+
+      <div className="sf-bottom">
+        <div className="sf-legal">
+          <span>© {APP.year} {a.name} ({a.org}). {t("rights")}</span>
+          <small>{t("rights_detail")}</small>
+        </div>
+        <div className="sf-tools"><VisitInline /><ShareButtons compact /></div>
       </div>
     </footer>
   );
