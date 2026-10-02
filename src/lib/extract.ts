@@ -4,6 +4,7 @@
 import { MAX_FILE_BYTES } from "../../shared/types.ts";
 import { extractDoc } from "./api.ts";
 import { classifyReadError, errorDetail } from "./extract-errors.ts";
+import { polyfillStreamAsyncIterator } from "./stream-polyfill.ts";
 
 export type ExtractError = "type" | "size" | "empty" | "no_text" | "corrupt" | "password" | "read" | "engine" | "ocr_too_long" | "ocr_failed" | "cancelled";
 export class ExtractFailure extends Error { constructor(public code: ExtractError, public kind?: Kind, public detail?: string) { super(code); } }
@@ -41,18 +42,15 @@ async function sniff(file: File): Promise<Kind> {
 }
 
 function needsMainThreadPdf(): boolean {
-  try {
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-    return ios || new URLSearchParams(location.search).get("pdfworker") === "main";
-  } catch { return false; }
+  try { return new URLSearchParams(location.search).get("pdfworker") === "main"; } catch { return false; }
 }
 
 async function pdfText(buf: ArrayBuffer, onProgress: (p: Progress) => void, ocr: boolean, signal?: AbortSignal): Promise<string> {
+  polyfillStreamAsyncIterator();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const worker = (await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url")).default;
   pdfjs.GlobalWorkerOptions.workerSrc = worker;
-  // iOS (mọi trình duyệt trên iPhone/iPad dùng WebKit) có thể không khởi động được Web Worker của pdf.js: chạy bộ đọc ngay trên luồng chính.
-  // pdf.js ghi nhớ kết quả khởi tạo worker nên phải chọn cách chạy trước khi mở tệp. Thêm `?pdfworker=main` vào địa chỉ để thử cách này trên thiết bị khác.
+  // Tùy chọn gỡ lỗi: thêm `?pdfworker=main` vào địa chỉ để chạy bộ đọc PDF trên luồng chính thay vì Web Worker.
   if (needsMainThreadPdf()) (globalThis as { pdfjsWorker?: unknown }).pdfjsWorker = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs");
   const task = pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)) });
   const doc = await task.promise;
