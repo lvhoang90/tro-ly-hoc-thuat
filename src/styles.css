@@ -570,3 +570,16 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 @media (max-width: 900px) { html[data-ami] .whatsnew { bottom: 8.5rem; } }
 @media (max-width: 640px) { .whatsnew { bottom: 1rem; padding: .65rem .7rem; gap: .6rem; } .whatsnew .wn-body p { display: none; } .whatsnew .wn-body b { margin-bottom: .15rem; } }
 .sf-legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---- Quản trị: bảng người dùng gọn hơn ---- */
+.tbl.users th, .tbl.users td { padding: .4rem .5rem; vertical-align: middle; } .tbl.users th { white-space: nowrap; }
+.tbl.users td.u-user { min-width: 12rem; max-width: 0; width: 100%; } .tbl.users th:not(:first-child), .tbl.users td:not(.u-user) { width: 1%; white-space: nowrap; } .ell { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tbl.users .row.nowrap { gap: .4rem; } .tbl.users .badge { white-space: nowrap; }
+.ustat { display: grid; grid-template-columns: repeat(3, 4.3rem); text-align: center; } .ustat > * { font-variant-numeric: tabular-nums; }
+.tbl.users th .ustat { text-transform: none; letter-spacing: 0; font-size: .74rem; }
+
+/* Trang quản trị dùng hết bề ngang để bảng người dùng không phải cuộn ngang */
+.main:has(> .admin-wide) { max-width: 1440px; }
+.u-name { display: flex; align-items: baseline; gap: .6rem; min-width: 0; } .u-name .link { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) { .tbl.users td:not(.u-user) { white-space: normal; } .tbl.users .row.nowrap { flex-wrap: wrap; } .tbl.users td.u-user { min-width: 11rem; max-width: 14rem; width: auto; } .ustat { grid-template-columns: repeat(3, 3.2rem); } }
+@media (max-width: 640px) { .card .row.wrap > input.grow { flex: 1 1 100%; min-width: 0; } }
