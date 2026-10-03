@@ -583,3 +583,20 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 .u-name { display: flex; align-items: baseline; gap: .6rem; min-width: 0; } .u-name .link { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 @media (max-width: 900px) { .tbl.users td:not(.u-user) { white-space: normal; } .tbl.users .row.nowrap { flex-wrap: wrap; } .tbl.users td.u-user { min-width: 11rem; max-width: 14rem; width: auto; } .ustat { grid-template-columns: repeat(3, 3.2rem); } }
 @media (max-width: 640px) { .card .row.wrap > input.grow { flex: 1 1 100%; min-width: 0; } }
+
+/* ---- Ngân sách API ---- */
+.budget { display: grid; gap: .9rem; } .budget h3 { margin: 0; } .budget label { display: grid; gap: .25rem; font-size: .82rem; color: var(--muted); } .budget label input { width: 100%; }
+.bud-head { display: flex; align-items: flex-start; gap: .75rem; flex-wrap: wrap; } .bud-head > div { flex: 1; min-width: 12rem; }
+.bud-chip { font-weight: 700; font-size: .8rem; padding: .25rem .7rem; border-radius: 999px; border: 1px solid var(--good); color: var(--good); }
+.bud-chip.soon { border-color: var(--warn); color: var(--warn); } .bud-chip.urgent, .bud-chip.empty { border-color: var(--bad); color: var(--bad); }
+.bud-main { display: grid; grid-template-columns: minmax(14rem, 20rem) 1fr; gap: 1.2rem; align-items: start; }
+.bud-remain { display: grid; gap: .2rem; } .bud-big { font-family: Georgia, "Times New Roman", serif; font-size: 2.1rem; line-height: 1.1; }
+.bud-bar { height: 10px; border-radius: 99px; background: color-mix(in srgb, var(--muted) 22%, transparent); overflow: hidden; margin: .35rem 0; } .bud-bar i { display: block; height: 100%; border-radius: 99px; background: var(--good); }
+.budget.soon .bud-bar i { background: var(--warn); } .budget.urgent .bud-bar i, .budget.empty .bud-bar i { background: var(--bad); }
+.bud-facts { list-style: none; margin: 0; padding: 0; display: grid; gap: .55rem; } .bud-facts li { display: flex; gap: .55rem; align-items: flex-start; font-size: .95rem; } .bud-facts li svg { flex: none; margin-top: .15rem; color: var(--accent); } .bud-facts small { display: inline; }
+.bud-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr)); gap: .8rem; padding-top: .8rem; border-top: 1px solid var(--line); } .bud-actions .row { gap: .4rem; } .bud-actions input { min-width: 0; }
+.bud-hist summary { cursor: pointer; font-size: .85rem; color: var(--muted); } .bud-hist ul { list-style: none; margin: .4rem 0 0; padding: 0; display: grid; gap: .25rem; font-size: .85rem; } .bud-hist li { display: grid; grid-template-columns: 11rem 6rem 1fr; gap: .5rem; }
+.bud-note { margin: 0; }
+.bud-banner { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding: .6rem .9rem; border-radius: 12px; border: 1px solid var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--card-solid)); font-size: .92rem; } .bud-banner span { flex: 1; min-width: 14rem; } .bud-banner svg { flex: none; color: var(--warn); }
+.bud-banner.urgent, .bud-banner.empty { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--card-solid)); } .bud-banner.urgent svg, .bud-banner.empty svg { color: var(--bad); }
+@media (max-width: 760px) { .bud-main { grid-template-columns: 1fr; } .bud-hist li { grid-template-columns: 1fr; } }

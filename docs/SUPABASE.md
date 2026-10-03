@@ -83,3 +83,7 @@ Tệp `schema.sql` chỉ đặt giá trị mặc định khi chưa có (không g
 update public.app_settings set value = '1'::jsonb where key = 'free_daily_limit';
 update public.app_settings set value = '2'::jsonb where key = 'file_limit_basic_mb';
 ```
+
+## Cập nhật: ngân sách API (trang Quản trị → Thống kê)
+Tính năng theo dõi ngân sách và dự báo cần một bảng riêng tư chỉ quản trị viên đọc được (`admin_kv`) và hàm `admin_spend_since`. Chạy lại toàn bộ `supabase/schema.sql` (an toàn, không mất dữ liệu) hoặc chỉ chạy tệp `supabase/migrations/20261003_api_budget.sql` trong SQL Editor.
+Anthropic không có đường truy vấn số dư tín dụng bằng khóa API, nên ứng dụng tính: *số dư đã nhập* trừ *chi phí ghi nhận từ lúc nhập*. Hãy nhập số dư thật từ Console khi bắt đầu và khi nạp tiền; đối chiếu lại định kỳ.

@@ -479,6 +479,29 @@ grant update (full_name, title, affiliation, department, position, country, orci
   on public.profiles to authenticated;
 revoke insert, delete on public.profiles from authenticated, anon;
 
+-- ---------- Ngân sách API (chỉ quản trị viên) ----------
+create table if not exists public.admin_kv (
+  key        text primary key,
+  value      jsonb not null default '{}'::jsonb,
+  updated_at timestamptz not null default now()
+);
+alter table public.admin_kv enable row level security;
+revoke all on public.admin_kv from anon;
+drop policy if exists admin_kv_all on public.admin_kv;
+create policy admin_kv_all on public.admin_kv for all using (public.is_admin()) with check (public.is_admin());
+
+create or replace function public.admin_spend_since(p_since timestamptz)
+returns table (cost_usd numeric, input_tokens bigint, output_tokens bigint, analyses bigint)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  return query
+    select coalesce(sum(l.cost_usd), 0), coalesce(sum(l.input_tokens), 0)::bigint, coalesce(sum(l.output_tokens), 0)::bigint,
+           count(*) filter (where not l.refunded)
+    from public.usage_log l where l.created_at >= p_since;
+end $$;
+grant execute on function public.admin_spend_since(timestamptz) to authenticated;
+
 -- ---------- Quản trị viên master ----------
 -- Thay bằng email của bạn rồi chạy lại. Tài khoản đăng ký bằng email này sẽ là master (không giới hạn lượt).
 -- insert into public.admin_emails(email) values ('ban@example.com') on conflict do nothing;

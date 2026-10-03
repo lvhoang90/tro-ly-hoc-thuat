@@ -5,6 +5,8 @@ import { supabase } from "../lib/supabase.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
 import { ChartCard, HBars, Kpi, TimeChart, type Series } from "../components/Charts.tsx";
 import { Icon } from "../components/Icon.tsx";
+import BudgetCard from "../components/BudgetCard.tsx";
+import type { BudgetState } from "../lib/budget.ts";
 
 interface Stats {
   users: number; approved_users: number; pending_users: number; new_7d: number; analyses_today: number; analyses_7d: number; analyses_total: number;
@@ -20,7 +22,7 @@ const nf = new Intl.NumberFormat("en-US");
 const COLORS = { analyses: "var(--s1)", cost: "var(--s2)", people: "var(--s3)", muted: "var(--muted)" };
 
 /** Bảng thống kê quản trị: chi phí API, hoạt động, người dùng, truy cập; mọi thẻ cùng một khoảng thời gian. */
-export default function AdminStats() {
+export default function AdminStats({ budget }: { budget: BudgetState }) {
   const { t, lang } = useI18n();
   const { toast } = useApp();
   const [range, setRange] = useState<(typeof RANGES)[number]>(30);
@@ -81,6 +83,8 @@ export default function AdminStats() {
         <button className="btn sm" onClick={() => void load()}><Icon name="refresh" size={14} /> {t("st_reload")}</button>
         <span className="muted small grow right">{t("st_rate", { n: rate.toLocaleString() })}</span>
       </div>
+
+      <BudgetCard b={budget} rate={rate} />
 
       {stats && (
         <div className="kpis">
