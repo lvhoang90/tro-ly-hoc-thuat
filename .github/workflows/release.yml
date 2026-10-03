@@ -59,9 +59,9 @@ jobs:
           VERSION: ${{ steps.v.outputs.version }}
           TARGET: ${{ steps.v.outputs.target }}
         run: |
-          if gh release view "v$VERSION" >/dev/null 2>&1; then echo "Release v$VERSION đã tồn tại, bỏ qua."; exit 0; fi
           awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} f && /^## \[/ {exit} f' CHANGELOG.md > release-body.md
           test -s release-body.md || { echo "Nội dung phát hành rỗng"; exit 1; }
+          if gh release view "v$VERSION" >/dev/null 2>&1; then gh release edit "v$VERSION" --notes-file release-body.md; echo "Release v$VERSION đã tồn tại: đã cập nhật nội dung."; exit 0; fi
           PRE=""; case "$VERSION" in *-*) PRE="--prerelease";; esac
           LATEST=""; if [ "$VERSION" != "$(node -p "require('./package.json').version")" ]; then LATEST="--latest=false"; fi
           gh release create "v$VERSION" --target "$TARGET" --title "AI Academic Agent v$VERSION" --notes-file release-body.md $PRE $LATEST

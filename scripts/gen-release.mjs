@@ -28,7 +28,7 @@ const T = {
   vi: {
     lang: "vi", locale: "vi_VN", path: "/ghi-chu-phat-hanh", file: "public/ghi-chu-phat-hanh.html", other: "/en/release-notes", i: 0,
     title: `Ghi chú phát hành Trợ lý học thuật: phiên bản ${latest.version}`,
-    desc: `Có gì mới trong Trợ lý học thuật (AI Academic Agent) ${latest.version}: Ami, robot trợ lý 3D đồng hành, hệ sinh thái ISA, bộ truyền thông mới và lịch sử các phiên bản.`,
+    desc: `Có gì mới trong Trợ lý học thuật (AI Academic Agent) ${latest.version}: Ami, trợ lý robot đồng hành, hệ sinh thái ISA ở chân trang và lịch sử các phiên bản.`,
     h1: "Ghi chú phát hành", lead: "Lịch sử các phiên bản của Trợ lý học thuật, theo Semantic Versioning. Phiên bản mới nhất ở trên cùng.",
     home: "Trang chủ", langLabel: "English", cta: "Dùng thử miễn phí", latestL: "Mới nhất", gh: "Xem trên GitHub", guide: "Hướng dẫn sử dụng", guidePath: "/huong-dan",
     sec: (k) => SECTION_VI[k] ?? k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.", crumb: "Ghi chú phát hành",
@@ -36,7 +36,7 @@ const T = {
   en: {
     lang: "en", locale: "en_US", path: "/en/release-notes", file: "public/en/release-notes.html", other: "/ghi-chu-phat-hanh", i: 1,
     title: `AI Academic Agent release notes: version ${latest.version}`,
-    desc: `What's new in AI Academic Agent ${latest.version}: Ami, the 3D robot companion, the ISA ecosystem footer, a new marketing kit and the full version history.`,
+    desc: `What's new in AI Academic Agent ${latest.version}: Ami, the friendly robot companion, the ISA ecosystem in the footer and the full version history.`,
     h1: "Release notes", lead: "The version history of AI Academic Agent, following Semantic Versioning. Newest first.",
     home: "Home", langLabel: "Tiếng Việt", cta: "Try it free", latestL: "Latest", gh: "View on GitHub", guide: "User guide", guidePath: "/en/guide",
     sec: (k) => k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). All rights reserved.", crumb: "Release notes",
