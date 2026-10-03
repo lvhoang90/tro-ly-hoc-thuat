@@ -146,7 +146,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="page">
+    <div className="page admin-wide">
       <h2>{t("admin_title")}</h2>
       <div className="seg wide" role="tablist">
         {(["users", "settings", "stats"] as const).map((x) => <button key={x} role="tab" aria-selected={tab === x} className={tab === x ? "on" : ""} onClick={() => setTab(x)}>{t(`adm_${x}` as "adm_users")}</button>)}
@@ -159,22 +159,20 @@ export default function Admin() {
             <span className="muted small">{t("adm_total", { n: total })}</span></div>
           <div className="table-wrap">
             <table className="tbl users">
-              <thead><tr><th>{t("adm_user")}</th><th>{t("adm_status")}</th><th>{t("adm_today")}</th><th>{t("adm_bonus")}</th><th>{t("adm_life")}</th><th>{t("adm_grant")}</th><th>{t("adm_role")}</th></tr></thead>
+              <thead><tr><th>{t("adm_user")}</th><th>{t("adm_status")}</th><th title={`${t("adm_today")} · ${t("adm_bonus")} · ${t("adm_life")}`}><div className="ustat"><span>{t("adm_c_today")}</span><span>{t("adm_c_bonus")}</span><span>{t("adm_c_life")}</span></div></th><th>{t("adm_grant")}</th><th>{t("adm_role")}</th></tr></thead>
               <tbody>
                 {rows.map((u) => (
                   <tr key={u.id} className={u.status === "suspended" ? "dim" : ""}>
-                    <td><button className="link strong" onClick={() => setDetail(u.id)} title={t("adm_detail")}>{u.full_name || u.email}</button><div className="muted small">{u.email}</div><div className="muted small">{u.affiliation}{u.orcid ? ` · ${u.orcid}` : ""}</div>
-                      <div className="muted small">{new Date(u.created_at).toLocaleDateString()}{u.last_seen ? ` – ${new Date(u.last_seen).toLocaleDateString()}` : ""}</div></td>
+                    <td className="u-user"><div className="u-name"><button className="link strong" onClick={() => setDetail(u.id)} title={t("adm_detail")}>{u.full_name || u.email}</button>{u.full_name && <span className="muted small ell" title={u.email}>{u.email}</span>}</div>
+                      <div className="muted small ell" title={[u.affiliation, u.orcid].filter(Boolean).join(" · ")}>{[u.affiliation, u.orcid].filter(Boolean).join(" · ")}{u.affiliation || u.orcid ? " · " : ""}{new Date(u.created_at).toLocaleDateString()}{u.last_seen ? ` – ${new Date(u.last_seen).toLocaleDateString()}` : ""}</div></td>
                     <td>
-                      <div className="stack-sm">
+                      <div className="row nowrap">
                         <span className={`badge ${u.approved ? "ok-badge" : "warn-badge"}`}>{u.approved ? t("approved") : t("pending")}</span>
                         {u.role !== "admin" && <button className={`btn sm ${u.approved ? "" : "primary"}`} onClick={() => setUser(u, undefined, undefined, !u.approved)}>{u.approved ? t("adm_unapprove") : t("adm_approve")}</button>}
                         <span className="muted small">{usdFmt(u.cost_usd)}</span>
                       </div>
                     </td>
-                    <td>{u.role === "admin" ? "∞" : u.used_today}</td>
-                    <td><b>{u.bonus_credits}</b></td>
-                    <td>{u.lifetime_used}</td>
+                    <td><div className="ustat"><span>{u.role === "admin" ? "∞" : u.used_today}</span><b>{u.bonus_credits}</b><span>{u.lifetime_used}</span></div></td>
                     <td>
                       <div className="row nowrap">
                         <input className="mini" inputMode="numeric" value={amount[u.id] ?? "10"} onChange={(e) => setAmount({ ...amount, [u.id]: e.target.value })} aria-label={t("adm_grant")} />
@@ -183,7 +181,7 @@ export default function Admin() {
                       </div>
                     </td>
                     <td>
-                      <div className="row wrap">
+                      <div className="row nowrap">
                         <button className="btn sm" onClick={() => setUser(u, u.role === "admin" ? "user" : "admin")} disabled={u.id === profile.id}>{u.role === "admin" ? t("adm_revoke_admin") : t("adm_make_admin")}</button>
                         <button className={`btn sm ${u.status === "suspended" ? "primary" : ""}`} onClick={() => setUser(u, undefined, u.status === "suspended" ? "active" : "suspended")} disabled={u.id === profile.id}>{u.status === "suspended" ? t("adm_unsuspend") : t("adm_suspend")}</button>
                       </div>
