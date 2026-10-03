@@ -14,7 +14,9 @@ async function call<T>(path: string, init: RequestInit): Promise<T> {
   const r = await fetch(path, { ...init, headers: { ...init.headers, authorization: `Bearer ${await token()}` } });
   // Máy chủ sập hoặc hết thời gian chờ thì trả trang lỗi không phải JSON: báo riêng, không nói sai là đã hoàn lượt.
   const body = await r.json().catch(() => ({ error: "server_error", message: String(r.status) }));
-  if (!r.ok) throw new ApiFailure(body as ApiError, r.status);
+  // Máy chủ Node giữ kết nối bằng khoảng trắng nên lỗi muộn vẫn trả mã 200: lỗi nằm trong thân (kèm `status`).
+  const failed = body as ApiError & { status?: number };
+  if (!r.ok || failed.error) throw new ApiFailure(failed, failed.status ?? r.status);
   return body as T;
 }
 
