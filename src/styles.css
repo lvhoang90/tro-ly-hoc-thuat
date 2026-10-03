@@ -600,3 +600,5 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 .bud-banner { display: flex; align-items: center; gap: .6rem; flex-wrap: wrap; padding: .6rem .9rem; border-radius: 12px; border: 1px solid var(--warn); background: color-mix(in srgb, var(--warn) 12%, var(--card-solid)); font-size: .92rem; } .bud-banner span { flex: 1; min-width: 14rem; } .bud-banner svg { flex: none; color: var(--warn); }
 .bud-banner.urgent, .bud-banner.empty { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 12%, var(--card-solid)); } .bud-banner.urgent svg, .bud-banner.empty svg { color: var(--bad); }
 @media (max-width: 760px) { .bud-main { grid-template-columns: 1fr; } .bud-hist li { grid-template-columns: 1fr; } }
+
+.privacy-pledge { margin-top: -.2rem; } .privacy-pledge b { color: var(--text); }

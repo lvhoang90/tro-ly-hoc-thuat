@@ -42,4 +42,22 @@
     <xhtml:link rel="alternate" hreflang="en" href="https://aaa.isavietnam.app/en/release-notes"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh"/>
   </url>
+  <url>
+    <loc>https://aaa.isavietnam.app/quyen-rieng-tu</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://aaa.isavietnam.app/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>
+  </url>
+  <url>
+    <loc>https://aaa.isavietnam.app/en/privacy</loc>
+    <lastmod>2026-10-03</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>
+    <xhtml:link rel="alternate" hreflang="en" href="https://aaa.isavietnam.app/en/privacy"/>
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>
+  </url>
 </urlset>

@@ -229,7 +229,7 @@ export function Footer() {
         <section className="sf-brand">
           <div className="sf-logo"><Logo size={36} /><div><b>{APP.name[lang]} {APP.version}</b><span>{lang === "vi" ? APP.name.en : APP.name.vi}</span></div></div>
           <p>{t("foot_about")}</p>
-          <p><a className="sf-guide" href={lang === "vi" ? "/huong-dan" : "/en/guide"}>{t("foot_guide")}</a></p>
+          <p><a className="sf-guide" href={lang === "vi" ? "/huong-dan" : "/en/guide"}>{t("foot_guide")}</a> · <a className="sf-guide" href={lang === "vi" ? "/quyen-rieng-tu" : "/en/privacy"}>{t("foot_privacy")}</a></p>
         </section>
 
         <section className="sf-col" aria-label={t("author")}>

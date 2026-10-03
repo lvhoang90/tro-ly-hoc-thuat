@@ -26,7 +26,7 @@ const T = {
     faq: [
       ["Trợ lý học thuật là gì?", "Trợ lý học thuật (AI Academic Agent) là ứng dụng web song ngữ Việt/Anh giúp nhà nghiên cứu đọc tài liệu, đánh giá mức độ phù hợp với đề tài, tìm đoạn đáng trích dẫn và tạo trích dẫn theo chuẩn quốc tế."],
       ["Dùng có mất phí không?", "Mỗi tài khoản có 1 lượt phân tích miễn phí mỗi ngày. Cần thêm lượt, vui lòng liên hệ quản trị viên."],
-      ["Tài liệu của tôi có bị lưu lại không?", "Không. Tệp được đọc ngay trên máy bạn; chỉ phần văn bản được gửi đi phân tích và không được lưu lại. Hệ thống chỉ lưu lịch sử trích dẫn đã sao chép và các đề tài bạn chủ động lưu."],
+      ["Tài liệu của tôi có bị lưu lại không?", "Hệ thống không lưu tệp và toàn văn tài liệu. Tệp được đọc ngay trên máy bạn; chỉ phần văn bản được gửi qua máy chủ tới Claude (Anthropic) để phân tích và không được lưu lại. Hệ thống chỉ lưu trích dẫn bạn đã sao chép và đề tài bạn chủ động lưu. Chi tiết ở trang Quyền riêng tư."],
       ["Chấp nhận định dạng và dung lượng nào?", "PDF, DOC và DOCX. Tối đa 2 MB với tài khoản chưa xác thực, hoặc 15 MB với tài khoản đã được quản trị viên xác thực. Bản scan được đọc bằng OCR."],
       ["Điểm phù hợp được tính như thế nào?", "Thang 100 điểm theo năm tiêu chí: chủ đề (40), khái niệm và lý thuyết (20), phương pháp (15), bằng chứng (15), tính cập nhật (10). Từ 60 điểm trở lên là đạt ngưỡng trích dẫn."],
       ["Có nguy cơ trích dẫn bịa không?", "Mọi đoạn trích đề xuất đều được đối chiếu nguyên văn với văn bản gốc, đoạn nào không khớp sẽ bị loại. Bạn vẫn nên đọc lại nguồn trước khi dùng."],
@@ -57,7 +57,7 @@ const T = {
     faq: [
       ["What is AI Academic Agent?", "AI Academic Agent is a bilingual Vietnamese/English web app that helps researchers read sources, judge how well they fit a study, find passages worth citing and create citations to international standards."],
       ["Is it free?", "Each account gets 1 free analysis per day. To request more, contact the administrator."],
-      ["Are my documents stored?", "No. Files are read on your device; only the extracted text is sent for analysis and it is not stored. The system keeps only the citations you copied and the topics you chose to save."],
+      ["Are my documents stored?", "The system does not store files or the full text of documents. Files are read on your device; only the extracted text goes through our server to Claude (Anthropic) for analysis and is not stored. The system keeps only the citations you copied and the topics you chose to save. See the Privacy page for details."],
       ["Which formats and sizes are accepted?", "PDF, DOC and DOCX, up to 2 MB for unverified accounts, or 15 MB for accounts verified by an administrator. Scans are read with OCR."],
       ["How is the fit score calculated?", "A 100-point scale over five criteria: topic (40), concepts and theory (20), method (15), evidence (15) and currency (10). A score of 60 or more passes the citation threshold."],
       ["Can it invent quotes?", "Every suggested passage is checked verbatim against the source text, and any that does not match is dropped. You should still read the source before relying on it."],

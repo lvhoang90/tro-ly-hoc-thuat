@@ -190,6 +190,7 @@ export default function Workspace() {
                 )}
               </div>
               <p className="muted small privacy"><Icon name="shield" size={15} /> {t("privacy_note")}</p>
+              <p className="muted small privacy-pledge"><b>{t("privacy_pledge")}</b> <a href={lang === "vi" ? "/quyen-rieng-tu" : "/en/privacy"} target="_blank" rel="noopener">{t("privacy_link")}</a></p>
             </>
           )}
           {ocrFile && !reading && (

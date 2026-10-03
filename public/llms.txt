@@ -6,6 +6,8 @@
 - [Ứng dụng / App](https://aaa.isavietnam.app/)
 - [Hướng dẫn (VI)](https://aaa.isavietnam.app/huong-dan)
 - [Guide (EN)](https://aaa.isavietnam.app/en/guide)
+- [Quyền riêng tư (VI)](https://aaa.isavietnam.app/quyen-rieng-tu)
+- [Privacy (EN)](https://aaa.isavietnam.app/en/privacy)
 - [Ghi chú phát hành (VI)](https://aaa.isavietnam.app/ghi-chu-phat-hanh)
 - [Release notes (EN)](https://aaa.isavietnam.app/en/release-notes)
 - [EduFind: tra cứu tạp chí khoa học](https://edufind.isavn.edu.vn/)

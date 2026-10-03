@@ -14,7 +14,8 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "sync:edufind": "node scripts/sync-edufind.mjs",
     "build:csl": "node scripts/build-csl-index.mjs",
-    "release:notes": "node scripts/gen-release.mjs"
+    "release:notes": "node scripts/gen-release.mjs",
+    "gen:privacy": "node scripts/gen-privacy.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",
