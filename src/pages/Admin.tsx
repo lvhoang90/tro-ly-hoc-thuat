@@ -4,6 +4,8 @@ import { useApp } from "../ctx.tsx";
 import { supabase, type Contact, type Profile } from "../lib/supabase.ts";
 import { Icon } from "../components/Icon.tsx";
 import AdminStats from "./AdminStats.tsx";
+import { BudgetBanner } from "../components/BudgetCard.tsx";
+import { useApiBudget } from "../lib/budget.ts";
 
 interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; approved: boolean; cost_usd: number; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number }
 
@@ -85,6 +87,7 @@ export default function Admin() {
   const { t } = useI18n();
   const { toast, contact, profile, refresh } = useApp();
   const [tab, setTab] = useState<"users" | "settings" | "stats">("users");
+  const budget = useApiBudget();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [total, setTotal] = useState(0);
   const [q, setQ] = useState("");
@@ -151,6 +154,8 @@ export default function Admin() {
       <div className="seg wide" role="tablist">
         {(["users", "settings", "stats"] as const).map((x) => <button key={x} role="tab" aria-selected={tab === x} className={tab === x ? "on" : ""} onClick={() => setTab(x)}>{t(`adm_${x}` as "adm_users")}</button>)}
       </div>
+
+      {tab !== "stats" && <BudgetBanner b={budget} onOpen={() => setTab("stats")} />}
 
       {tab === "users" && (
         <div className="card">
@@ -221,7 +226,7 @@ export default function Admin() {
         </div>
       )}
 
-      {tab === "stats" && <AdminStats />}
+      {tab === "stats" && <AdminStats budget={budget} />}
     </div>
   );
 }
