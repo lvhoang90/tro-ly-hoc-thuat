@@ -1,14 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { forecastBudget, type BudgetForecast, type DayCost } from "../../shared/budget.ts";
+import { forecastBudget, type BudgetConfig, type BudgetEntry, type BudgetForecast, type DayCost } from "../../shared/budget.ts";
+
+export type { BudgetConfig, BudgetEntry };
 import { supabase } from "./supabase.ts";
 
-export interface BudgetEntry { at: string; kind: "start" | "topup" | "check"; amount_usd: number; balance_usd: number }
-export interface BudgetConfig { balance_usd: number; as_of: string; warn_days: number; history: BudgetEntry[] }
 export interface BudgetState {
   loading: boolean; error: string | null; missing: boolean;       // missing: chưa chạy bản cập nhật cơ sở dữ liệu
   config: BudgetConfig | null; spent: number; remaining: number;
   tokensPerUsd: number; avgCostPerAnalysis: number; forecast: BudgetForecast | null;
-  save: (c: BudgetConfig) => Promise<string | null>; reload: () => void;
+  save: (c: BudgetConfig) => Promise<string | null>; reset: () => Promise<string | null>; reload: () => void;
 }
 
 const KEY = "api_budget";
@@ -54,6 +54,12 @@ export function useApiBudget(): BudgetState {
     setTick((x) => x + 1); return null;
   }, []);
 
+  const reset = useCallback(async () => {
+    const { error: e } = await supabase.from("admin_kv").delete().eq("key", KEY);
+    if (e) return e.message;
+    setTick((x) => x + 1); return null;
+  }, []);
+
   const derived = useMemo(() => {
     const remaining = (config?.balance_usd ?? 0) - spent;
     const last30 = days.slice(-30);
@@ -62,5 +68,5 @@ export function useApiBudget(): BudgetState {
     return { remaining, tokensPerUsd: c30 > 0 ? t30 / c30 : 0, avgCostPerAnalysis: n30 > 0 ? c30 / n30 : 0, forecast };
   }, [config, spent, days]);
 
-  return { loading, error, missing, config, spent, ...derived, save, reload: () => setTick((x) => x + 1) };
+  return { loading, error, missing, config, spent, ...derived, save, reset, reload: () => setTick((x) => x + 1) };
 }
