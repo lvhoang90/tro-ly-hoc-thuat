@@ -29,7 +29,7 @@ Quy trình phát hành phiên bản `X.Y.Z`:
 1. Thêm mục mới ở đầu `RELEASES` trong `scripts/releases.mjs` (song ngữ), tăng `version` trong `package.json` (`npm version X.Y.Z --no-git-tag-version`), `APP.release` trong `src/lib/config.ts` và `softwareVersion` trong `index.html`.
 2. Chạy `npm run release:notes` để sinh lại `CHANGELOG.md` và hai trang ghi chú; cập nhật `lastmod` trong `public/sitemap.xml`.
 3. `npm run typecheck && npm test && npm run build` (có `tests/release.test.ts` kiểm tra các số phiên bản và bản sinh khớp nhau), mở PR vào `main` và gộp khi CI xanh. Vercel tự triển khai `main`.
-4. Gắn thẻ có chú thích trên commit gộp rồi đẩy lên: `git tag -a vX.Y.Z -m "AI Academic Agent X.Y.Z" && git push origin vX.Y.Z`. Workflow `.github/workflows/release.yml` kiểm tra thẻ khớp `package.json` và `CHANGELOG.md`, chạy kiểm thử, rồi tạo GitHub Release với nội dung lấy từ `CHANGELOG.md`.
+4. Tạo thẻ và GitHub Release: gắn thẻ có chú thích rồi đẩy lên (`git tag -a vX.Y.Z -m "AI Academic Agent X.Y.Z" && git push origin vX.Y.Z`), hoặc vào **Actions → Release → Run workflow** (nhập `version`, tùy chọn `target` là commit đích; workflow tự tạo thẻ). Workflow `.github/workflows/release.yml` kiểm tra mục tương ứng trong `CHANGELOG.md`, chạy typecheck, kiểm thử và build (với phiên bản mới nhất), rồi tạo GitHub Release với nội dung lấy từ `CHANGELOG.md`.
 5. Ứng dụng tự báo trên web: số phiên bản và liên kết ghi chú ở chân trang, thông báo "Mới trong phiên bản X.Y.Z" một lần cho mỗi người dùng (lưu `tl-seen-release` trong trình duyệt).
 
 Số phiên bản "1.0" trong tên ứng dụng ("AI Academic Agent 1.0") là tên thương hiệu, không đổi theo bản phát hành.
