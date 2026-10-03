@@ -81,3 +81,35 @@ export function forecastBudget(input: DayCost[], remaining: number, today: strin
     confidence: activeDays >= 21 ? "high" : activeDays >= 7 ? "medium" : "low", activeDays,
   };
 }
+
+// ---------- Cấu hình ngân sách và thao tác sửa lỗi nhập ----------
+export interface BudgetEntry { at: string; kind: "start" | "topup" | "check"; amount_usd: number; balance_usd: number }
+export interface BudgetConfig { balance_usd: number; as_of: string; warn_days: number; history: BudgetEntry[] }
+
+/** Số dư ngay trước lần ghi này (số dư sau lần ghi trừ số tiền của lần ghi). */
+const before = (e: BudgetEntry) => (e.kind === "start" ? 0 : e.balance_usd - e.amount_usd);
+
+/**
+ * Sửa lần ghi gần nhất. `value` là số tiền nạp (kind "topup") hoặc số dư thật (kind "start", "check").
+ * Giữ nguyên thời điểm nên chi phí từ lúc đó vẫn được trừ đúng. Trả về cấu hình mới, hoặc null nếu giá trị không hợp lệ.
+ */
+export function editLastEntry(cfg: BudgetConfig, value: number): BudgetConfig | null {
+  const last = cfg.history[cfg.history.length - 1];
+  if (!last || !Number.isFinite(value)) return null;
+  let entry: BudgetEntry;
+  if (last.kind === "topup") {
+    if (value <= 0) return null;
+    entry = { ...last, amount_usd: value, balance_usd: before(last) + value };
+  } else {
+    if (value < 0) return null;
+    entry = { ...last, amount_usd: last.kind === "start" ? value : value - before(last), balance_usd: value };
+  }
+  return { ...cfg, balance_usd: entry.balance_usd, as_of: last.at, history: [...cfg.history.slice(0, -1), entry] };
+}
+
+/** Hoàn tác lần ghi gần nhất: quay về mốc trước đó. Trả về null khi chỉ còn một lần ghi (nghĩa là xóa hẳn thiết lập). */
+export function undoLastEntry(cfg: BudgetConfig): BudgetConfig | null {
+  if (cfg.history.length <= 1) return null;
+  const prev = cfg.history[cfg.history.length - 2];
+  return { ...cfg, balance_usd: prev.balance_usd, as_of: prev.at, history: cfg.history.slice(0, -1) };
+}

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { Icon } from "./Icon.tsx";
+import { editLastEntry, undoLastEntry } from "../../shared/budget.ts";
 import type { BudgetConfig, BudgetState } from "../lib/budget.ts";
 
 const usd = (n: number) => `${n < 0 ? "−" : ""}$${Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: Math.abs(n) < 100 ? 2 : 0, maximumFractionDigits: Math.abs(n) < 100 ? 2 : 0 })}`;
@@ -26,12 +27,22 @@ export function BudgetBanner({ b, onOpen }: { b: BudgetState; onOpen: () => void
 /** Thẻ ngân sách API: số dư còn lại, dự báo hết, khuyến nghị nạp, ghi nhận nạp tiền và đối chiếu số dư. */
 export default function BudgetCard({ b, rate }: { b: BudgetState; rate: number }) {
   const { t, lang } = useI18n(); const { toast } = useApp(); const fd = useDate();
+  const [editing, setEditing] = useState(false); const [editVal, setEditVal] = useState("");
   const [start, setStart] = useState(""); const [topup, setTopup] = useState(""); const [check, setCheck] = useState(""); const [warn, setWarn] = useState("");
   const vnd = (n: number) => `${Math.round(n * rate).toLocaleString(lang === "vi" ? "vi-VN" : "en-US")} ₫`;
   const num = (s: string) => { const v = Number(s.replace(",", ".").trim()); return Number.isFinite(v) ? v : NaN; };
   const f = b.forecast, cfg = b.config;
 
   async function commit(c: BudgetConfig) { const e = await b.save(c); if (e) toast(e, "err"); else toast(t("saved")); }
+  const last = cfg?.history[cfg.history.length - 1];
+  async function saveEdit() { if (!cfg) return; const n = editLastEntry(cfg, num(editVal)); if (!n) { toast(t("bud_bad_value"), "err"); return; } await commit(n); setEditing(false); }
+  async function undo() {
+    if (!cfg || !last) return;
+    const next = undoLastEntry(cfg);
+    if (!window.confirm(t(next ? "bud_undo_confirm" : "bud_reset_confirm", { k: t(`bud_kind_${last.kind}` as "bud_kind_start"), v: usd(last.kind === "topup" ? last.amount_usd : last.balance_usd) }))) return;
+    if (next) await commit(next); else { const e = await b.reset(); if (e) toast(e, "err"); else toast(t("saved")); }
+    setEditing(false);
+  }
   const entry = (kind: "start" | "topup" | "check", amount: number, balance: number) => ({ at: new Date().toISOString(), kind, amount_usd: amount, balance_usd: balance });
 
   if (b.missing) return <div className="card budget"><h3>{t("bud_title")}</h3><p className="muted">{t("bud_missing")}</p></div>;
@@ -84,9 +95,27 @@ export default function BudgetCard({ b, rate }: { b: BudgetState; rate: number }
         <div><label>{t("bud_warn")}<span className="row nowrap"><input inputMode="numeric" value={warn || String(cfg.warn_days)} onChange={(e) => setWarn(e.target.value)} />
           <button className="btn sm" disabled={!warn || !(num(warn) >= 3)} onClick={() => { void commit({ ...cfg, warn_days: Math.min(60, Math.round(num(warn))) }); setWarn(""); }}>{t("bud_save")}</button></span></label></div>
       </div>
+      <p className="muted small bud-fix"><Icon name="info" size={14} /> {t("bud_fix_hint")}</p>
       {cfg.history.length > 0 && (
         <details className="bud-hist"><summary>{t("bud_hist")}</summary>
-          <ul>{[...cfg.history].reverse().slice(0, 6).map((h) => <li key={h.at}><span>{new Date(h.at).toLocaleString(lang === "vi" ? "vi-VN" : "en-US")}</span><b>{t(`bud_kind_${h.kind}` as "bud_kind_start")}</b><span>{h.kind === "topup" ? `+${usd(h.amount_usd)} → ` : h.kind === "check" ? `${h.amount_usd >= 0 ? "+" : "−"}${usd(Math.abs(h.amount_usd))} → ` : ""}{usd(h.balance_usd)}</span></li>)}</ul>
+          <ul>{[...cfg.history].reverse().slice(0, 6).map((h, i) => (
+            <li key={h.at}><span>{new Date(h.at).toLocaleString(lang === "vi" ? "vi-VN" : "en-US")}</span><b>{t(`bud_kind_${h.kind}` as "bud_kind_start")}</b>
+              <span>{h.kind === "topup" ? `+${usd(h.amount_usd)} → ` : h.kind === "check" ? `${h.amount_usd >= 0 ? "+" : "−"}${usd(Math.abs(h.amount_usd))} → ` : ""}{usd(h.balance_usd)}</span>
+              {i === 0 && (editing ? (
+                <span className="row nowrap bud-edit">
+                  <input inputMode="decimal" aria-label={t(h.kind === "topup" ? "bud_edit_topup" : "bud_edit_balance")} value={editVal} onChange={(e) => setEditVal(e.target.value)} />
+                  <button className="btn sm primary" onClick={() => void saveEdit()}>{t("bud_save")}</button>
+                  <button className="btn sm" onClick={() => setEditing(false)}>{t("close")}</button>
+                </span>
+              ) : (
+                <span className="row nowrap bud-edit">
+                  <button className="btn sm" onClick={() => { setEditVal(String(h.kind === "topup" ? h.amount_usd : h.balance_usd)); setEditing(true); }}>{t("bud_edit")}</button>
+                  <button className="btn sm" onClick={() => void undo()}>{t("bud_undo")}</button>
+                </span>
+              ))}
+            </li>))}
+          </ul>
+          {editing && last && <p className="muted small">{t(last.kind === "topup" ? "bud_edit_topup" : "bud_edit_balance")}</p>}
         </details>
       )}
       <p className="muted small bud-note">{t("bud_note")}</p>

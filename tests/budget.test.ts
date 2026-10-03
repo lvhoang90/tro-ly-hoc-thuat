@@ -59,3 +59,40 @@ test("nhịp theo thứ trong tuần được học khi có đủ 3 tuần dữ 
   const flat = forecastBudget(series(35, () => 1.571), 30, TODAY);
   assert.ok(Math.abs(f.expected.daysLeft - flat.expected.daysLeft) < 3);
 });
+
+// ---------- Sửa và hoàn tác lần ghi gần nhất ----------
+import { editLastEntry, undoLastEntry, type BudgetConfig } from "../shared/budget.ts";
+const cfgOf = (history: BudgetConfig["history"]): BudgetConfig => ({ balance_usd: history[history.length - 1].balance_usd, as_of: history[history.length - 1].at, warn_days: 14, history });
+const H = {
+  start: { at: "2026-10-01T00:00:00Z", kind: "start" as const, amount_usd: 20, balance_usd: 20 },
+  topup: { at: "2026-10-05T00:00:00Z", kind: "topup" as const, amount_usd: 50, balance_usd: 62 },   // trước đó còn 12
+  check: { at: "2026-10-08T00:00:00Z", kind: "check" as const, amount_usd: -3, balance_usd: 59 },    // trước đó còn 62
+};
+
+test("sửa số tiền nạp nhập nhầm: số dư tính lại từ số dư trước đó, giữ nguyên thời điểm", () => {
+  const n = editLastEntry(cfgOf([H.start, H.topup]), 5)!;     // lỡ gõ 50 thay vì 5
+  assert.equal(n.balance_usd, 17); assert.equal(n.as_of, H.topup.at);
+  assert.equal(n.history[1].amount_usd, 5); assert.equal(n.history[1].balance_usd, 17); assert.equal(n.history.length, 2);
+});
+
+test("sửa số dư đã nhập lúc bắt đầu", () => {
+  const n = editLastEntry(cfgOf([H.start]), 200)!;            // lỡ gõ 20 thay vì 200
+  assert.equal(n.balance_usd, 200); assert.equal(n.history[0].amount_usd, 200); assert.equal(n.history[0].balance_usd, 200);
+});
+
+test("sửa lần đối chiếu: số dư đúng thay đổi, chênh lệch tính lại", () => {
+  const n = editLastEntry(cfgOf([H.start, H.topup, H.check]), 60)!;
+  assert.equal(n.balance_usd, 60); assert.equal(n.history[2].amount_usd, -2);   // 60 − 62
+});
+
+test("giá trị không hợp lệ bị từ chối: nạp ≤ 0, số dư âm, không phải số", () => {
+  assert.equal(editLastEntry(cfgOf([H.start, H.topup]), 0), null);
+  assert.equal(editLastEntry(cfgOf([H.start, H.check]), -1), null);
+  assert.equal(editLastEntry(cfgOf([H.start]), NaN), null);
+});
+
+test("hoàn tác quay về mốc trước đó; chỉ còn một lần ghi thì báo xóa thiết lập", () => {
+  const u = undoLastEntry(cfgOf([H.start, H.topup, H.check]))!;
+  assert.equal(u.balance_usd, 62); assert.equal(u.as_of, H.topup.at); assert.equal(u.history.length, 2);
+  assert.equal(undoLastEntry(cfgOf([H.start])), null);
+});
