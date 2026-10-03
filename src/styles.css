@@ -581,3 +581,5 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 /* Trang quản trị dùng hết bề ngang để bảng người dùng không phải cuộn ngang */
 .main:has(> .admin-wide) { max-width: 1440px; }
 .u-name { display: flex; align-items: baseline; gap: .6rem; min-width: 0; } .u-name .link { flex: none; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (max-width: 900px) { .tbl.users td:not(.u-user) { white-space: normal; } .tbl.users .row.nowrap { flex-wrap: wrap; } .tbl.users td.u-user { min-width: 11rem; max-width: 14rem; width: auto; } .ustat { grid-template-columns: repeat(3, 3.2rem); } }
+@media (max-width: 640px) { .card .row.wrap > input.grow { flex: 1 1 100%; min-width: 0; } }
