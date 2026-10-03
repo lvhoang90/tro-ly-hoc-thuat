@@ -16,7 +16,7 @@ AI Academic Agent gains Ami, a friendly 3D robot character who guides you from t
 - Ami accompanies the whole journey: greets you on the sign-in page, prompts each step, reads your document with you, "thinks" during analysis, reacts to the fit score (80+: celebrate, 60+: happy, below 60: care) and reports errors gently. After sign-in a compact Ami sits in the corner with a hide/show button.
 - An "ISA ecosystem" block in the footer (EduFind, AI Academic Agent, Document Assistant) with UTM-tagged links to measure referrals.
 - A new marketing kit starring Ami: share-preview image, 3:4 poster, nine 1:1 social images and a 30-second vertical video (English and Vietnamese).
-- Bilingual release notes on the web (/ghi-chu-phat-hanh, /en/release-notes), an in-app "What's new" notice, the version number in the footer, CHANGELOG.md and automated releases from version tags.
+- Bilingual release notes on the web (/ghi-chu-phat-hanh, /en/release-notes), an in-app "What's new" notice, the version number in the footer, CHANGELOG.md and automated releases (push a version tag or run the Release workflow).
 
 ### Changed
 

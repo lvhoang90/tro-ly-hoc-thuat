@@ -23,8 +23,8 @@ export const RELEASES = [
          "An \"ISA ecosystem\" block in the footer (EduFind, AI Academic Agent, Document Assistant) with UTM-tagged links to measure referrals."],
         ["Bộ truyền thông mới lấy Ami làm nhân vật chính: ảnh xem trước khi chia sẻ, poster 3:4, 9 ảnh vuông 1:1 và clip 30 giây khổ dọc (tiếng Anh, tiếng Việt).",
          "A new marketing kit starring Ami: share-preview image, 3:4 poster, nine 1:1 social images and a 30-second vertical video (English and Vietnamese)."],
-        ["Ghi chú phát hành song ngữ trên web (/ghi-chu-phat-hanh, /en/release-notes), thông báo \"Có gì mới\" trong ứng dụng, số phiên bản ở chân trang, CHANGELOG.md và quy trình phát hành tự động theo thẻ phiên bản.",
-         "Bilingual release notes on the web (/ghi-chu-phat-hanh, /en/release-notes), an in-app \"What's new\" notice, the version number in the footer, CHANGELOG.md and automated releases from version tags."],
+        ["Ghi chú phát hành song ngữ trên web (/ghi-chu-phat-hanh, /en/release-notes), thông báo \"Có gì mới\" trong ứng dụng, số phiên bản ở chân trang, CHANGELOG.md và quy trình phát hành tự động (đẩy thẻ phiên bản hoặc chạy workflow Release).",
+         "Bilingual release notes on the web (/ghi-chu-phat-hanh, /en/release-notes), an in-app \"What's new\" notice, the version number in the footer, CHANGELOG.md and automated releases (push a version tag or run the Release workflow)."],
       ],
       Changed: [
         ["Ảnh xem trước khi chia sẻ (og.png) được thiết kế lại với Ami.",
