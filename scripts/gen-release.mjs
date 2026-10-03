@@ -19,8 +19,6 @@ function changelog() {
     for (const k of secKeys(r)) { out.push(`### ${k}`, ""); for (const [, en] of r.sections[k]) out.push(`- ${en}`); out.push(""); }
     for (const n of r.notes ?? []) if (n === r.notes[1]) out.push(`> ${n}`, "");
   }
-  out.push(`[Unreleased]: ${REPO}/compare/v${latest.version}...HEAD`);
-  RELEASES.forEach((r, i) => out.push(prev(i) ? `[${r.version}]: ${REPO}/compare/v${prev(i).version}...v${r.version}` : `[${r.version}]: ${REPO}/releases/tag/v${r.version}`));
   return out.join("\n") + "\n";
 }
 

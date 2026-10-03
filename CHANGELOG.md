@@ -39,6 +39,3 @@ A bilingual web app that reads sources, scores their fit 0–100, picks citable 
 - PDF files now open on iPhone and Safari; when a file cannot be read, the app explains why.
 - Fixed the profile-completion percentage label being cut off on iPhone.
 
-[Unreleased]: https://github.com/lvhoang90/tro-ly-hoc-thuat/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/lvhoang90/tro-ly-hoc-thuat/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/lvhoang90/tro-ly-hoc-thuat/releases/tag/v1.0.0
