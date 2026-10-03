@@ -171,7 +171,9 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
 
     let last = performance.now();
     let t = 0, raf = 0, acc = 0, nextBlink = 2.2, blinkT = -1, sparkOn = 0, lastMoodKey = "", moodStart = 0, drawn = "";
-    const faceKey = (m: Mood, b: number, gx: number, gy: number) => `${m}|${Math.round(b * 8)}|${Math.round(gx * 6)}|${Math.round(gy * 6)}|${m === "read" || m === "celebrate" || m === "sleep" || m === "wave" ? Math.round(t * 20) : 0}`;
+    /** Mức mở miệng 0..4 khi Ami đang nói (cờ window.__amiTalk, dùng cho video/giọng nói). */
+    const talkLv = () => ((window as unknown as { __amiTalk?: boolean }).__amiTalk ? 1 + Math.floor(Math.abs(Math.sin(t * 13)) * 3.99) : 0);
+    const faceKey = (m: Mood, b: number, gx: number, gy: number) => `${m}|${Math.round(b * 8)}|${Math.round(gx * 6)}|${Math.round(gy * 6)}|${m === "read" || m === "celebrate" || m === "sleep" || m === "wave" ? Math.round(t * 20) : 0}|${talkLv()}`;
 
     const frame = (dt: number, still: boolean) => {
       const L = live.current;
@@ -227,7 +229,7 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
 
       // khuôn mặt: chỉ vẽ lại khi thay đổi
       const k = faceKey(m, blink, ptr.x, ptr.y);
-      if (k !== drawn || m !== (lastMoodKey.split("#")[0] as Mood)) { drawFace(faceCtx, faceCv.width, faceCv.height, { mood: m, blink, gx: ptr.x, gy: -ptr.y, t }); faceTex.needsUpdate = true; drawn = k; }
+      if (k !== drawn || m !== (lastMoodKey.split("#")[0] as Mood)) { drawFace(faceCtx, faceCv.width, faceCv.height, { mood: m, blink, gx: ptr.x, gy: -ptr.y, t, talk: talkLv() / 4 }); faceTex.needsUpdate = true; drawn = k; }
       renderer.render(scene, camera);
     };
 
@@ -236,13 +238,13 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
     const tick = () => {
       if (stopped) return;
       raf = requestAnimationFrame(tick);
-      const now = performance.now(); const dt = Math.min((now - last) / 1000, 0.05); last = now; acc += dt;
+      const now = performance.now(); const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now; acc += dt;
       if (document.hidden || !visible) return;
       if (fpsCap < 60 && acc < 1 / fpsCap - 0.002) return;
       t += acc; const step = acc; acc = 0;
       const t0 = performance.now(); frame(step, false); const cost = performance.now() - t0;
       slow = cost > 22 ? slow + 1 : Math.max(0, slow - 1);
-      if (slow > 24) {
+      if (slow > 24 && !(window as unknown as { __amiLock?: boolean }).__amiLock) { // __amiLock: dựng video, không hạ chất lượng
         slow = 0; tier++;
         if (tier === 1) { renderer.setPixelRatio(1); resize(); fpsCap = 30; }
         else { stopped = true; cancelAnimationFrame(raf); poke.current = () => frame(0.016, true); }

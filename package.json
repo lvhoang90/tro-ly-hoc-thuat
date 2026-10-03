@@ -1,7 +1,7 @@
 {
   "name": "tro-ly-hoc-thuat",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Trợ lý học thuật | AI Academic Agent 1.0",
   "author": "Lương Việt Hoàng (ISA Vietnam)",
   "license": "UNLICENSED",
@@ -13,7 +13,8 @@
     "typecheck": "tsc -b --noEmit",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
     "sync:edufind": "node scripts/sync-edufind.mjs",
-    "build:csl": "node scripts/build-csl-index.mjs"
+    "build:csl": "node scripts/build-csl-index.mjs",
+    "release:notes": "node scripts/gen-release.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

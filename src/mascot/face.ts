@@ -60,7 +60,9 @@ export function drawFace(c: CanvasRenderingContext2D, w: number, h: number, f: F
   // Miệng
   const my = h * 0.8, mw = w * 0.09;
   c.lineWidth = w * 0.03;
-  if (m === "celebrate") {
+  if (f.talk && f.talk > 0 && m !== "alert" && m !== "sleep") { // đang nói: miệng mở theo nhịp
+    c.beginPath(); c.ellipse(w / 2, my - h * 0.02, mw * (0.7 + 0.5 * f.talk), h * (0.012 + 0.065 * f.talk), 0, 0, Math.PI * 2); c.fill();
+  } else if (m === "celebrate") {
     c.beginPath(); c.moveTo(w / 2 - mw * 1.4, my - h * 0.03); c.quadraticCurveTo(w / 2, my + h * 0.2, w / 2 + mw * 1.4, my - h * 0.03); c.closePath(); c.fill();
   } else if (m === "happy" || m === "wave") {
     c.beginPath(); c.arc(w / 2, my - h * 0.05, mw * 1.25, 0.15 * Math.PI, 0.85 * Math.PI); c.stroke();

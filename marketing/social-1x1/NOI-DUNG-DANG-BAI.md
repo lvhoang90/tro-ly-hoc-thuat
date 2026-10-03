@@ -1,6 +1,6 @@
 # Bộ 9 ảnh vuông 1:1 (1620×1620) và nội dung đăng mạng xã hội
 
-Ảnh bìa `00-bia.png` (tên và logo phần mềm, mã QR, thông tin tác giả) đăng đầu tiên, tiếp theo là 8 ảnh bước. Đăng theo thứ tự 0 → 8 (dạng nhiều ảnh trượt ngang trên Facebook, Instagram, LinkedIn). Ảnh dùng chữ tiếng Việt. Dữ liệu trong ảnh là dữ liệu minh họa.
+Ảnh bìa `00-bia.png` (tên và logo phần mềm, mã QR, thông tin tác giả) đăng đầu tiên, tiếp theo là 8 ảnh bước. Đăng theo thứ tự 0 → 8 (dạng nhiều ảnh trượt ngang trên Facebook, Instagram, LinkedIn). Ảnh dùng chữ tiếng Việt, mỗi ảnh bước có Ami giải thích ngắn gọn. Dữ liệu trong ảnh là dữ liệu minh họa.
 
 | # | Tệp | Nội dung |
 |---|-----|----------|
@@ -18,7 +18,7 @@
 
 📚 **Trợ lý học thuật | AI Academic Agent 1.0** đã sẵn sàng.
 
-Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút. Lướt ảnh để xem 8 bước:
+Gặp Ami, trợ lý robot AI luôn đồng hành cùng hành trình học thuật của bạn. Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút. Lướt ảnh để xem 8 bước:
 
 1️⃣ Đăng ký miễn phí, mỗi ngày có 1 lượt phân tích
 2️⃣ Dán tóm tắt đề tài (Abstract)

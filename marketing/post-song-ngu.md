@@ -8,7 +8,7 @@
 
 📚 **Trợ lý học thuật | AI Academic Agent 1.0** đã sẵn sàng.
 
-Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút:
+Gặp Ami, trợ lý robot AI đồng hành cùng hành trình học thuật của bạn. Đọc một bài báo dài chỉ để biết nó có dùng được cho đề tài của mình hay không là việc tốn nhiều giờ. Ứng dụng này làm bước sàng lọc đó trong vài phút:
 
 ✅ Đọc tài liệu PDF, DOC, DOCX (kể cả bản scan nhờ OCR)
 ✅ Chấm mức độ phù hợp từ 0 đến 100 so với tóm tắt đề tài của bạn

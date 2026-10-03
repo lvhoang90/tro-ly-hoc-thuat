@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI Academic Agent release notes: version 1.1.0</title>
+<meta name="description" content="What's new in AI Academic Agent 1.1.0: Ami, the 3D robot companion, the ISA ecosystem footer, a new marketing kit and the full version history.">
+<link rel="canonical" href="https://aaa.isavietnam.app/en/release-notes">
+<link rel="alternate" hreflang="en" href="https://aaa.isavietnam.app/en/release-notes">
+<link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<link rel="alternate" hreflang="x-default" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0a0f1e">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:title" content="AI Academic Agent release notes: version 1.1.0">
+<meta property="og:description" content="What's new in AI Academic Agent 1.1.0: Ami, the 3D robot companion, the ISA ecosystem footer, a new marketing kit and the full version history.">
+<meta property="og:url" content="https://aaa.isavietnam.app/en/release-notes">
+<meta property="og:image" content="https://aaa.isavietnam.app/og.png">
+<meta property="og:locale" content="en_US">
+<meta property="og:locale:alternate" content="vi_VN">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://aaa.isavietnam.app/en/release-notes","url":"https://aaa.isavietnam.app/en/release-notes","name":"AI Academic Agent release notes: version 1.1.0","description":"What's new in AI Academic Agent 1.1.0: Ami, the 3D robot companion, the ISA ecosystem footer, a new marketing kit and the full version history.","inLanguage":"en","dateModified":"2026-10-03","isPartOf":{"@type":"WebSite","name":"Trợ lý học thuật | AI Academic Agent 1.0","url":"https://aaa.isavietnam.app/"},"about":{"@type":"SoftwareApplication","name":"Trợ lý học thuật | AI Academic Agent","softwareVersion":"1.1.0","applicationCategory":"EducationalApplication","operatingSystem":"Web"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://aaa.isavietnam.app/"},{"@type":"ListItem","position":2,"name":"Release notes","item":"https://aaa.isavietnam.app/en/release-notes"}]}]}</script>
+<style>
+:root{--bg:#0a0f1e;--card:#121a34;--line:#2a3763;--text:#e6ecf8;--muted:#9aa8c4;--accent:#38bdf8;--on:#04101f}
+@media (prefers-color-scheme:light){:root{--bg:#f4f7fc;--card:#fff;--line:#d3dbea;--text:#0f172a;--muted:#4b5870;--accent:#03629a;--on:#fff}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+a{color:var(--accent)}header,main,footer{max-width:820px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:center;padding-top:18px;padding-bottom:6px;font-size:.92rem;flex-wrap:wrap;gap:.5rem}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.8rem 0 .4rem}h2{font-size:1.5rem;margin:0 0 .2rem}h2 small{font-size:.9rem;font-weight:500;color:var(--muted)}h3{font-size:1.02rem;margin:1.1rem 0 .3rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.lead{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1rem}.rt{font-weight:700;font-size:1.1rem;margin:.2rem 0}.btn{display:inline-block;background:var(--accent);color:var(--on);font-weight:700;padding:.7rem 1.3rem;border-radius:12px;text-decoration:none}
+article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin:1.2rem 0}article ul{margin:.3rem 0;padding-left:1.2rem}article li{margin:.35rem 0}
+.tag{background:var(--accent);color:var(--on);font-weight:800;border-radius:99px;padding:.05rem .6rem;font-size:.78rem}.note{color:var(--muted);font-size:.92rem}
+footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<header><a href="/">Home</a><span><a href="/en/guide">User guide</a> · <a href="/ghi-chu-phat-hanh" hreflang="vi" lang="vi">Tiếng Việt</a></span></header>
+<main>
+<h1>Release notes</h1>
+<p class="lead">The version history of AI Academic Agent, following Semantic Versioning. Newest first.</p>
+<p><a class="btn" href="/">Try it free</a></p>
+<article id="v1.1.0">
+<h2>v1.1.0 <small>2026-10-03 · <span class="tag">Latest</span></small></h2>
+<p class="rt">Meet Ami, your AI robot companion</p>
+<p class="lead">AI Academic Agent gains Ami, a friendly 3D robot character who guides you from the home page through every step.</p>
+<h3>Added</h3>
+<ul>
+<li>Ami: a procedurally drawn 3D assistant robot (three.js, lazy-loaded) with 9 emotions (idle, wave, read, think, happy, celebrate, care, alert, sleep), eyes that follow the pointer and bilingual Vietnamese/English speech bubbles.</li>
+<li>Ami accompanies the whole journey: greets you on the sign-in page, prompts each step, reads your document with you, &quot;thinks&quot; during analysis, reacts to the fit score (80+: celebrate, 60+: happy, below 60: care) and reports errors gently. After sign-in a compact Ami sits in the corner with a hide/show button.</li>
+<li>An &quot;ISA ecosystem&quot; block in the footer (EduFind, AI Academic Agent, Document Assistant) with UTM-tagged links to measure referrals.</li>
+<li>A new marketing kit starring Ami: share-preview image, 3:4 poster, nine 1:1 social images and a 30-second vertical video (English and Vietnamese).</li>
+<li>Bilingual release notes on the web (/ghi-chu-phat-hanh, /en/release-notes), an in-app &quot;What's new&quot; notice, the version number in the footer, CHANGELOG.md and automated releases from version tags.</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>The share-preview image (og.png) was redesigned around Ami.</li>
+<li>Ecosystem display names: &quot;Trợ lý văn thư Mây&quot; (vi), &quot;Mary, Document Assistant&quot; (en); the current step reads &quot;You are here with Ami&quot;.</li>
+<li>The 3D part loads separately (about 142 KB gzipped) when the browser is idle; devices without WebGL, with data-saver or low memory get a light SVG robot; rendering pauses when the tab is hidden or the robot is off-screen; quality drops automatically on slow devices; reduced-motion is respected. Home-page Lighthouse: performance 96, accessibility 100, SEO 100, CLS 0.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>The robot render loop no longer accepts a negative frame time (when the browser clock jumps backwards), which could make the robot's head spin wildly.</li>
+</ul>
+<p class="note">Ami added the three.js library (MIT); see THIRD_PARTY_NOTICES.md.</p>
+<p><a href="https://github.com/lvhoang90/tro-ly-hoc-thuat/releases/tag/v1.1.0" rel="noopener">View on GitHub</a></p>
+</article>
+<article id="v1.0.0">
+<h2>v1.0.0 <small>2026-10-02</small></h2>
+<p class="rt">First release</p>
+<p class="lead">A bilingual web app that reads sources, scores their fit 0–100, picks citable passages and copies internationally standard citations.</p>
+<h3>Added</h3>
+<ul>
+<li>Sign-up and email verification (Supabase Auth); 1 free analysis per day; files up to 2 MB (15 MB for accounts verified by an administrator).</li>
+<li>Analysis with Claude: a 0–100 score on 5 criteria, a summary, ranked passages with page numbers verified verbatim against the source; below 60 it suggests alternative sources (OpenAlex) and suitable journals from EduFind.</li>
+<li>PDF, DOC and DOCX are read on the user's device; OCR (Vietnamese and English) for scans; documents are never stored.</li>
+<li>Citations in APA, Harvard, Chicago, MLA, IEEE, Vancouver, AMA, BibTeX and RIS plus a store of 10,865 CSL styles; citation language (Vietnamese/English) independent of the interface; history grouped by topic.</li>
+<li>Researcher profile (ORCID with check-digit validation), an admin area with API-cost statistics, Google Sheets sync through GitHub Actions and a visit counter.</li>
+<li>SEO and accessibility: structured data, sitemap, bilingual guides (/huong-dan, /en/guide), llms.txt; colour contrast meeting WCAG 2.2 AA; a phone layout that puts the main content first; the aaa.isavietnam.app domain.</li>
+<li>Author photo in the footer with an introduction dialog; the first marketing kit (poster, step-by-step images, bilingual post).</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>PDFs now read on Safari/iPhone (added a ReadableStream async iterator for pdf.js) and the real cause is reported when a file cannot be read.</li>
+<li>The /api/analyze function no longer crashes on start-up on Vercel; fixed the clipped profile-percentage label on iPhone.</li>
+</ul>
+<p><a href="https://github.com/lvhoang90/tro-ly-hoc-thuat/releases/tag/v1.0.0" rel="noopener">View on GitHub</a></p>
+</article>
+</main>
+<footer>© 2026 Lương Việt Hoàng (ISA Vietnam). All rights reserved.</footer>
+</body>
+</html>

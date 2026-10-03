@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ghi chú phát hành Trợ lý học thuật: phiên bản 1.1.0</title>
+<meta name="description" content="Có gì mới trong Trợ lý học thuật (AI Academic Agent) 1.1.0: Ami, robot trợ lý 3D đồng hành, hệ sinh thái ISA, bộ truyền thông mới và lịch sử các phiên bản.">
+<link rel="canonical" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<link rel="alternate" hreflang="en" href="https://aaa.isavietnam.app/en/release-notes">
+<link rel="alternate" hreflang="x-default" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#0a0f1e">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:title" content="Ghi chú phát hành Trợ lý học thuật: phiên bản 1.1.0">
+<meta property="og:description" content="Có gì mới trong Trợ lý học thuật (AI Academic Agent) 1.1.0: Ami, robot trợ lý 3D đồng hành, hệ sinh thái ISA, bộ truyền thông mới và lịch sử các phiên bản.">
+<meta property="og:url" content="https://aaa.isavietnam.app/ghi-chu-phat-hanh">
+<meta property="og:image" content="https://aaa.isavietnam.app/og.png">
+<meta property="og:locale" content="vi_VN">
+<meta property="og:locale:alternate" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://aaa.isavietnam.app/ghi-chu-phat-hanh","url":"https://aaa.isavietnam.app/ghi-chu-phat-hanh","name":"Ghi chú phát hành Trợ lý học thuật: phiên bản 1.1.0","description":"Có gì mới trong Trợ lý học thuật (AI Academic Agent) 1.1.0: Ami, robot trợ lý 3D đồng hành, hệ sinh thái ISA, bộ truyền thông mới và lịch sử các phiên bản.","inLanguage":"vi","dateModified":"2026-10-03","isPartOf":{"@type":"WebSite","name":"Trợ lý học thuật | AI Academic Agent 1.0","url":"https://aaa.isavietnam.app/"},"about":{"@type":"SoftwareApplication","name":"Trợ lý học thuật | AI Academic Agent","softwareVersion":"1.1.0","applicationCategory":"EducationalApplication","operatingSystem":"Web"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Trang chủ","item":"https://aaa.isavietnam.app/"},{"@type":"ListItem","position":2,"name":"Ghi chú phát hành","item":"https://aaa.isavietnam.app/ghi-chu-phat-hanh"}]}]}</script>
+<style>
+:root{--bg:#0a0f1e;--card:#121a34;--line:#2a3763;--text:#e6ecf8;--muted:#9aa8c4;--accent:#38bdf8;--on:#04101f}
+@media (prefers-color-scheme:light){:root{--bg:#f4f7fc;--card:#fff;--line:#d3dbea;--text:#0f172a;--muted:#4b5870;--accent:#03629a;--on:#fff}}
+*{box-sizing:border-box}body{margin:0;font:16px/1.65 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+a{color:var(--accent)}header,main,footer{max-width:820px;margin:0 auto;padding:0 16px}
+header{display:flex;justify-content:space-between;align-items:center;padding-top:18px;padding-bottom:6px;font-size:.92rem;flex-wrap:wrap;gap:.5rem}
+h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.8rem 0 .4rem}h2{font-size:1.5rem;margin:0 0 .2rem}h2 small{font-size:.9rem;font-weight:500;color:var(--muted)}h3{font-size:1.02rem;margin:1.1rem 0 .3rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.lead{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1rem}.rt{font-weight:700;font-size:1.1rem;margin:.2rem 0}.btn{display:inline-block;background:var(--accent);color:var(--on);font-weight:700;padding:.7rem 1.3rem;border-radius:12px;text-decoration:none}
+article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin:1.2rem 0}article ul{margin:.3rem 0;padding-left:1.2rem}article li{margin:.35rem 0}
+.tag{background:var(--accent);color:var(--on);font-weight:800;border-radius:99px;padding:.05rem .6rem;font-size:.78rem}.note{color:var(--muted);font-size:.92rem}
+footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
+</style>
+</head>
+<body>
+<header><a href="/">Trang chủ</a><span><a href="/huong-dan">Hướng dẫn sử dụng</a> · <a href="/en/release-notes" hreflang="en" lang="en">English</a></span></header>
+<main>
+<h1>Ghi chú phát hành</h1>
+<p class="lead">Lịch sử các phiên bản của Trợ lý học thuật, theo Semantic Versioning. Phiên bản mới nhất ở trên cùng.</p>
+<p><a class="btn" href="/">Dùng thử miễn phí</a></p>
+<article id="v1.1.0">
+<h2>v1.1.0 <small>2026-10-03 · <span class="tag">Mới nhất</span></small></h2>
+<p class="rt">Gặp Ami, trợ lý robot AI đồng hành</p>
+<p class="lead">Trợ lý học thuật có thêm Ami, nhân vật robot 3D thân thiện đi cùng bạn từ trang chủ đến từng bước học thuật.</p>
+<h3>Thêm mới</h3>
+<ul>
+<li>Ami: robot trợ lý 3D vẽ bằng mã (three.js, tải lười), có 9 cảm xúc (nghỉ, vẫy chào, đọc, suy nghĩ, vui, ăn mừng, quan tâm, cảnh báo, ngủ), mắt nhìn theo con trỏ, bong bóng thoại song ngữ Việt/Anh.</li>
+<li>Ami đồng hành khắp hành trình: chào ở trang đăng nhập, nhắc từng bước, đọc tài liệu cùng bạn, &quot;suy nghĩ&quot; khi phân tích, phản ứng theo điểm phù hợp (từ 80: ăn mừng, từ 60: vui, dưới 60: quan tâm) và báo lỗi nhẹ nhàng. Ở các trang sau đăng nhập, Ami nhỏ gọn ở góc dưới, có nút ẩn/hiện.</li>
+<li>Khối &quot;Hệ sinh thái ISA&quot; ở chân trang (EduFind, Trợ lý học thuật, Trợ lý văn thư) với liên kết có UTM để đo lượt chuyển.</li>
+<li>Bộ truyền thông mới lấy Ami làm nhân vật chính: ảnh xem trước khi chia sẻ, poster 3:4, 9 ảnh vuông 1:1 và clip 30 giây khổ dọc (tiếng Anh, tiếng Việt).</li>
+<li>Ghi chú phát hành song ngữ trên web (/ghi-chu-phat-hanh, /en/release-notes), thông báo &quot;Có gì mới&quot; trong ứng dụng, số phiên bản ở chân trang, CHANGELOG.md và quy trình phát hành tự động theo thẻ phiên bản.</li>
+</ul>
+<h3>Thay đổi</h3>
+<ul>
+<li>Ảnh xem trước khi chia sẻ (og.png) được thiết kế lại với Ami.</li>
+<li>Tên hiển thị trong hệ sinh thái: &quot;Trợ lý văn thư Mây&quot; (vi), &quot;Mary, Document Assistant&quot; (en); bước hiện tại ghi &quot;Bạn đang ở đây cùng Ami&quot;.</li>
+<li>Phần 3D chỉ tải riêng khoảng 142 KB (nén) khi trình duyệt rảnh; thiết bị không có WebGL, bật tiết kiệm dữ liệu hoặc RAM thấp dùng bản SVG nhẹ; tạm dừng khi tab ẩn hoặc robot ngoài màn hình; tự giảm chất lượng khi máy chậm; tôn trọng chế độ giảm chuyển động. Lighthouse trang chủ: hiệu năng 96, trợ năng 100, SEO 100, CLS 0.</li>
+</ul>
+<h3>Sửa lỗi</h3>
+<ul>
+<li>Vòng lặp vẽ robot không còn nhận khoảng thời gian âm (khi đồng hồ trình duyệt nhảy lùi), tránh trường hợp đầu robot xoay loạn.</li>
+</ul>
+<p class="note">Ami thêm thư viện three.js (MIT); xem THIRD_PARTY_NOTICES.md.</p>
+<p><a href="https://github.com/lvhoang90/tro-ly-hoc-thuat/releases/tag/v1.1.0" rel="noopener">Xem trên GitHub</a></p>
+</article>
+<article id="v1.0.0">
+<h2>v1.0.0 <small>2026-10-02</small></h2>
+<p class="rt">Phát hành đầu tiên</p>
+<p class="lead">Ứng dụng web song ngữ giúp đọc tài liệu, chấm mức độ phù hợp 0–100, chọn đoạn đáng trích và sao chép trích dẫn chuẩn quốc tế.</p>
+<h3>Thêm mới</h3>
+<ul>
+<li>Đăng ký, xác thực email (Supabase Auth); 1 lượt phân tích miễn phí mỗi ngày; tệp tối đa 2 MB (15 MB với tài khoản đã được quản trị viên xác thực).</li>
+<li>Phân tích bằng Claude: điểm 0–100 theo 5 tiêu chí, tóm tắt, đoạn trích xếp hạng có số trang và được đối chiếu nguyên văn với tài liệu gốc; dưới 60 điểm gợi ý nguồn thay thế (OpenAlex) và tạp chí phù hợp từ EduFind.</li>
+<li>Đọc PDF, DOC, DOCX ngay trên máy người dùng; OCR (tiếng Việt và Anh) cho bản quét; tài liệu không bị lưu trữ.</li>
+<li>Trích dẫn APA, Harvard, Chicago, MLA, IEEE, Vancouver, AMA, BibTeX, RIS và kho 10.865 kiểu CSL; ngôn ngữ trích dẫn Việt/Anh độc lập với giao diện; lịch sử gom theo đề tài.</li>
+<li>Hồ sơ nhà nghiên cứu (ORCID có kiểm tra chữ số kiểm tra), trang quản trị với thống kê chi phí API, đồng bộ Google Sheets bằng GitHub Actions, đếm lượt truy cập.</li>
+<li>SEO và truy cập: dữ liệu có cấu trúc, sitemap, trang hướng dẫn song ngữ (/huong-dan, /en/guide), llms.txt; tương phản màu đạt WCAG 2.2 AA; giao diện điện thoại ưu tiên nội dung chính; tên miền aaa.isavietnam.app.</li>
+<li>Ảnh tác giả ở chân trang kèm hộp thoại giới thiệu; bộ truyền thông đầu tiên (poster, ảnh minh họa từng bước, bài đăng song ngữ).</li>
+</ul>
+<h3>Sửa lỗi</h3>
+<ul>
+<li>Đọc được PDF trên Safari/iPhone (bổ sung ReadableStream async iterator cho pdf.js) và báo đúng nguyên nhân khi không đọc được tệp.</li>
+<li>Hàm /api/analyze không còn sập khi khởi động trên Vercel; sửa nhãn phần trăm hồ sơ bị cắt trên iPhone.</li>
+</ul>
+<p><a href="https://github.com/lvhoang90/tro-ly-hoc-thuat/releases/tag/v1.0.0" rel="noopener">Xem trên GitHub</a></p>
+</article>
+</main>
+<footer>© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.</footer>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# Phát hành theo thông lệ quốc tế: đẩy thẻ vX.Y.Z (Semantic Versioning) lên main thì tự tạo GitHub Release
+# với nội dung lấy từ mục tương ứng trong CHANGELOG.md. Quy trình đầy đủ: README → "Phát hành".
+name: Release
+on:
+  push:
+    tags: ["v*.*.*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - name: Thẻ phải khớp package.json và CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          test "$VERSION" = "$(node -p "require('./package.json').version")" || { echo "Thẻ $GITHUB_REF_NAME không khớp package.json"; exit 1; }
+          grep -q "^## \[$VERSION\] - " CHANGELOG.md || { echo "CHANGELOG.md chưa có mục $VERSION"; exit 1; }
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: https://example.supabase.co
+          VITE_SUPABASE_ANON_KEY: anon
+          VITE_SITE_URL: https://example.com
+      - name: Tạo GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} f && /^## \[/ {exit} f' CHANGELOG.md > release-body.md
+          PRE=""; case "$VERSION" in *-*) PRE="--prerelease";; esac
+          gh release create "$GITHUB_REF_NAME" --title "AI Academic Agent $GITHUB_REF_NAME" --notes-file release-body.md --verify-tag $PRE
