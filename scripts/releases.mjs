@@ -4,7 +4,7 @@
 //
 // NGUYÊN TẮC VIẾT GHI CHÚ PHÁT HÀNH (xem CLAUDE.md): chỉ nêu điều người dùng cuối nhìn thấy hoặc cảm nhận được
 // (tính năng mới, thay đổi trải nghiệm, lỗi đã sửa mà người dùng từng gặp). Không đưa vào chi tiết kỹ thuật, thư viện,
-// kiến trúc, hiệu năng đo đạc, hạ tầng, quy trình phát hành, tài liệu truyền thông hay việc nội bộ. Mỗi dòng ngắn, dễ hiểu.
+// kiến trúc, hiệu năng đo đạc, hạ tầng, quy trình phát hành, tài liệu truyền thông hay việc nội bộ; không nhắc tới GitHub. Mỗi dòng ngắn, dễ hiểu.
 export const REPO = "https://github.com/lvhoang90/tro-ly-hoc-thuat";
 export const SITE = "https://aaa.isavietnam.app";
 

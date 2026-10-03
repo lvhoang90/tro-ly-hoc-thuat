@@ -30,7 +30,7 @@ const T = {
     title: `Ghi chú phát hành Trợ lý học thuật: phiên bản ${latest.version}`,
     desc: `Có gì mới trong Trợ lý học thuật (AI Academic Agent) ${latest.version}: Ami, trợ lý robot đồng hành, hệ sinh thái ISA ở chân trang và lịch sử các phiên bản.`,
     h1: "Ghi chú phát hành", lead: "Lịch sử các phiên bản của Trợ lý học thuật, theo Semantic Versioning. Phiên bản mới nhất ở trên cùng.",
-    home: "Trang chủ", langLabel: "English", cta: "Dùng thử miễn phí", latestL: "Mới nhất", gh: "Xem trên GitHub", guide: "Hướng dẫn sử dụng", guidePath: "/huong-dan",
+    home: "Trang chủ", langLabel: "English", cta: "Dùng thử miễn phí", latestL: "Mới nhất", guide: "Hướng dẫn sử dụng", guidePath: "/huong-dan",
     sec: (k) => SECTION_VI[k] ?? k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.", crumb: "Ghi chú phát hành",
   },
   en: {
@@ -38,7 +38,7 @@ const T = {
     title: `AI Academic Agent release notes: version ${latest.version}`,
     desc: `What's new in AI Academic Agent ${latest.version}: Ami, the friendly robot companion, the ISA ecosystem in the footer and the full version history.`,
     h1: "Release notes", lead: "The version history of AI Academic Agent, following Semantic Versioning. Newest first.",
-    home: "Home", langLabel: "Tiếng Việt", cta: "Try it free", latestL: "Latest", gh: "View on GitHub", guide: "User guide", guidePath: "/en/guide",
+    home: "Home", langLabel: "Tiếng Việt", cta: "Try it free", latestL: "Latest", guide: "User guide", guidePath: "/en/guide",
     sec: (k) => k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). All rights reserved.", crumb: "Release notes",
   },
 };
@@ -57,8 +57,7 @@ function page(t) {
 <p class="rt">${esc(r.title[I])}</p>
 <p class="lead">${esc(r.summary[I])}</p>
 ${secKeys(r).map((k) => `<h3>${esc(t.sec(k))}</h3>\n<ul>\n${r.sections[k].map((x) => `<li>${esc(x[I])}</li>`).join("\n")}\n</ul>`).join("\n")}
-${(r.notes ?? []).length ? `<p class="note">${esc(r.notes[I])}</p>\n` : ""}<p><a href="${REPO}/releases/tag/v${r.version}" rel="noopener">${esc(t.gh)}</a></p>
-</article>`;
+${(r.notes ?? []).length ? `<p class="note">${esc(r.notes[I])}</p>\n` : ""}</article>`;
   return `<!doctype html>
 <html lang="${t.lang}">
 <head>
