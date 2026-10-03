@@ -22,7 +22,7 @@ Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trí
 
 ## Phát hành
 
-Dự án theo [Semantic Versioning](https://semver.org/lang/vi/) (MAJOR.MINOR.PATCH) và [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Lịch sử có ở `CHANGELOG.md` (tiếng Anh), trên web tại `/ghi-chu-phat-hanh` và `/en/release-notes`, và ở trang [Releases](https://github.com/lvhoang90/tro-ly-hoc-thuat/releases) của GitHub. Nguồn duy nhất là `scripts/releases.mjs`.
+Dự án theo [Semantic Versioning](https://semver.org/lang/vi/) (MAJOR.MINOR.PATCH) và [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Lịch sử có ở `CHANGELOG.md` (tiếng Anh), trên web tại `/ghi-chu-phat-hanh` và `/en/release-notes`, và ở trang [Releases](https://github.com/lvhoang90/tro-ly-hoc-thuat/releases) của GitHub. Nguồn duy nhất là `scripts/releases.mjs`. Ghi chú phát hành chỉ nêu điều người dùng cuối cảm nhận được, không đưa chi tiết kỹ thuật hay việc nội bộ (xem `CLAUDE.md`).
 
 Quy trình phát hành phiên bản `X.Y.Z`:
 
