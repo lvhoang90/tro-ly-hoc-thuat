@@ -1,9 +1,22 @@
-# Phát hành theo thông lệ quốc tế: đẩy thẻ vX.Y.Z (Semantic Versioning) lên main thì tự tạo GitHub Release
-# với nội dung lấy từ mục tương ứng trong CHANGELOG.md. Quy trình đầy đủ: README → "Phát hành".
+# Phát hành theo thông lệ quốc tế: mỗi phiên bản vX.Y.Z (Semantic Versioning) có một thẻ git và một GitHub Release
+# với nội dung lấy từ mục tương ứng trong CHANGELOG.md (nhánh main). Quy trình đầy đủ: README → "Phát hành".
+# Hai cách chạy:
+#   1) đẩy thẻ vX.Y.Z (git tag -a vX.Y.Z && git push origin vX.Y.Z);
+#   2) Actions → Release → Run workflow (nhập version và, nếu cần, commit đích). Workflow sẽ tự tạo thẻ.
 name: Release
 on:
   push:
     tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Phiên bản X.Y.Z (để trống: lấy từ package.json trên main)"
+        required: false
+        default: ""
+      target:
+        description: "Commit đích của thẻ (để trống: đầu nhánh main)"
+        required: false
+        default: ""
 permissions:
   contents: write
 jobs:
@@ -11,26 +24,44 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
-      - run: npm ci
-      - name: Thẻ phải khớp package.json và CHANGELOG.md
+      - name: Xác định phiên bản và commit đích
+        id: v
+        env:
+          IN_VERSION: ${{ github.event.inputs.version }}
+          IN_TARGET: ${{ github.event.inputs.target }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          test "$VERSION" = "$(node -p "require('./package.json').version")" || { echo "Thẻ $GITHUB_REF_NAME không khớp package.json"; exit 1; }
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then VERSION="${GITHUB_REF_NAME#v}"; TARGET="$GITHUB_SHA"
+          else VERSION="${IN_VERSION:-$(node -p "require('./package.json').version")}"; TARGET="${IN_TARGET:-$(git rev-parse HEAD)}"; fi
+          echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$' || { echo "Phiên bản không hợp lệ: $VERSION"; exit 1; }
           grep -q "^## \[$VERSION\] - " CHANGELOG.md || { echo "CHANGELOG.md chưa có mục $VERSION"; exit 1; }
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run build
+          git cat-file -e "$TARGET^{commit}" || { echo "Không có commit $TARGET"; exit 1; }
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"; echo "target=$TARGET" >> "$GITHUB_OUTPUT"
+          echo "main package.json: $(node -p "require('./package.json').version")"
+      - name: Kiểm tra bản phát hành mới nhất (typecheck, kiểm thử, build)
+        run: |
+          if [ "${{ steps.v.outputs.version }}" = "$(node -p "require('./package.json').version")" ]; then
+            npm ci && npm run typecheck && npm test && npm run build
+          else
+            echo "Phiên bản cũ: bỏ qua kiểm thử vì CHANGELOG/main đã đi tiếp (đã được CI kiểm tra khi gộp)."
+          fi
         env:
           VITE_SUPABASE_URL: https://example.supabase.co
           VITE_SUPABASE_ANON_KEY: anon
           VITE_SITE_URL: https://example.com
-      - name: Tạo GitHub Release
+      - name: Tạo GitHub Release (và thẻ nếu chưa có)
         env:
           GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.v.outputs.version }}
+          TARGET: ${{ steps.v.outputs.target }}
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
+          if gh release view "v$VERSION" >/dev/null 2>&1; then echo "Release v$VERSION đã tồn tại, bỏ qua."; exit 0; fi
           awk -v v="$VERSION" '$0 ~ "^## \\[" v "\\]" {f=1; next} f && /^## \[/ {exit} f' CHANGELOG.md > release-body.md
+          test -s release-body.md || { echo "Nội dung phát hành rỗng"; exit 1; }
           PRE=""; case "$VERSION" in *-*) PRE="--prerelease";; esac
-          gh release create "$GITHUB_REF_NAME" --title "AI Academic Agent $GITHUB_REF_NAME" --notes-file release-body.md --verify-tag $PRE
+          LATEST=""; if [ "$VERSION" != "$(node -p "require('./package.json').version")" ]; then LATEST="--latest=false"; fi
+          gh release create "v$VERSION" --target "$TARGET" --title "AI Academic Agent v$VERSION" --notes-file release-body.md $PRE $LATEST
