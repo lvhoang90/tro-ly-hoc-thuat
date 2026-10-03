@@ -17,7 +17,9 @@
     "release:notes": "node scripts/gen-release.mjs",
     "gen:privacy": "node scripts/gen-privacy.mjs",
     "build:server": "node scripts/build-server.mjs",
-    "start": "node app.cjs"
+    "start": "node app.cjs",
+    "migrate:export": "node scripts/migrate-export.mjs",
+    "pack:cpanel": "node scripts/pack-cpanel.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.131.0",

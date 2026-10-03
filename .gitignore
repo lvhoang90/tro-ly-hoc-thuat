@@ -11,3 +11,6 @@ server-dist/
 data/
 *.db
 *.db-*
+cpanel/
+ami-cpanel.zip
+ami-export.json

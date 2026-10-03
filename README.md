@@ -20,6 +20,10 @@ Dung lượng tệp: **15 MB** cho người dùng đã được quản trị vi�
 Hạn mức: **1 lượt/ngày** (đặt lại 00:00 giờ Việt Nam). Hết lượt thì hiện thông tin liên hệ quản trị viên (email/SĐT/Zalo). Quản trị viên cấp thêm lượt trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
 
+## Chạy trên hosting dùng chung
+
+Ngoài Vercel + Supabase, ứng dụng chạy được như một máy chủ Node + SQLite duy nhất (`server/`, build với `VITE_BACKEND=local`) trên hosting cPanel. Xem `docs/CPANEL.md` (triển khai, di chuyển dữ liệu và tài khoản, chuyển DNS, quay lại).
+
 ## Phát hành
 
 Dự án theo [Semantic Versioning](https://semver.org/lang/vi/) (MAJOR.MINOR.PATCH) và [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Lịch sử có ở `CHANGELOG.md` (tiếng Anh), trên web tại `/ghi-chu-phat-hanh` và `/en/release-notes`, và ở trang [Releases](https://github.com/lvhoang90/tro-ly-hoc-thuat/releases) của GitHub. Nguồn duy nhất là `scripts/releases.mjs`. Ghi chú phát hành chỉ nêu điều người dùng cuối cảm nhận được, không đưa chi tiết kỹ thuật hay việc nội bộ (xem `CLAUDE.md`).
