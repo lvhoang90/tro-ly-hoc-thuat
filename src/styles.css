@@ -559,3 +559,14 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
   .ami-hero .ami-stage { width: clamp(130px, 36vw, 190px); }
 }
 @media (max-width: 640px) { .ami-hero .ami-stage { width: 128px; } .ami-orbit { display: none; } }
+
+/* ---- Thông báo "Có gì mới" theo phiên bản ---- */
+.whatsnew { position: fixed; z-index: 90; left: 50%; bottom: 1.25rem; transform: translateX(-50%); width: min(92vw, 520px); display: flex; gap: .8rem; align-items: flex-start; padding: .85rem .9rem .85rem .85rem; border-radius: 16px; background: var(--card-solid); border: 1px solid var(--accent); box-shadow: var(--shadow); }
+.whatsnew .wn-badge { flex: none; font-weight: 800; font-size: .72rem; letter-spacing: .08em; padding: .3rem .5rem; border-radius: 8px; background: var(--accent); color: var(--on-accent, #04101f); }
+.whatsnew .wn-body { flex: 1; min-width: 0; font-size: .92rem; } .whatsnew .wn-body b { display: block; margin-bottom: .1rem; } .whatsnew .wn-body p { margin: 0 0 .35rem; color: var(--muted); }
+.whatsnew .wn-body a { font-weight: 700; }
+.whatsnew .wn-x { flex: none; width: 1.9rem; height: 1.9rem; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: var(--text); cursor: pointer; }
+.whatsnew .wn-x:hover { background: var(--hover, rgba(127,127,127,.15)); }
+@media (max-width: 900px) { html[data-ami] .whatsnew { bottom: 8.5rem; } }
+@media (max-width: 640px) { .whatsnew { bottom: 1rem; padding: .65rem .7rem; gap: .6rem; } .whatsnew .wn-body p { display: none; } .whatsnew .wn-body b { margin-bottom: .15rem; } }
+.sf-legal a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }

@@ -20,6 +20,20 @@ Dung lượng tệp: **15 MB** cho người dùng đã được quản trị vi�
 Hạn mức: **1 lượt/ngày** (đặt lại 00:00 giờ Việt Nam). Hết lượt thì hiện thông tin liên hệ quản trị viên (email/SĐT/Zalo). Quản trị viên cấp thêm lượt trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
 
+## Phát hành
+
+Dự án theo [Semantic Versioning](https://semver.org/lang/vi/) (MAJOR.MINOR.PATCH) và [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Lịch sử có ở `CHANGELOG.md` (tiếng Anh), trên web tại `/ghi-chu-phat-hanh` và `/en/release-notes`, và ở trang [Releases](https://github.com/lvhoang90/tro-ly-hoc-thuat/releases) của GitHub. Nguồn duy nhất là `scripts/releases.mjs`.
+
+Quy trình phát hành phiên bản `X.Y.Z`:
+
+1. Thêm mục mới ở đầu `RELEASES` trong `scripts/releases.mjs` (song ngữ), tăng `version` trong `package.json` (`npm version X.Y.Z --no-git-tag-version`), `APP.release` trong `src/lib/config.ts` và `softwareVersion` trong `index.html`.
+2. Chạy `npm run release:notes` để sinh lại `CHANGELOG.md` và hai trang ghi chú; cập nhật `lastmod` trong `public/sitemap.xml`.
+3. `npm run typecheck && npm test && npm run build` (có `tests/release.test.ts` kiểm tra các số phiên bản và bản sinh khớp nhau), mở PR vào `main` và gộp khi CI xanh. Vercel tự triển khai `main`.
+4. Gắn thẻ có chú thích trên commit gộp rồi đẩy lên: `git tag -a vX.Y.Z -m "AI Academic Agent X.Y.Z" && git push origin vX.Y.Z`. Workflow `.github/workflows/release.yml` kiểm tra thẻ khớp `package.json` và `CHANGELOG.md`, chạy kiểm thử, rồi tạo GitHub Release với nội dung lấy từ `CHANGELOG.md`.
+5. Ứng dụng tự báo trên web: số phiên bản và liên kết ghi chú ở chân trang, thông báo "Mới trong phiên bản X.Y.Z" một lần cho mỗi người dùng (lưu `tl-seen-release` trong trình duyệt).
+
+Số phiên bản "1.0" trong tên ứng dụng ("AI Academic Agent 1.0") là tên thương hiệu, không đổi theo bản phát hành.
+
 ## Kiến trúc
 
 ```

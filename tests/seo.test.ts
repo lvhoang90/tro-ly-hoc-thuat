@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from "node:fs";
 const SITE = "https://aaa.isavietnam.app";
 const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const meta = (html: string, re: RegExp) => html.match(re)?.[1] ?? "";
-const pages: Record<string, string> = { "/": "index.html", "/huong-dan": "public/huong-dan.html", "/en/guide": "public/en/guide.html" };
+const pages: Record<string, string> = { "/": "index.html", "/huong-dan": "public/huong-dan.html", "/en/guide": "public/en/guide.html", "/ghi-chu-phat-hanh": "public/ghi-chu-phat-hanh.html", "/en/release-notes": "public/en/release-notes.html" };
 
 for (const [path, file] of Object.entries(pages)) {
   const html = read(file);
@@ -61,7 +61,7 @@ test("liên kết nội bộ trong trang tĩnh trỏ tới tệp tồn tại", (
   for (const f of ["public/huong-dan.html", "public/en/guide.html"]) {
     for (const m of read(f).matchAll(/href="(\/[^"#]*)"/g)) {
       const p = m[1];
-      const ok = p === "/" || ["/huong-dan", "/en/guide"].includes(p) || existsSync(new URL(`../public${p}`, import.meta.url));
+      const ok = p === "/" || ["/huong-dan", "/en/guide", "/ghi-chu-phat-hanh", "/en/release-notes"].includes(p) || existsSync(new URL(`../public${p}`, import.meta.url));
       assert.ok(ok, `${f}: ${p}`);
     }
   }

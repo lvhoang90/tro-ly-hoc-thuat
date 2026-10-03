@@ -269,10 +269,34 @@ export function Footer() {
         <div className="sf-legal">
           <span>© {APP.year} {a.name} ({a.org}). {t("rights")}</span>
           <small>{t("rights_detail")}</small>
+          <small><a href={APP.release.notes[lang]}>{t("release_link").replace("{v}", APP.release.version)}</a></small>
         </div>
         <div className="sf-tools"><VisitInline /><ShareButtons compact /></div>
       </div>
     </footer>
+  );
+}
+
+// ---------- Thông báo "Có gì mới" (một lần cho mỗi phiên bản) ----------
+const SEEN_KEY = "tl-seen-release";
+export function WhatsNew() {
+  const { t, lang } = useI18n();
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    try { if (localStorage.getItem(SEEN_KEY) !== APP.release.version) setOpen(true); } catch { setOpen(true); }
+  }, []);
+  if (!open) return null;
+  const close = () => { try { localStorage.setItem(SEEN_KEY, APP.release.version); } catch { /* bỏ qua */ } setOpen(false); };
+  return (
+    <aside className="whatsnew" role="region" aria-label={t("whatsnew_title").replace("{v}", APP.release.version)}>
+      <div className="wn-badge" aria-hidden="true">NEW</div>
+      <div className="wn-body">
+        <b>{t("whatsnew_title").replace("{v}", APP.release.version)}</b>
+        <p>{t("whatsnew_body")}</p>
+        <a href={APP.release.notes[lang]} target="_blank" rel="noopener" onClick={close}>{t("whatsnew_link")}</a>
+      </div>
+      <button className="wn-x" onClick={close} aria-label={t("close")}><Icon name="x" size={16} /></button>
+    </aside>
   );
 }
 

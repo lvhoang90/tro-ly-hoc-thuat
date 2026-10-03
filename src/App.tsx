@@ -3,7 +3,7 @@ import { useI18n } from "./i18n.tsx";
 import { useApp } from "./ctx.tsx";
 import { configured } from "./lib/supabase.ts";
 import Background from "./components/Background.tsx";
-import { Footer, Header, ScrollTop, Toasts, VisitChip, type Route } from "./components/Chrome.tsx";
+import { Footer, Header, ScrollTop, Toasts, VisitChip, WhatsNew, type Route } from "./components/Chrome.tsx";
 import Auth from "./pages/Auth.tsx";
 import Workspace from "./pages/Workspace.tsx";
 
@@ -56,6 +56,7 @@ export default function App() {
       </div>
       <VisitChip />
       {ready && session && <Ami variant="companion" />}
+      {ready && <WhatsNew />}
       <ScrollTop />
       <Toasts />
     </>
