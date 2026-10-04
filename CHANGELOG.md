@@ -6,12 +6,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-### Added
-- Citation step: after the first copy, the finish panel offers "Format your manuscript", linking to the ISA Document Assistant (Mây / Mary) with UTM `utm_source=tro-ly-hoc-thuat&utm_campaign=cite-finish`.
-
-### Changed
-- Updated the description of the Document Assistant in the guides (VI, EN) and the ecosystem footer: administrative documents (Decree 30/2020), Party documents (Guideline 05), project reports, theses, dissertations and papers to 19 journals' guidelines.
-
 ## [1.1.0] - 2026-10-03
 
 AI Academic Agent now has Ami, a friendly robot who stays with you from the home page through every step of reading, scoring and citing.
