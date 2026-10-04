@@ -1,5 +1,6 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useI18n } from "../i18n.tsx";
+import { withUtm } from "../lib/config.ts";
 import { Icon, type IconName } from "./Icon.tsx";
 import type { AnalysisResult, Passage, Priority } from "../../shared/types.ts";
 import { PASS_SCORE } from "../../shared/types.ts";
@@ -144,7 +145,7 @@ export function RecoJournals({ rec }: { rec: Reco }) {
             <tbody>
               {rec.journals.map((j) => (
                 <tr key={j.title}>
-                  <td><a href={j.url} target="_blank" rel="noopener noreferrer"><b>{j.title}</b></a>
+                  <td><a href={withUtm(j.url, "recommend")} target="_blank" rel="noopener noreferrer"><b>{j.title}</b></a>{j.bkhcn ? <span className="badge" title={t("bkhcn_tip")}>{t("bkhcn_badge")}</span> : null}
                     <div className="muted small">{j.publisher}</div>
                     <div className="muted small">{j.discipline[lang]}</div></td>
                   <td className="mono small">{j.issn.join(", ")}</td>
