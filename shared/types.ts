@@ -67,6 +67,8 @@ export interface Recommendations {
   journals: JournalRec[];
   disciplines: EdufindLink[];   // lĩnh vực EduFind phù hợp nhất với nghiên cứu của người dùng
   edufind: { url: string };     // cổng chung https://edufind.isavn.edu.vn/
+  /** Hạng Cơ bản: chỉ cho biết số gợi ý, chi tiết mở khi xác thực (works/journals để trống). */
+  locked?: { works: number; journals: number };
 }
 
 export interface AnalysisResult {
@@ -96,6 +98,12 @@ export interface Quota {
   free_left: number;
   bonus: number;
   lifetime_used: number;
+  tier: "basic" | "verified" | "admin";
+  period: "day" | "week"; // chu kỳ tính free_limit/used_today/free_left
+  next_reset: string;     // ngày (giờ Việt Nam) hạn mức đặt lại
+  gated: boolean;         // hạng Cơ bản đang bị giới hạn lịch sử và gợi ý chi tiết
+  tier_start: string;     // ngày bắt đầu áp dụng hạng
+  basic_weekly: number;   // số lượt mỗi tuần của hạng Cơ bản
 }
 
 export type ApiErrorCode =

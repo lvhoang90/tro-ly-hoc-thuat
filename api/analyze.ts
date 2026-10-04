@@ -106,7 +106,10 @@ export async function POST(request: Request): Promise<Response> {
     };
 
     await track(msg.usage, score);
-    const recommendations = score < PASS_SCORE ? await recommend({ advice: bi(r.advice_vi, r.advice_en), queries: r.queries ?? [], keywords: (r.keywords ?? []).map(s).filter(Boolean), disciplines: r.disciplines ?? [] }) : null;
+    let recommendations = score < PASS_SCORE ? await recommend({ advice: bi(r.advice_vi, r.advice_en), queries: r.queries ?? [], keywords: (r.keywords ?? []).map(s).filter(Boolean), disciplines: r.disciplines ?? [] }) : null;
+    // Hạng Cơ bản (sau ngày áp dụng): chỉ cho biết số gợi ý; công trình và tạp chí chi tiết mở khi được xác thực.
+    if (recommendations && (await quotaOf(sb, id))?.gated)
+      recommendations = { ...recommendations, locked: { works: recommendations.works.length, journals: recommendations.journals.length }, works: [], journals: [] };
 
     const out: AnalysisResult = {
       language: r.language, score, breakdown, verdict: bi(r.verdict_vi, r.verdict_en), summary: bi(r.summary_vi, r.summary_en),

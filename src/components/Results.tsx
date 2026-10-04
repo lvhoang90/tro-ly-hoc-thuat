@@ -3,6 +3,7 @@ import { useI18n } from "../i18n.tsx";
 import { Icon, type IconName } from "./Icon.tsx";
 import type { AnalysisResult, Passage, Priority } from "../../shared/types.ts";
 import { PASS_SCORE } from "../../shared/types.ts";
+import { LockedReco } from "./Tier.tsx";
 
 export function ScoreGauge({ score }: { score: number }) {
   const { t } = useI18n();
@@ -116,6 +117,7 @@ export function RecoAdvice({ rec }: { rec: Reco }) {
 
 export function RecoWorks({ rec }: { rec: Reco }) {
   const { t } = useI18n();
+  if (rec.locked) return <LockedReco works={rec.locked.works} journals={rec.locked.journals} />;
   if (rec.works.length === 0) return <p className="muted">{t("reco_none")}</p>;
   return (
     <ul className="works">
@@ -135,6 +137,7 @@ export function RecoWorks({ rec }: { rec: Reco }) {
 export function RecoJournals({ rec }: { rec: Reco }) {
   const { t, lang } = useI18n();
   const why = (w: string) => (w === "venue" ? t("why_venue") : w === "keyword" ? t("why_keyword") : t("why_field"));
+  if (rec.locked) return <p className="muted">{t("teaser_body")}</p>;
   return (
     <div className="stack">
       {rec.journals.length === 0 ? <p className="muted">{t("reco_none")}</p> : (

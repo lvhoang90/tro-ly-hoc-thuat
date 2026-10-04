@@ -17,7 +17,7 @@ Kết quả đánh giá hiển thị song ngữ (đổi ngôn ngữ giao diện 
 
 Dung lượng tệp: **15 MB** cho người dùng đã được quản trị viên **xác thực**, **2 MB** cho tài khoản chưa xác thực (chỉnh được trong Quản trị → Cài đặt). Trang **Quản trị → Thống kê** có chi phí API thực tế (USD và VND) theo ngày, theo người dùng, token, số lượt phân tích, phân bố điểm phù hợp, người dùng mới và lượt truy cập, kèm biểu đồ tương tác và chế độ xem bảng. Lịch sử trích dẫn gom theo **đề tài** (abstract đã lưu) hoặc, nếu chỉ có một đề tài, xếp theo mức ưu tiên và điểm phù hợp.
 
-Hạn mức: **1 lượt/ngày** (đặt lại 00:00 giờ Việt Nam). Hết lượt thì hiện thông tin liên hệ quản trị viên (email/SĐT/Zalo). Quản trị viên cấp thêm lượt trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
+Hạn mức theo **hạng tài khoản**. *Cơ bản* (chưa xác thực): đến hết 09/10/2026 là 1 lượt/ngày, từ **10/10/2026** là **1 lượt/tuần** (tuần bắt đầu thứ Hai, giờ Việt Nam; ngày áp dụng và số lượt chỉnh trong Quản trị → Cài đặt), lịch sử trích dẫn chỉ xem lại khi đã xác thực (dữ liệu vẫn được lưu) và gợi ý tài liệu chỉ hiện số lượng. *Đã xác thực*: hạn mức riêng từng người do tác giả đặt (mặc định 1 lượt/ngày), đầy đủ tính năng. Hết lượt thì hiện lời mời xác thực kèm email/SĐT/Zalo của tác giả. Quản trị viên cấp thêm lượt, đặt hạn mức riêng và lọc người dùng thường xuyên chưa xác thực trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
 
 ## Phát hành

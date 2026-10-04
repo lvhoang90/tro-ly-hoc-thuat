@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { ApiError, ApiErrorCode, Quota } from "../../shared/types.ts";
+import { DEFAULT_TIER_START, nextReset, quotaRule, vnDay, weekStart } from "../../shared/tier.ts";
 
 export const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -34,19 +35,26 @@ export async function requireUser(request: Request): Promise<AuthedUser | Respon
 }
 
 export async function quotaOf(sb: SupabaseClient, userId: string): Promise<Quota | null> {
-  // my_quota() dùng auth.uid(); với service_role tính trực tiếp.
-  const { data: p } = await sb.from("profiles").select("role,status,approved,bonus_credits,lifetime_used").eq("id", userId).single();
+  // my_quota() dùng auth.uid(); với service_role tính trực tiếp (cùng quy tắc với quota_rule trong schema.sql).
+  const { data: p } = await sb.from("profiles").select("role,status,approved,bonus_credits,lifetime_used,quota_limit,quota_period").eq("id", userId).single();
   if (!p) return null;
-  const { data: st } = await sb.from("app_settings").select("key,value").in("key", ["free_daily_limit", "file_limit_basic_mb", "file_limit_approved_mb"]);
-  const set = (k: string, d: number) => Number(st?.find((x) => x.key === k)?.value ?? d);
-  const lim = set("free_daily_limit", 1);
+  const { data: st } = await sb.from("app_settings").select("key,value").in("key", ["free_daily_limit", "file_limit_basic_mb", "file_limit_approved_mb", "basic_weekly_limit", "tier_start"]);
+  const val = (k: string) => st?.find((x) => x.key === k)?.value;
+  const set = (k: string, d: number) => Number(val(k) ?? d);
+  const today = vnDay();
+  const tierStart = typeof val("tier_start") === "string" ? (val("tier_start") as string) : DEFAULT_TIER_START;
+  const rule = quotaRule({
+    role: p.role, approved: !!p.approved, quota_limit: p.quota_limit, quota_period: p.quota_period,
+    free_daily_limit: set("free_daily_limit", 1), basic_weekly_limit: set("basic_weekly_limit", 1), tier_start: tierStart, today,
+  });
   const approved = p.approved || p.role === "admin";
-  const day = new Date(Date.now() + 7 * 3600e3).toISOString().slice(0, 10);
-  const { data: u } = await sb.from("usage_daily").select("used").eq("user_id", userId).eq("day", day).maybeSingle();
-  const used = u?.used ?? 0;
+  const { data: u } = await sb.from("usage_daily").select("used").eq("user_id", userId).gte("day", rule.period === "week" ? weekStart(today) : today).lte("day", today);
+  const used = (u ?? []).reduce((n, r) => n + (r.used ?? 0), 0);
+  const lim = rule.tier === "admin" ? set("free_daily_limit", 1) : rule.limit;
   return {
     role: p.role, status: p.status, unlimited: p.role === "admin", approved,
     max_file_mb: approved ? set("file_limit_approved_mb", 15) : set("file_limit_basic_mb", 2), free_limit: lim, used_today: used,
     free_left: Math.max(lim - used, 0), bonus: p.bonus_credits, lifetime_used: p.lifetime_used,
+    tier: rule.tier, period: rule.period, next_reset: nextReset(rule.period, today), gated: rule.tier === "basic" && today >= tierStart, tier_start: tierStart, basic_weekly: set("basic_weekly_limit", 1),
   };
 }

@@ -1,5 +1,6 @@
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
+import { fmtDay } from "./Tier.tsx";
 
 export function remaining(q: { unlimited: boolean; free_left: number; bonus: number } | null): number {
   if (!q) return 0;
@@ -16,8 +17,9 @@ export function QuotaBar() {
   return (
     <div className={`quota ${left > 0 ? "ok" : "out"}`}>
       <span className="dots" aria-hidden="true">{dots.map((on, i) => <i key={i} className={on ? "on" : ""} />)}</span>
-      <span>{t("quota_free", { left: quota.free_left, total: quota.free_limit })}</span>
+      <span>{t(quota.period === "week" ? "quota_free_week" : "quota_free", { left: quota.free_left, total: quota.free_limit })}</span>
       {quota.bonus > 0 && <span className="badge">{t("quota_bonus", { n: quota.bonus })}</span>}
+      {quota.period === "week" && quota.free_left === 0 && <span className="muted small">{t("quota_reset_week", { date: fmtDay(quota.next_reset) })}</span>}
     </div>
   );
 }

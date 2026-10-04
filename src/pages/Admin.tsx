@@ -7,7 +7,7 @@ import AdminStats from "./AdminStats.tsx";
 import { BudgetBanner } from "../components/BudgetCard.tsx";
 import { useApiBudget } from "../lib/budget.ts";
 
-interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; approved: boolean; cost_usd: number; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number }
+interface UserRow { id: string; email: string; full_name: string; affiliation: string; orcid: string; role: string; status: string; approved: boolean; cost_usd: number; bonus_credits: number; lifetime_used: number; used_today: number; created_at: string; last_seen: string | null; total_count: number; quota_limit: number | null; quota_period: "day" | "week" | null; active_days: number; phone: string }
 
 const PAGE = 25;
 const usdFmt = (n: number) => (n < 1 ? `$${Number(n).toFixed(4)}` : `$${Number(n).toFixed(2)}`);
@@ -22,12 +22,24 @@ function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
   const [grants, setGrants] = useState<Grant[]>([]);
   const [uses, setUses] = useState<Use[]>([]);
   const [last, setLast] = useState<string | null>(null);
+  const { toast } = useApp();
+  const [ql, setQl] = useState("");
+  const [qp, setQp] = useState<"day" | "week">("day");
   useEffect(() => {
-    void supabase.from("profiles").select("*").eq("id", id).maybeSingle().then(({ data }) => { setP(data as Profile); setLast((data as { last_seen?: string })?.last_seen ?? null); });
+    void supabase.from("profiles").select("*").eq("id", id).maybeSingle().then(({ data }) => {
+      setP(data as Profile); setLast((data as { last_seen?: string })?.last_seen ?? null);
+      const d = data as { quota_limit?: number | null; quota_period?: "day" | "week" | null } | null;
+      setQl(d?.quota_limit != null ? String(d.quota_limit) : ""); setQp(d?.quota_period ?? "day");
+    });
     void supabase.from("credit_grants").select("id,amount,note,created_at,admin_id").eq("user_id", id).order("created_at", { ascending: false }).limit(10).then(({ data }) => setGrants((data ?? []) as Grant[]));
     void supabase.from("usage_log").select("id,created_at,source,refunded").eq("user_id", id).order("created_at", { ascending: false }).limit(10).then(({ data }) => setUses((data ?? []) as Use[]));
   }, [id]);
   useEffect(() => { const k = (e: KeyboardEvent) => e.key === "Escape" && onClose(); addEventListener("keydown", k); return () => removeEventListener("keydown", k); }, [onClose]);
+  async function saveQuota() {
+    const n = ql.trim() === "" ? null : Math.max(0, Math.min(1000, parseInt(ql, 10) || 0));
+    const { error } = await supabase.rpc("admin_set_quota", { p_user: id, p_limit: n, p_period: n == null ? null : qp });
+    if (error) toast(error.message, "err"); else toast(t("saved"));
+  }
   const dt = (s: string | null) => (s ? new Date(s).toLocaleString() : "—");
   const row = (label: string, v: React.ReactNode) => <><dt>{label}</dt><dd>{v || "—"}</dd></>;
   return (
@@ -71,6 +83,17 @@ function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
               {row(t("adm_created"), dt(p.created_at))}{row(t("adm_last"), dt(last))}
               {row(t("adm_bonus"), String(p.bonus_credits))}{row(t("adm_life"), String(p.lifetime_used))}
             </dl>
+            {p.role !== "admin" && (
+              <>
+                <h5>{t("adm_quota_user")}</h5>
+                <div className="row wrap">
+                  <input className="mini" inputMode="numeric" value={ql} placeholder="—" onChange={(e) => setQl(e.target.value)} aria-label={t("adm_quota_user")} />
+                  <select value={qp} onChange={(e) => setQp(e.target.value as "day" | "week")}><option value="day">{t("adm_per_day")}</option><option value="week">{t("adm_per_week")}</option></select>
+                  <button className="btn sm primary" onClick={saveQuota}>{t("save")}</button>
+                </div>
+                <p className="muted small">{t("adm_quota_hint", { n: 1 })}</p>
+              </>
+            )}
             <h5>{t("adm_grants")}</h5>
             {grants.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{grants.map((g) => <li key={g.id}><b>{g.amount > 0 ? "+" : ""}{g.amount}</b> <span className="muted small">{dt(g.created_at)}{g.note ? ` · ${g.note}` : ""}</span></li>)}</ul>}
             <h5>{t("adm_uses")}</h5>
@@ -99,14 +122,17 @@ export default function Admin() {
   const [mbApproved, setMbApproved] = useState("15");
   const [rate, setRate] = useState("25500");
   const [pending, setPending] = useState(false);
+  const [frequent, setFrequent] = useState(false);
+  const [weekly, setWeekly] = useState("1");
+  const [tierStart, setTierStart] = useState("2026-10-10");
   const [c, setC] = useState<Contact>({ email: "", phone: "", zalo: "", note_vi: "", note_en: "" });
 
   const loadUsers = useCallback(async () => {
-    const { data, error } = await supabase.rpc("admin_list_users", { p_search: q.trim(), p_limit: PAGE, p_offset: off, p_pending: pending });
+    const { data, error } = await supabase.rpc("admin_list_users", { p_search: q.trim(), p_limit: PAGE, p_offset: off, p_pending: pending, p_frequent: frequent });
     if (error) { toast(error.message, "err"); return; }
     const r = (data ?? []) as UserRow[];
     setRows(r); setTotal(r[0]?.total_count ?? 0);
-  }, [q, off, pending, toast]);
+  }, [q, off, pending, frequent, toast]);
 
   useEffect(() => { const id = setTimeout(() => void loadUsers(), 250); return () => clearTimeout(id); }, [loadUsers]);
   useEffect(() => {
@@ -117,6 +143,8 @@ export default function Admin() {
         if (get("file_limit_basic_mb") != null) setMbBasic(String(get("file_limit_basic_mb")));
         if (get("file_limit_approved_mb") != null) setMbApproved(String(get("file_limit_approved_mb")));
         if (get("usd_vnd") != null) setRate(String(get("usd_vnd")));
+        if (get("basic_weekly_limit") != null) setWeekly(String(get("basic_weekly_limit")));
+        if (typeof get("tier_start") === "string") setTierStart(get("tier_start") as string);
         const ct = data?.find((x) => x.key === "contact")?.value as Contact | undefined; if (ct) setC({ ...c, ...ct });
       });
     }
@@ -136,6 +164,11 @@ export default function Admin() {
     const { error } = await supabase.rpc("admin_set_user", { p_user: u.id, p_role: role ?? null, p_status: status ?? null, p_approved: approved ?? null });
     if (error) toast(error.message, "err"); else { toast(t("saved")); void loadUsers(); void refresh(); }
   }
+  /** Soạn sẵn tin nhắn mời xác thực để tác giả gửi riêng cho từng người (Zalo/email); chỉ sao chép, không tự gửi. */
+  async function message(u: UserRow) {
+    const text = t("adm_msg_text", { name: u.full_name || u.email, admin: profile?.full_name || "—", n: Number(weekly) || 1 });
+    try { await navigator.clipboard.writeText(text); toast(t("adm_msg_copied")); } catch { toast(text); }
+  }
   async function saveSettings() {
     const n = Math.max(0, Math.min(100, parseInt(limit, 10) || 0));
     const a = await supabase.rpc("admin_set_setting", { p_key: "free_daily_limit", p_value: n });
@@ -144,7 +177,9 @@ export default function Admin() {
     const e1 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_basic_mb", p_value: mb(mbBasic, 2) });
     const e2 = await supabase.rpc("admin_set_setting", { p_key: "file_limit_approved_mb", p_value: Math.max(mb(mbApproved, 15), mb(mbBasic, 2)) });
     const e3 = await supabase.rpc("admin_set_setting", { p_key: "usd_vnd", p_value: Math.max(1, parseInt(rate, 10) || 25500) });
-    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error;
+    const e4 = await supabase.rpc("admin_set_setting", { p_key: "basic_weekly_limit", p_value: Math.max(0, Math.min(100, parseInt(weekly, 10) || 0)) });
+    const e5 = await supabase.rpc("admin_set_setting", { p_key: "tier_start", p_value: tierStart.trim() });
+    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error ?? e4.error ?? e5.error;
     if (err) toast(err.message, "err"); else { toast(t("saved")); void refresh(); }
   }
 
@@ -161,6 +196,7 @@ export default function Admin() {
         <div className="card">
           <div className="row wrap"><input className="grow" placeholder={t("adm_search")} value={q} onChange={(e) => { setQ(e.target.value); setOff(0); }} />
             <label className="inline check-inline"><input type="checkbox" checked={pending} onChange={(e) => { setPending(e.target.checked); setOff(0); }} /> {t("adm_only_pending")}</label>
+            <label className="inline check-inline"><input type="checkbox" checked={frequent} onChange={(e) => { setFrequent(e.target.checked); setOff(0); }} /> {t("adm_frequent")}</label>
             <span className="muted small">{t("adm_total", { n: total })}</span></div>
           <div className="table-wrap">
             <table className="tbl users">
@@ -175,6 +211,7 @@ export default function Admin() {
                         <span className={`badge ${u.approved ? "ok-badge" : "warn-badge"}`}>{u.approved ? t("approved") : t("pending")}</span>
                         {u.role !== "admin" && <button className={`btn sm ${u.approved ? "" : "primary"}`} onClick={() => setUser(u, undefined, undefined, !u.approved)}>{u.approved ? t("adm_unapprove") : t("adm_approve")}</button>}
                         <span className="muted small">{usdFmt(u.cost_usd)}</span>
+                        {!u.approved && u.role !== "admin" && u.lifetime_used >= 2 && <button className="btn sm" onClick={() => void message(u)} title={t("adm_msg_copy")}>{t("adm_msg")}</button>}
                       </div>
                     </td>
                     <td><div className="ustat"><span>{u.role === "admin" ? "∞" : u.used_today}</span><b>{u.bonus_credits}</b><span>{u.lifetime_used}</span></div></td>
@@ -209,6 +246,10 @@ export default function Admin() {
           <h3 className="wide">{t("adm_quota_h")}</h3>
           <label>{t("adm_free_limit")}<input inputMode="numeric" value={limit} onChange={(e) => setLimit(e.target.value)} /></label>
           <p className="muted small wide">{t("adm_free_hint")}</p>
+          <h3 className="wide">{t("adm_tier_h")}</h3>
+          <label>{t("adm_basic_weekly")}<input inputMode="numeric" value={weekly} onChange={(e) => setWeekly(e.target.value)} /></label>
+          <label>{t("adm_tier_start")}<input value={tierStart} onChange={(e) => setTierStart(e.target.value)} placeholder="2026-10-10" /></label>
+          <p className="muted small wide">{t("adm_tier_hint")}</p>
           <h3 className="wide">{t("adm_files_h")}</h3>
           <label>{t("adm_mb_basic")}<input inputMode="numeric" value={mbBasic} onChange={(e) => setMbBasic(e.target.value)} /></label>
           <label>{t("adm_mb_approved")}<input inputMode="numeric" value={mbApproved} onChange={(e) => setMbApproved(e.target.value)} /></label>
