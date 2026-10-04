@@ -9,7 +9,6 @@ import { CSL_FORMAT, formatCsl, loadCslIndex, type CslEntry } from "../lib/csl.t
 import type { Author, Lang, Passage, SourceMeta, SourceType } from "../../shared/types.ts";
 import { FlagToggle } from "./Chrome.tsx";
 import { Icon } from "./Icon.tsx";
-import { APP, withUtm } from "../lib/config.ts";
 
 const TYPES: SourceType[] = ["article", "book", "chapter", "conference", "thesis", "report", "web"];
 

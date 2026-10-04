@@ -12,10 +12,10 @@ const dUrl = (i: number) => edufindUrl(edu.origin, D[i].path);
 const byIssn = new Map<string, JournalRec>();
 const intlRec = (j: (typeof edu.intl)[number], why: string, prefer?: Set<number>): JournalRec => {
   const di = (prefer && j.d.find((x) => prefer.has(x))) ?? j.d[0];
-  return { title: j.t, issn: j.i, publisher: j.p, quartile: j.q, sjr: j.s, openAccess: j.oa, domestic: false, why, discipline: dName(di), url: dUrl(di) };
+  return { title: j.t, issn: j.i, publisher: j.p, quartile: j.q, sjr: j.s, openAccess: j.oa, domestic: false, why, discipline: dName(di), url: `${dUrl(di)}?tab=international&q=${encodeURIComponent(j.t)}`, ...(j.b ? { bkhcn: j.b } : {}) };
 };
 const domRec = (j: (typeof edu.dom)[number], why: string): JournalRec =>
-  ({ title: j.t, issn: j.i, publisher: j.p, quartile: "", sjr: null, openAccess: false, domestic: true, maxScore: j.max, why, discipline: dName(j.d), url: dUrl(j.d) });
+  ({ title: j.t, issn: j.i, publisher: j.p, quartile: "", sjr: null, openAccess: false, domestic: true, maxScore: j.max, why, discipline: dName(j.d), url: `${dUrl(j.d)}?q=${encodeURIComponent(j.t)}`, ...(j.b ? { bkhcn: j.b } : {}) });
 
 interface OAWork {
   title?: string; publication_year?: number; doi?: string; cited_by_count?: number;

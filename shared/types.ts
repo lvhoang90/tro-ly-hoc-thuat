@@ -53,6 +53,7 @@ export interface WorkRec {
 export interface JournalRec {
   title: string; issn: string[]; publisher: string; quartile: string; sjr: number | null; openAccess: boolean;
   domestic: boolean; maxScore?: number; why: string;
+  bkhcn?: number;         // số thứ tự trong Quyết định 2244/QĐ-BKHCN (2026), nếu có
   discipline: Bi;         // lĩnh vực EduFind chứa tạp chí
   url: string;            // trang lĩnh vực trên EduFind
 }

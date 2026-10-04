@@ -7,6 +7,10 @@ import Background from "./components/Background.tsx";
 import { Footer, Header, ScrollTop, Toasts, VisitChip, WhatsNew, type Route } from "./components/Chrome.tsx";
 import Auth from "./pages/Auth.tsx";
 import Workspace from "./pages/Workspace.tsx";
+import { captureHandoff, clearHandoff, getHandoff } from "./lib/handoff.ts";
+import { APP, withUtm } from "./lib/config.ts";
+
+captureHandoff();
 
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const History = lazy(() => import("./pages/History.tsx"));
@@ -23,6 +27,7 @@ export default function App() {
   const { t } = useI18n();
   const { ready, session, profile, contact } = useApp();
   const [route, setRoute] = useState<Route>(fromHash);
+  const [handoff, setHandoff] = useState(getHandoff);
   useEffect(() => { const f = () => setRoute(fromHash()); addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
 
   const ami = useMascot();
@@ -53,6 +58,16 @@ export default function App() {
       <TierWatcher />
       <div className="shell">
         <Header route={route} go={setRoute} />
+        {handoff && session && ready && route === "work" && (
+          <div className="card handoff" role="status">
+            <b>{t("handoff_title")}: {handoff}</b>
+            <p className="muted small">{t("handoff_body")}</p>
+            <div className="row">
+              <a className="btn" href={withUtm(`${APP.author.edufind}#q=${encodeURIComponent(handoff)}`, "handoff")} target="_blank" rel="noopener noreferrer">{t("handoff_view")}</a>
+              <button type="button" className="btn" onClick={() => { clearHandoff(); setHandoff(""); }}>{t("handoff_dismiss")}</button>
+            </div>
+          </div>
+        )}
         <main className="main">{body}</main>
         {(ready || !configured) && <Footer />}
       </div>

@@ -21,11 +21,14 @@ for (const slug of readdirSync(path.join(root, "disciplines")).sort()) {
   const di = disciplines.length;
   const sjr = json(path.join(dir, "data", "sjr.json"));
   disciplines.push({ slug, path: cfg.site.path, vi: cfg.discipline.vi, en: cfg.discipline.en, year: sjr.meta.year, decision: cfg.council?.decision?.vi ?? "" });
+  const bkFile = path.join(dir, "data", "bkhcn.json");
+  const bk = existsSync(bkFile) ? json(bkFile) : { matched: {}, intl: {} }; // Quyết định 2244/QĐ-BKHCN (2026): id/sourceId -> số thứ tự
   const top = [...sjr.journals].filter((j) => j.sjr != null).sort((a, b) => b.sjr - a.sjr).slice(0, TOP);
   for (const j of top) {
     const k = j.sourceId;
     const r = jmap.get(k) ?? { t: j.title, i: j.issn, p: j.publisher ?? "", q: j.bestQuartile ?? "", s: j.sjr, oa: !!j.openAccess, d: [] };
     r.d.push(di);
+    if (bk.intl?.[k]) r.b = bk.intl[k];
     jmap.set(k, r);
   }
   const councilFile = path.join(dir, "data", "council.json");
@@ -33,7 +36,7 @@ for (const slug of readdirSync(path.join(root, "disciplines")).sort()) {
     for (const j of json(councilFile).journals) {
       dom.push({
         t: j.name, i: (j.issn ?? []).map((x) => x.value).filter(Boolean), p: j.publisher ?? "",
-        max: Math.max(0, ...(j.scoreTiers ?? []).map((t) => t.maxScore ?? 0)), d: di,
+        max: Math.max(0, ...(j.scoreTiers ?? []).map((t) => t.maxScore ?? 0)), d: di, ...(bk.matched?.[j.id] ? { b: bk.matched[j.id] } : {}),
       });
     }
   }

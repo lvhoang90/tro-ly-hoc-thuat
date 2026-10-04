@@ -602,3 +602,7 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 @media (max-width: 760px) { .bud-main { grid-template-columns: 1fr; } .bud-hist li { grid-template-columns: 1fr; } }
 
 .privacy-pledge { margin-top: -.2rem; } .privacy-pledge b { color: var(--text); }
+
+/* Thẻ chào khi chuyển từ EduFind kèm tên tạp chí */
+.handoff { margin: 0 auto 1rem; max-width: 960px; border-left: 4px solid var(--accent); }
+.handoff .row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
