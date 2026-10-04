@@ -3,6 +3,7 @@ import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { copyRich } from "../lib/clipboard.ts";
+import { APP, withUtm } from "../lib/config.ts";
 import { STYLES, formatCitation, isNumbered, toHtml, toPlain, type Citation, type StyleId } from "../../shared/citation.ts";
 import { CSL_FORMAT, formatCsl, loadCslIndex, type CslEntry } from "../lib/csl.ts";
 import type { Author, Lang, Passage, SourceMeta, SourceType } from "../../shared/types.ts";
@@ -273,6 +274,13 @@ export default function CiteStep({ meta: initial, passages, ctx, onBack, onAnoth
               <span className="choice-ico"><Icon name="plus" size={22} /></span>
               <span className="choice-body"><b>{t("new_project")}</b><small>{t("opt_new_d")}</small></span>
             </button>
+            {done > 0 && (
+              <a className="choice" href={withUtm(APP.author.vanthu, "cite-finish")} target="_blank" rel="noopener noreferrer">
+                <span className="choice-ico"><Icon name="file" size={22} /></span>
+                <span className="choice-body"><b>{t("finish_may")}</b><small>{t("finish_may_d")}</small></span>
+                <Icon name="right" size={18} className="choice-go" />
+              </a>
+            )}
           </div>
         </section>
       </div>

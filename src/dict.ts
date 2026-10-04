@@ -439,6 +439,8 @@ const D = {
   finish_yes: { vi: "Có, phân tích tài liệu khác", en: "Yes, analyse another document" },
   finish_more: { vi: "Chưa, trích thêm từ tài liệu này", en: "Not yet, cite more from this source" },
   finish_more_d: { vi: "Quay lại danh sách đoạn đề xuất để chọn thêm.", en: "Return to the suggested passages to select more." },
+  finish_may: { vi: "Chuẩn hóa thể thức bản thảo", en: "Format your manuscript" },
+  finish_may_d: { vi: "Mở Trợ lý văn thư Mây: xem trước ngay theo hướng dẫn của 19 tạp chí, miễn phí.", en: "Open Mary, the Document Assistant: instant preview against 19 journals' guidelines, free." },
   finish_hist_d: { vi: "Xem và chuyển đổi kiểu các trích dẫn đã sao chép.", en: "Review and restyle the citations you have copied." },
   notifications: { vi: "Thông báo", en: "Notifications" },
 
@@ -558,7 +560,7 @@ const D = {
   eco_2: { vi: "Đọc và trích dẫn", en: "Read & cite" },
   eco_2d: { vi: "Bạn đang ở đây cùng Ami", en: "You are here with Ami" },
   eco_3: { vi: "Chuẩn hóa thể thức", en: "Format your manuscript" },
-  eco_3d: { vi: "Theo hướng dẫn tác giả của 19 tạp chí", en: "To the author guidelines of 19 journals" },
+  eco_3d: { vi: "Văn bản hành chính, văn bản của Đảng, báo cáo đề tài, luận văn và bài báo theo 19 tạp chí", en: "Administrative and Party documents, project reports, theses and papers to 19 journals' guidelines" },
   foot_related: { vi: "Hệ sinh thái", en: "Ecosystem" },
   foot_designed: { vi: "Thiết kế và phát triển bởi tác giả.", en: "Designed and developed by the author." },
   foot_visits: { vi: "{n} lượt truy cập", en: "{n} visits" },
