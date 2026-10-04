@@ -597,6 +597,26 @@ begin
 end $$;
 grant execute on function public.admin_spend_since(timestamptz) to authenticated;
 
+-- Hành trình người dùng: những người đăng ký trong p_days ngày gần nhất đi được đến đâu (không tính quản trị viên).
+create or replace function public.admin_funnel(p_days integer default 30)
+returns table (registered integer, analysed integer, returned integer, cited integer, verified integer)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  return query
+    with c as (
+      select p.id, p.approved from public.profiles p
+      where p.role <> 'admin' and p.created_at > now() - make_interval(days => least(greatest(p_days, 1), 365))
+    )
+    select count(*)::int,
+      (count(*) filter (where exists (select 1 from public.usage_log l where l.user_id = c.id and not l.refunded)))::int,
+      (count(*) filter (where (select count(*) from public.usage_daily d where d.user_id = c.id and d.used > 0) >= 2))::int,
+      (count(*) filter (where exists (select 1 from public.citations x where x.user_id = c.id)))::int,
+      (count(*) filter (where c.approved))::int
+    from c;
+end $$;
+grant execute on function public.admin_funnel(integer) to authenticated;
+
 -- ---------- Quản trị viên master ----------
 -- Thay bằng email của bạn rồi chạy lại. Tài khoản đăng ký bằng email này sẽ là master (không giới hạn lượt).
 -- insert into public.admin_emails(email) values ('ban@example.com') on conflict do nothing;

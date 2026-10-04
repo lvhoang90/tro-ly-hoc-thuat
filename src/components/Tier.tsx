@@ -1,6 +1,6 @@
 // Hạng tài khoản (Cơ bản / Đã xác thực): khung mời xác thực, liên hệ tác giả. Lời nhắc nêu lợi ích của người dùng, không chèo kéo:
 // có nút "Để sau", mỗi ngày tối đa một lần cho khung thông báo chung, không bật cửa sổ che màn hình.
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { APP } from "../lib/config.ts";
@@ -39,8 +39,9 @@ export function Benefits() {
 /** Khung mời xác thực dùng chung: tiêu đề, nội dung, quyền lợi (tuỳ chọn) và cách liên hệ. */
 export function VerifyCard({ title, body, benefits = false, onLater, children }: { title: string; body: string; benefits?: boolean; onLater?: () => void; children?: ReactNode }) {
   const { t, lang } = useI18n();
-  const { contact } = useApp();
+  const { contact, profile } = useApp();
   const note = lang === "vi" ? contact?.note_vi : contact?.note_en;
+  const incomplete = !!profile && (!profile.affiliation.trim() || !profile.orcid.trim());
   return (
     <div className="card contact">
       <div className="between"><h3>{title}</h3>{onLater && <button className="btn sm" onClick={onLater}>{t("announce_later")}</button>}</div>
@@ -49,6 +50,7 @@ export function VerifyCard({ title, body, benefits = false, onLater, children }:
       {benefits && <Benefits />}
       {note && <p>{note}</p>}
       <p className="muted small">{t("verify_how")}</p>
+      {incomplete && <p className="muted small">{t("profile_todo")} <a href="#/profile">{t("profile_todo_link")}</a></p>}
       <ContactLinks />
       <p className="muted small">{t("nudge_reassure")}</p>
     </div>
@@ -86,4 +88,19 @@ export function TierCard() {
 export function LockedReco({ works, journals }: { works: number; journals: number }) {
   const { t } = useI18n();
   return <VerifyCard title={t("teaser_title", { w: works, j: journals })} body={t("teaser_body")} />;
+}
+
+/** Khi tài khoản vừa được tác giả xác thực (lần mở kế tiếp), chào mừng một lần. Không gửi thư: chỉ so sánh hạng đã thấy lần trước. */
+export function TierWatcher() {
+  const { t } = useI18n();
+  const { quota, profile, celebrate } = useApp();
+  const tier = quota?.tier, id = profile?.id;
+  useEffect(() => {
+    if (!tier || !id) return;
+    const k = `tl-tier-${id}`;
+    let prev: string | null = null;
+    try { prev = localStorage.getItem(k); localStorage.setItem(k, tier); } catch { /* bỏ qua */ }
+    if (prev === "basic" && tier === "verified") celebrate(t("tier_verified"), t("verified_welcome"));
+  }, [tier, id]); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
 }
