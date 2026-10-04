@@ -29,6 +29,7 @@ const T = {
     desc: `Có gì mới trong Trợ lý học thuật (AI Academic Agent) ${latest.version}: Ami, trợ lý robot đồng hành, hệ sinh thái ISA ở chân trang và lịch sử các phiên bản.`,
     h1: "Ghi chú phát hành", lead: "Lịch sử các phiên bản của Trợ lý học thuật, theo Semantic Versioning. Phiên bản mới nhất ở trên cùng.",
     home: "Trang chủ", langLabel: "English", cta: "Dùng thử miễn phí", latestL: "Mới nhất", guide: "Hướng dẫn sử dụng", guidePath: "/huong-dan",
+    f: { search: "Tìm trong ghi chú phát hành...", ver: "Phiên bản", all: "Tất cả", expand: "Mở tất cả", collapse: "Thu gọn", clear: "Xóa bộ lọc", none: "Không có phiên bản nào khớp bộ lọc.", count: (n, m) => `${n}/${m} phiên bản` },
     sec: (k) => SECTION_VI[k] ?? k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.", crumb: "Ghi chú phát hành",
   },
   en: {
@@ -37,6 +38,7 @@ const T = {
     desc: `What's new in AI Academic Agent ${latest.version}: Ami, the friendly robot companion, the ISA ecosystem in the footer and the full version history.`,
     h1: "Release notes", lead: "The version history of AI Academic Agent, following Semantic Versioning. Newest first.",
     home: "Home", langLabel: "Tiếng Việt", cta: "Try it free", latestL: "Latest", guide: "User guide", guidePath: "/en/guide",
+    f: { search: "Search the release notes...", ver: "Version", all: "All", expand: "Expand all", collapse: "Collapse", clear: "Clear filters", none: "No version matches the filters.", count: (n, m) => `${n} of ${m} versions` },
     sec: (k) => k, foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). All rights reserved.", crumb: "Release notes",
   },
 };
@@ -50,12 +52,37 @@ function page(t) {
     { "@type": "BreadcrumbList", itemListElement: [
       { "@type": "ListItem", position: 1, name: t.home, item: SITE + "/" },
       { "@type": "ListItem", position: 2, name: t.crumb, item: url } ] } ] };
-  const rel = (r, idx) => `<article id="v${r.version}">
-<h2>v${r.version} <small>${r.date}${idx === 0 ? ` · <span class="tag">${esc(t.latestL)}</span>` : ""}</small></h2>
+  const rel = (r, idx) => `<article id="v${r.version}" data-v="${r.version}">
+<details${idx === 0 ? " open" : ""}>
+<summary><h2>v${r.version} <small>${r.date}${idx === 0 ? ` · <span class="tag">${esc(t.latestL)}</span>` : ""}</small></h2></summary>
 <p class="rt">${esc(r.title[I])}</p>
 <p class="lead">${esc(r.summary[I])}</p>
-${secKeys(r).map((k) => `<h3>${esc(t.sec(k))}</h3>\n<ul>\n${r.sections[k].map((x) => `<li>${esc(x[I])}</li>`).join("\n")}\n</ul>`).join("\n")}
-${(r.notes ?? []).length ? `<p class="note">${esc(r.notes[I])}</p>\n` : ""}</article>`;
+${secKeys(r).map((k) => `<section data-type="${k}"><h3>${esc(t.sec(k))}</h3>\n<ul>\n${r.sections[k].map((x) => `<li>${esc(x[I])}</li>`).join("\n")}\n</ul></section>`).join("\n")}
+${(r.notes ?? []).length ? `<p class="note">${esc(r.notes[I])}</p>\n` : ""}</details>
+</article>`;
+  const kinds = [...new Set(RELEASES.flatMap(secKeys))].sort((x, y) => SECTION_ORDER.indexOf(x) - SECTION_ORDER.indexOf(y));
+  const tools = `<div class="tools" role="search">
+<div class="row"><input id="q" type="search" aria-label="${esc(t.f.search)}" placeholder="${esc(t.f.search)}"><select id="v" aria-label="${esc(t.f.ver)}"><option value="">${esc(t.f.ver)}: ${esc(t.f.all)}</option>${RELEASES.map((r) => `<option value="${r.version}">v${r.version} (${r.date})</option>`).join("")}</select></div>
+<div class="row">${kinds.map((k) => `<button type="button" class="chip" data-t="${k}" aria-pressed="false">${esc(t.sec(k))}</button>`).join("")}<button type="button" class="lnk" id="expand">${esc(t.f.expand)}</button><button type="button" class="lnk" id="collapse">${esc(t.f.collapse)}</button><button type="button" class="lnk" id="reset" hidden>${esc(t.f.clear)}</button><span id="count" aria-live="polite"></span></div>
+</div>`;
+  const script = `<script>
+(function(){var $=function(i){return document.getElementById(i)},arts=[].slice.call(document.querySelectorAll("article")),types={},q=$("q"),v=$("v"),N=${RELEASES.length};
+function norm(s){return s.normalize("NFD").replace(/[\\u0300-\\u036f]/g,"").replace(/đ/g,"d").toLowerCase()}
+function apply(user){var term=norm(q.value.trim()),ver=v.value,on=Object.keys(types).filter(function(k){return types[k]}),active=!!(term||ver||on.length),shown=0;
+arts.forEach(function(a){var okV=!ver||a.dataset.v===ver,any=false;
+[].forEach.call(a.querySelectorAll("section"),function(s){var okT=!on.length||on.indexOf(s.dataset.type)>=0,sAny=false;
+[].forEach.call(s.querySelectorAll("li"),function(li){var ok=okV&&okT&&(!term||norm(li.textContent).indexOf(term)>=0);li.hidden=!ok;if(ok)sAny=true});s.hidden=!sAny;if(sAny)any=true});
+a.hidden=!(okV&&any);if(!a.hidden){shown++;if(user&&active)a.querySelector("details").open=true}});
+$("none").hidden=shown>0;$("reset").hidden=!active;$("count").textContent=${JSON.stringify(t.lang)}==="en"?shown+" of "+N+" versions":shown+"/"+N+" phiên bản";
+var p=[];if(on.length)p.push("t="+on.join(","));if(ver)p.push("v="+ver);if(q.value.trim())p.push("q="+encodeURIComponent(q.value.trim()));try{history.replaceState(null,"",p.length?"#"+p.join("&"):location.pathname+location.search)}catch(e){}}
+[].forEach.call(document.querySelectorAll(".chip"),function(b){b.onclick=function(){var k=b.dataset.t;types[k]=!types[k];b.setAttribute("aria-pressed",types[k]?"true":"false");apply(true)}});
+q.oninput=function(){apply(true)};v.onchange=function(){apply(true)};
+$("reset").onclick=function(){q.value="";v.value="";types={};[].forEach.call(document.querySelectorAll(".chip"),function(b){b.setAttribute("aria-pressed","false")});apply(false)};
+$("expand").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=true})};$("collapse").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=false})};
+var h=location.hash.slice(1);if(/^v\\d+\\.\\d+\\.\\d+$/.test(h)){var t=document.getElementById(h);if(t){t.querySelector("details").open=true;setTimeout(function(){t.scrollIntoView()},0)}}
+else h.split("&").forEach(function(kv){var i=kv.indexOf("="),k=kv.slice(0,i),val=kv.slice(i+1);if(k==="t")val.split(",").forEach(function(x){var b=document.querySelector('.chip[data-t="'+x+'"]');if(b){types[x]=true;b.setAttribute("aria-pressed","true")}});if(k==="v"&&[].some.call(v.options,function(o){return o.value===val}))v.value=val;if(k==="q"){try{q.value=decodeURIComponent(val)}catch(e){}}});
+apply(false)})();
+</script>`;
   return `<!doctype html>
 <html lang="${t.lang}">
 <head>
@@ -90,6 +117,13 @@ h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.8rem 0 .4rem}h2{fo
 .lead{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1rem}.rt{font-weight:700;font-size:1.1rem;margin:.2rem 0}.btn{display:inline-block;background:var(--accent);color:var(--on);font-weight:700;padding:.7rem 1.3rem;border-radius:12px;text-decoration:none}
 article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin:1.2rem 0}article ul{margin:.3rem 0;padding-left:1.2rem}article li{margin:.35rem 0}
 .tag{background:var(--accent);color:var(--on);font-weight:800;border-radius:99px;padding:.05rem .6rem;font-size:.78rem}.note{color:var(--muted);font-size:.92rem}
+.tools{position:sticky;top:0;z-index:5;background:var(--bg);padding:.6rem 0;border-bottom:1px solid var(--line)}.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.row+.row{margin-top:.5rem}
+.tools input,.tools select{font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}.tools input{flex:1;min-width:180px}
+.chip{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:.2rem .8rem;cursor:pointer}.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.lnk{font:inherit;font-size:.88rem;background:none;border:0;color:var(--accent);cursor:pointer;text-decoration:underline}#count{margin-left:auto;color:var(--muted);font-size:.88rem}
+article summary{list-style:none;cursor:pointer}article summary::-webkit-details-marker{display:none}article summary h2::before{content:"\\25B8 ";color:var(--muted)}article details[open] summary h2::before{content:"\\25BE "}
+article[hidden],li[hidden],section[hidden]{display:none}
+@media print{.tools{display:none}details>*{display:block!important}}
 footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 </style>
 </head>
@@ -99,9 +133,12 @@ footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 <h1>${esc(t.h1)}</h1>
 <p class="lead">${esc(t.lead)}</p>
 <p><a class="btn" href="/">${esc(t.cta)}</a></p>
+${tools}
 ${RELEASES.map(rel).join("\n")}
+<p class="note" id="none" hidden>${esc(t.f.none)}</p>
 </main>
 <footer>${esc(t.foot)}</footer>
+${script}
 </body>
 </html>
 `;
