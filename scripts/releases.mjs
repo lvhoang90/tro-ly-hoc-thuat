@@ -10,6 +10,36 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.2.0",
+    date: "2026-10-04",
+    title: ["Hạng tài khoản rõ ràng, hành trình liền mạch hơn", "Clearer account tiers and a smoother journey"],
+    summary: [
+      "Trợ lý học thuật có thêm trang Quyền riêng tư, tài khoản đã xác thực với hạn mức riêng và gợi ý bước tiếp theo sau khi bạn trích dẫn.",
+      "AI Academic Agent now has a Privacy page, verified accounts with a personal allowance, and a suggested next step once you have cited.",
+    ],
+    sections: {
+      Added: [
+        ["Trang Quyền riêng tư bằng tiếng Việt và tiếng Anh: vẽ rõ tài liệu và ý tưởng của bạn đi đâu, điều gì được lưu và quyền của bạn; kèm một cam kết ngắn ngay ở bước tải tài liệu.",
+         "A Privacy page in Vietnamese and English that shows where your documents and ideas go, what is stored and what your rights are, plus a short pledge right at the upload step."],
+        ["Tài khoản đã xác thực: sau khi tác giả xác nhận bạn là nhà nghiên cứu, bạn có hạn mức riêng, xem lại toàn bộ lịch sử trích dẫn và gợi ý tài liệu chi tiết. Để được xác thực, gửi tác giả họ tên, đơn vị và ORCID.",
+         "Verified accounts: once the author confirms you are a researcher, you get a personal allowance, your full citation history and the detailed source suggestions. To get verified, send the author your name, affiliation and ORCID."],
+        ["Sau khi sao chép trích dẫn, ứng dụng gợi ý bước tiếp theo: chọn tạp chí trên EduFind hoặc chuẩn hóa thể thức bản thảo với Trợ lý văn thư.",
+         "After you copy a citation, the app suggests what to do next: choose a journal on EduFind, or format your manuscript with the Document Assistant."],
+        ["Lời chào khi tài khoản của bạn vừa được xác thực.",
+         "A welcome message when your account has just been verified."],
+      ],
+      Changed: [
+        ["Từ 10/10/2026, tài khoản Cơ bản có 1 lượt phân tích miễn phí mỗi tuần (trước đó mỗi ngày). Lịch sử trích dẫn và gợi ý tài liệu chi tiết dành cho tài khoản đã xác thực; dữ liệu bạn đã lưu không bị mất.",
+         "From 10 October 2026, Basic accounts get 1 free analysis per week (it was per day). Citation history and the detailed source suggestions are for verified accounts; nothing you have saved is lost."],
+        ["Số lượt còn lại hiển thị theo tuần, kèm ngày mở lượt mới.",
+         "Remaining analyses are shown per week, with the date the next one opens."],
+        ["Hướng dẫn sử dụng được cập nhật theo các thay đổi trên.",
+         "The user guide has been updated to match."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.1.0",
     date: "2026-10-03",
     title: ["Gặp Ami, trợ lý robot đồng hành", "Meet Ami, your robot companion"],

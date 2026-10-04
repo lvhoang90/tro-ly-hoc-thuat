@@ -6,6 +6,23 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-10-04
+
+AI Academic Agent now has a Privacy page, verified accounts with a personal allowance, and a suggested next step once you have cited.
+
+### Added
+
+- A Privacy page in Vietnamese and English that shows where your documents and ideas go, what is stored and what your rights are, plus a short pledge right at the upload step.
+- Verified accounts: once the author confirms you are a researcher, you get a personal allowance, your full citation history and the detailed source suggestions. To get verified, send the author your name, affiliation and ORCID.
+- After you copy a citation, the app suggests what to do next: choose a journal on EduFind, or format your manuscript with the Document Assistant.
+- A welcome message when your account has just been verified.
+
+### Changed
+
+- From 10 October 2026, Basic accounts get 1 free analysis per week (it was per day). Citation history and the detailed source suggestions are for verified accounts; nothing you have saved is lost.
+- Remaining analyses are shown per week, with the date the next one opens.
+- The user guide has been updated to match.
+
 ## [1.1.0] - 2026-10-03
 
 AI Academic Agent now has Ami, a friendly robot who stays with you from the home page through every step of reading, scoring and citing.
