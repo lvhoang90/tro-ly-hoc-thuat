@@ -32,6 +32,13 @@ h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.8rem 0 .4rem}h2{fo
 .lead{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1rem}.rt{font-weight:700;font-size:1.1rem;margin:.2rem 0}.btn{display:inline-block;background:var(--accent);color:var(--on);font-weight:700;padding:.7rem 1.3rem;border-radius:12px;text-decoration:none}
 article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin:1.2rem 0}article ul{margin:.3rem 0;padding-left:1.2rem}article li{margin:.35rem 0}
 .tag{background:var(--accent);color:var(--on);font-weight:800;border-radius:99px;padding:.05rem .6rem;font-size:.78rem}.note{color:var(--muted);font-size:.92rem}
+.tools{position:sticky;top:0;z-index:5;background:var(--bg);padding:.6rem 0;border-bottom:1px solid var(--line)}.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.row+.row{margin-top:.5rem}
+.tools input,.tools select{font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}.tools input{flex:1;min-width:180px}
+.chip{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:.2rem .8rem;cursor:pointer}.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.lnk{font:inherit;font-size:.88rem;background:none;border:0;color:var(--accent);cursor:pointer;text-decoration:underline}#count{margin-left:auto;color:var(--muted);font-size:.88rem}
+article summary{list-style:none;cursor:pointer}article summary::-webkit-details-marker{display:none}article summary h2::before{content:"\25B8 ";color:var(--muted)}article details[open] summary h2::before{content:"\25BE "}
+article[hidden],li[hidden],section[hidden]{display:none}
+@media print{.tools{display:none}details>*{display:block!important}}
 footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 </style>
 </head>
@@ -41,60 +48,89 @@ footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 <h1>Ghi chú phát hành</h1>
 <p class="lead">Lịch sử các phiên bản của Trợ lý học thuật, theo Semantic Versioning. Phiên bản mới nhất ở trên cùng.</p>
 <p><a class="btn" href="/">Dùng thử miễn phí</a></p>
-<article id="v1.2.0">
-<h2>v1.2.0 <small>2026-10-04 · <span class="tag">Mới nhất</span></small></h2>
+<div class="tools" role="search">
+<div class="row"><input id="q" type="search" aria-label="Tìm trong ghi chú phát hành..." placeholder="Tìm trong ghi chú phát hành..."><select id="v" aria-label="Phiên bản"><option value="">Phiên bản: Tất cả</option><option value="1.2.0">v1.2.0 (2026-10-04)</option><option value="1.1.0">v1.1.0 (2026-10-03)</option><option value="1.0.0">v1.0.0 (2026-10-02)</option></select></div>
+<div class="row"><button type="button" class="chip" data-t="Added" aria-pressed="false">Thêm mới</button><button type="button" class="chip" data-t="Changed" aria-pressed="false">Thay đổi</button><button type="button" class="chip" data-t="Fixed" aria-pressed="false">Sửa lỗi</button><button type="button" class="lnk" id="expand">Mở tất cả</button><button type="button" class="lnk" id="collapse">Thu gọn</button><button type="button" class="lnk" id="reset" hidden>Xóa bộ lọc</button><span id="count" aria-live="polite"></span></div>
+</div>
+<article id="v1.2.0" data-v="1.2.0">
+<details open>
+<summary><h2>v1.2.0 <small>2026-10-04 · <span class="tag">Mới nhất</span></small></h2></summary>
 <p class="rt">Hạng tài khoản rõ ràng, hành trình liền mạch hơn</p>
 <p class="lead">Trợ lý học thuật có thêm trang Quyền riêng tư, tài khoản đã xác thực với hạn mức riêng và gợi ý bước tiếp theo sau khi bạn trích dẫn.</p>
-<h3>Thêm mới</h3>
+<section data-type="Added"><h3>Thêm mới</h3>
 <ul>
 <li>Trang Quyền riêng tư bằng tiếng Việt và tiếng Anh: vẽ rõ tài liệu và ý tưởng của bạn đi đâu, điều gì được lưu và quyền của bạn; kèm một cam kết ngắn ngay ở bước tải tài liệu.</li>
 <li>Tài khoản đã xác thực: sau khi tác giả xác nhận bạn là nhà nghiên cứu, bạn có hạn mức riêng, xem lại toàn bộ lịch sử trích dẫn và gợi ý tài liệu chi tiết. Để được xác thực, gửi tác giả họ tên, đơn vị và ORCID.</li>
 <li>Sau khi sao chép trích dẫn, ứng dụng gợi ý bước tiếp theo: chọn tạp chí trên EduFind hoặc chuẩn hóa thể thức bản thảo với Trợ lý văn thư.</li>
 <li>Lời chào khi tài khoản của bạn vừa được xác thực.</li>
-</ul>
-<h3>Thay đổi</h3>
+</ul></section>
+<section data-type="Changed"><h3>Thay đổi</h3>
 <ul>
 <li>Từ 10/10/2026, tài khoản Cơ bản có 1 lượt phân tích miễn phí mỗi tuần (trước đó mỗi ngày). Lịch sử trích dẫn và gợi ý tài liệu chi tiết dành cho tài khoản đã xác thực; dữ liệu bạn đã lưu không bị mất.</li>
 <li>Số lượt còn lại hiển thị theo tuần, kèm ngày mở lượt mới.</li>
 <li>Hướng dẫn sử dụng được cập nhật theo các thay đổi trên.</li>
-</ul>
+</ul></section>
+</details>
 </article>
-<article id="v1.1.0">
-<h2>v1.1.0 <small>2026-10-03</small></h2>
+<article id="v1.1.0" data-v="1.1.0">
+<details>
+<summary><h2>v1.1.0 <small>2026-10-03</small></h2></summary>
 <p class="rt">Gặp Ami, trợ lý robot đồng hành</p>
 <p class="lead">Trợ lý học thuật có thêm Ami, nhân vật robot thân thiện đi cùng bạn từ trang chủ đến từng bước đọc, chấm điểm và trích dẫn.</p>
-<h3>Thêm mới</h3>
+<section data-type="Added"><h3>Thêm mới</h3>
 <ul>
 <li>Ami, trợ lý robot 3D thân thiện: biết vẫy chào, đọc tài liệu cùng bạn, suy nghĩ khi phân tích, vui mừng khi tài liệu phù hợp và quan tâm khi điểm thấp. Ami nói tiếng Việt hoặc tiếng Anh theo ngôn ngữ bạn chọn.</li>
 <li>Ami nhắc bạn từng bước, báo lỗi nhẹ nhàng và phản ứng theo điểm phù hợp. Sau khi đăng nhập, Ami thu nhỏ ở góc màn hình; bạn có thể ẩn hoặc hiện lại bất cứ lúc nào.</li>
 <li>Chân trang giới thiệu cả hệ sinh thái ISA: EduFind (chọn tạp chí), Trợ lý học thuật (đọc và trích dẫn) và Trợ lý văn thư (chuẩn hóa thể thức).</li>
 <li>Thông báo &quot;Có gì mới&quot; khi có phiên bản mới, kèm trang ghi chú phát hành bằng tiếng Việt và tiếng Anh.</li>
-</ul>
-<h3>Thay đổi</h3>
+</ul></section>
+<section data-type="Changed"><h3>Thay đổi</h3>
 <ul>
 <li>Ảnh hiển thị khi bạn chia sẻ liên kết ứng dụng được làm mới, có Ami.</li>
 <li>Ami tải nhẹ, không làm chậm trang; tự chuyển sang bản đơn giản trên thiết bị yếu hoặc khi bạn bật chế độ giảm chuyển động.</li>
-</ul>
+</ul></section>
+</details>
 </article>
-<article id="v1.0.0">
-<h2>v1.0.0 <small>2026-10-02</small></h2>
+<article id="v1.0.0" data-v="1.0.0">
+<details>
+<summary><h2>v1.0.0 <small>2026-10-02</small></h2></summary>
 <p class="rt">Phát hành đầu tiên</p>
 <p class="lead">Ứng dụng web song ngữ giúp đọc tài liệu, chấm mức độ phù hợp 0–100, chọn đoạn đáng trích và sao chép trích dẫn chuẩn quốc tế.</p>
-<h3>Thêm mới</h3>
+<section data-type="Added"><h3>Thêm mới</h3>
 <ul>
 <li>Đăng ký bằng email; mỗi ngày có 1 lượt phân tích miễn phí. Tệp tối đa 2 MB, hoặc 15 MB với tài khoản đã được quản trị viên xác thực.</li>
 <li>Tải tài liệu PDF, DOC, DOCX (kể cả bản quét) để nhận điểm phù hợp 0–100 theo 5 tiêu chí so với đề tài của bạn. Tài liệu được đọc ngay trên máy bạn và không bị lưu trữ.</li>
 <li>Gợi ý các đoạn đáng trích, xếp theo mức ưu tiên, có số trang và được đối chiếu nguyên văn với tài liệu gốc. Điểm thấp thì gợi ý nguồn khác và tạp chí phù hợp từ EduFind.</li>
 <li>Sao chép trích dẫn APA, Harvard, Chicago, MLA, IEEE, Vancouver, AMA, BibTeX, RIS hoặc hơn 10.000 kiểu tạp chí, bằng tiếng Việt hoặc tiếng Anh; lịch sử trích dẫn gom theo đề tài.</li>
 <li>Giao diện song ngữ Việt/Anh, hồ sơ nhà nghiên cứu (ORCID), trang hướng dẫn sử dụng, màu sắc dễ đọc và giao diện điện thoại ưu tiên nội dung chính.</li>
-</ul>
-<h3>Sửa lỗi</h3>
+</ul></section>
+<section data-type="Fixed"><h3>Sửa lỗi</h3>
 <ul>
 <li>Đọc được tệp PDF trên iPhone và Safari; khi không đọc được tệp, ứng dụng nói rõ nguyên nhân.</li>
 <li>Sửa nhãn phần trăm hoàn thiện hồ sơ bị cắt trên iPhone.</li>
-</ul>
+</ul></section>
+</details>
 </article>
+<p class="note" id="none" hidden>Không có phiên bản nào khớp bộ lọc.</p>
 </main>
 <footer>© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.</footer>
+<script>
+(function(){var $=function(i){return document.getElementById(i)},arts=[].slice.call(document.querySelectorAll("article")),types={},q=$("q"),v=$("v"),N=3;
+function norm(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase()}
+function apply(user){var term=norm(q.value.trim()),ver=v.value,on=Object.keys(types).filter(function(k){return types[k]}),active=!!(term||ver||on.length),shown=0;
+arts.forEach(function(a){var okV=!ver||a.dataset.v===ver,any=false;
+[].forEach.call(a.querySelectorAll("section"),function(s){var okT=!on.length||on.indexOf(s.dataset.type)>=0,sAny=false;
+[].forEach.call(s.querySelectorAll("li"),function(li){var ok=okV&&okT&&(!term||norm(li.textContent).indexOf(term)>=0);li.hidden=!ok;if(ok)sAny=true});s.hidden=!sAny;if(sAny)any=true});
+a.hidden=!(okV&&any);if(!a.hidden){shown++;if(user&&active)a.querySelector("details").open=true}});
+$("none").hidden=shown>0;$("reset").hidden=!active;$("count").textContent="vi"==="en"?shown+" of "+N+" versions":shown+"/"+N+" phiên bản";
+var p=[];if(on.length)p.push("t="+on.join(","));if(ver)p.push("v="+ver);if(q.value.trim())p.push("q="+encodeURIComponent(q.value.trim()));try{history.replaceState(null,"",p.length?"#"+p.join("&"):location.pathname+location.search)}catch(e){}}
+[].forEach.call(document.querySelectorAll(".chip"),function(b){b.onclick=function(){var k=b.dataset.t;types[k]=!types[k];b.setAttribute("aria-pressed",types[k]?"true":"false");apply(true)}});
+q.oninput=function(){apply(true)};v.onchange=function(){apply(true)};
+$("reset").onclick=function(){q.value="";v.value="";types={};[].forEach.call(document.querySelectorAll(".chip"),function(b){b.setAttribute("aria-pressed","false")});apply(false)};
+$("expand").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=true})};$("collapse").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=false})};
+var h=location.hash.slice(1);if(/^v\d+\.\d+\.\d+$/.test(h)){var t=document.getElementById(h);if(t){t.querySelector("details").open=true;setTimeout(function(){t.scrollIntoView()},0)}}
+else h.split("&").forEach(function(kv){var i=kv.indexOf("="),k=kv.slice(0,i),val=kv.slice(i+1);if(k==="t")val.split(",").forEach(function(x){var b=document.querySelector('.chip[data-t="'+x+'"]');if(b){types[x]=true;b.setAttribute("aria-pressed","true")}});if(k==="v"&&[].some.call(v.options,function(o){return o.value===val}))v.value=val;if(k==="q"){try{q.value=decodeURIComponent(val)}catch(e){}}});
+apply(false)})();
+</script>
 </body>
 </html>
