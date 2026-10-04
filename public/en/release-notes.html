@@ -32,6 +32,13 @@ h1{font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.2;margin:.8rem 0 .4rem}h2{fo
 .lead{color:var(--muted);font-size:1.05rem;margin:.2rem 0 1rem}.rt{font-weight:700;font-size:1.1rem;margin:.2rem 0}.btn{display:inline-block;background:var(--accent);color:var(--on);font-weight:700;padding:.7rem 1.3rem;border-radius:12px;text-decoration:none}
 article{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1.2rem 1.3rem;margin:1.2rem 0}article ul{margin:.3rem 0;padding-left:1.2rem}article li{margin:.35rem 0}
 .tag{background:var(--accent);color:var(--on);font-weight:800;border-radius:99px;padding:.05rem .6rem;font-size:.78rem}.note{color:var(--muted);font-size:.92rem}
+.tools{position:sticky;top:0;z-index:5;background:var(--bg);padding:.6rem 0;border-bottom:1px solid var(--line)}.row{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}.row+.row{margin-top:.5rem}
+.tools input,.tools select{font:inherit;padding:.5rem .6rem;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--text)}.tools input{flex:1;min-width:180px}
+.chip{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:99px;padding:.2rem .8rem;cursor:pointer}.chip[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--on)}
+.lnk{font:inherit;font-size:.88rem;background:none;border:0;color:var(--accent);cursor:pointer;text-decoration:underline}#count{margin-left:auto;color:var(--muted);font-size:.88rem}
+article summary{list-style:none;cursor:pointer}article summary::-webkit-details-marker{display:none}article summary h2::before{content:"\25B8 ";color:var(--muted)}article details[open] summary h2::before{content:"\25BE "}
+article[hidden],li[hidden],section[hidden]{display:none}
+@media print{.tools{display:none}details>*{display:block!important}}
 footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 </style>
 </head>
@@ -41,42 +48,69 @@ footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 <h1>Release notes</h1>
 <p class="lead">The version history of AI Academic Agent, following Semantic Versioning. Newest first.</p>
 <p><a class="btn" href="/">Try it free</a></p>
-<article id="v1.1.0">
-<h2>v1.1.0 <small>2026-10-03 · <span class="tag">Latest</span></small></h2>
+<div class="tools" role="search">
+<div class="row"><input id="q" type="search" aria-label="Search the release notes..." placeholder="Search the release notes..."><select id="v" aria-label="Version"><option value="">Version: All</option><option value="1.1.0">v1.1.0 (2026-10-03)</option><option value="1.0.0">v1.0.0 (2026-10-02)</option></select></div>
+<div class="row"><button type="button" class="chip" data-t="Added" aria-pressed="false">Added</button><button type="button" class="chip" data-t="Changed" aria-pressed="false">Changed</button><button type="button" class="chip" data-t="Fixed" aria-pressed="false">Fixed</button><button type="button" class="lnk" id="expand">Expand all</button><button type="button" class="lnk" id="collapse">Collapse</button><button type="button" class="lnk" id="reset" hidden>Clear filters</button><span id="count" aria-live="polite"></span></div>
+</div>
+<article id="v1.1.0" data-v="1.1.0">
+<details open>
+<summary><h2>v1.1.0 <small>2026-10-03 · <span class="tag">Latest</span></small></h2></summary>
 <p class="rt">Meet Ami, your robot companion</p>
 <p class="lead">AI Academic Agent now has Ami, a friendly robot who stays with you from the home page through every step of reading, scoring and citing.</p>
-<h3>Added</h3>
+<section data-type="Added"><h3>Added</h3>
 <ul>
 <li>Ami, a friendly 3D robot who waves hello, reads your document with you, thinks while analysing, cheers when a source fits and shows care when the score is low. Ami speaks Vietnamese or English, following your language choice.</li>
 <li>Ami guides you step by step, explains problems gently and reacts to the fit score. After you sign in, Ami stays small in the corner of the screen, and you can hide or show Ami at any time.</li>
 <li>The footer now introduces the whole ISA ecosystem: EduFind (choose a journal), AI Academic Agent (read and cite) and the Document Assistant (format documents).</li>
 <li>A &quot;What's new&quot; notice when a new version arrives, with release notes in Vietnamese and English.</li>
-</ul>
-<h3>Changed</h3>
+</ul></section>
+<section data-type="Changed"><h3>Changed</h3>
 <ul>
 <li>The preview image shown when you share a link to the app has been refreshed and now features Ami.</li>
 <li>Ami loads lightly and does not slow the page down; on weaker devices, or when you turn on reduced motion, a simpler version is shown automatically.</li>
-</ul>
+</ul></section>
+</details>
 </article>
-<article id="v1.0.0">
-<h2>v1.0.0 <small>2026-10-02</small></h2>
+<article id="v1.0.0" data-v="1.0.0">
+<details>
+<summary><h2>v1.0.0 <small>2026-10-02</small></h2></summary>
 <p class="rt">First release</p>
 <p class="lead">A bilingual web app that reads sources, scores their fit 0–100, picks citable passages and copies internationally standard citations.</p>
-<h3>Added</h3>
+<section data-type="Added"><h3>Added</h3>
 <ul>
 <li>Sign up with your email; every day you get 1 free analysis. Files up to 2 MB, or 15 MB for accounts verified by an administrator.</li>
 <li>Upload a PDF, DOC or DOCX (scans included) and get a 0–100 fit score on 5 criteria against your topic. Documents are read on your device and are never stored.</li>
 <li>Suggested passages worth citing, ranked by priority, with page numbers and checked word for word against the source. For a low score, it suggests other sources and suitable journals from EduFind.</li>
 <li>Copy citations in APA, Harvard, Chicago, MLA, IEEE, Vancouver, AMA, BibTeX, RIS or over 10,000 journal styles, in Vietnamese or English; your citation history is grouped by topic.</li>
 <li>A bilingual Vietnamese/English interface, a researcher profile (ORCID), a user guide, easy-to-read colours and a phone layout that puts the main content first.</li>
-</ul>
-<h3>Fixed</h3>
+</ul></section>
+<section data-type="Fixed"><h3>Fixed</h3>
 <ul>
 <li>PDF files now open on iPhone and Safari; when a file cannot be read, the app explains why.</li>
 <li>Fixed the profile-completion percentage label being cut off on iPhone.</li>
-</ul>
+</ul></section>
+</details>
 </article>
+<p class="note" id="none" hidden>No version matches the filters.</p>
 </main>
 <footer>© 2026 Lương Việt Hoàng (ISA Vietnam). All rights reserved.</footer>
+<script>
+(function(){var $=function(i){return document.getElementById(i)},arts=[].slice.call(document.querySelectorAll("article")),types={},q=$("q"),v=$("v"),N=2;
+function norm(s){return s.normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase()}
+function apply(user){var term=norm(q.value.trim()),ver=v.value,on=Object.keys(types).filter(function(k){return types[k]}),active=!!(term||ver||on.length),shown=0;
+arts.forEach(function(a){var okV=!ver||a.dataset.v===ver,any=false;
+[].forEach.call(a.querySelectorAll("section"),function(s){var okT=!on.length||on.indexOf(s.dataset.type)>=0,sAny=false;
+[].forEach.call(s.querySelectorAll("li"),function(li){var ok=okV&&okT&&(!term||norm(li.textContent).indexOf(term)>=0);li.hidden=!ok;if(ok)sAny=true});s.hidden=!sAny;if(sAny)any=true});
+a.hidden=!(okV&&any);if(!a.hidden){shown++;if(user&&active)a.querySelector("details").open=true}});
+$("none").hidden=shown>0;$("reset").hidden=!active;$("count").textContent="en"==="en"?shown+" of "+N+" versions":shown+"/"+N+" phiên bản";
+var p=[];if(on.length)p.push("t="+on.join(","));if(ver)p.push("v="+ver);if(q.value.trim())p.push("q="+encodeURIComponent(q.value.trim()));try{history.replaceState(null,"",p.length?"#"+p.join("&"):location.pathname+location.search)}catch(e){}}
+[].forEach.call(document.querySelectorAll(".chip"),function(b){b.onclick=function(){var k=b.dataset.t;types[k]=!types[k];b.setAttribute("aria-pressed",types[k]?"true":"false");apply(true)}});
+q.oninput=function(){apply(true)};v.onchange=function(){apply(true)};
+$("reset").onclick=function(){q.value="";v.value="";types={};[].forEach.call(document.querySelectorAll(".chip"),function(b){b.setAttribute("aria-pressed","false")});apply(false)};
+$("expand").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=true})};$("collapse").onclick=function(){arts.forEach(function(a){a.querySelector("details").open=false})};
+var h=location.hash.slice(1);if(/^v\d+\.\d+\.\d+$/.test(h)){var t=document.getElementById(h);if(t){t.querySelector("details").open=true;setTimeout(function(){t.scrollIntoView()},0)}}
+else h.split("&").forEach(function(kv){var i=kv.indexOf("="),k=kv.slice(0,i),val=kv.slice(i+1);if(k==="t")val.split(",").forEach(function(x){var b=document.querySelector('.chip[data-t="'+x+'"]');if(b){types[x]=true;b.setAttribute("aria-pressed","true")}});if(k==="v"&&[].some.call(v.options,function(o){return o.value===val}))v.value=val;if(k==="q"){try{q.value=decodeURIComponent(val)}catch(e){}}});
+apply(false)})();
+</script>
 </body>
 </html>
