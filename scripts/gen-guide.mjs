@@ -34,7 +34,7 @@ const T = {
       ["Hỗ trợ những kiểu trích dẫn nào?", "APA 7, Harvard, Chicago 17, MLA 9, IEEE, Vancouver, AMA 11, BibTeX, RIS và hơn 10.000 kiểu tạp chí, trường đại học theo chuẩn CSL, bằng tiếng Việt hoặc tiếng Anh."],
       ["Điểm dưới 60 thì sao?", "Hệ thống không đề xuất đoạn trích. Thay vào đó, ứng dụng gợi ý hướng tìm nguồn thay thế và các tạp chí phù hợp lĩnh vực từ EduFind."],
     ],
-    eco: [["EduFind", "https://edufind.isavn.edu.vn/", "Tra cứu tạp chí khoa học được Hội đồng Giáo sư nhà nước tính điểm (28 ngành)."], ["Trợ lý văn thư", "https://trolyvanthu.isavn.edu.vn/", "Chuẩn hóa chính tả, ngữ pháp và thể thức văn bản hành chính theo Nghị định 30/2020/NĐ-CP."]],
+    eco: [["EduFind", "https://isavn.edu.vn/go/edufind?from=ami", "Tra cứu tạp chí khoa học được Hội đồng Giáo sư nhà nước tính điểm (28 ngành)."], ["Trợ lý văn thư", "https://isavn.edu.vn/go/may?from=ami", "Chuẩn hóa chính tả, ngữ pháp và thể thức văn bản hành chính theo Nghị định 30/2020/NĐ-CP."]],
     foot: "© 2026 Lương Việt Hoàng (ISA Vietnam). Bản quyền đóng.",
   },
   en: {
@@ -66,7 +66,7 @@ const T = {
       ["Which citation styles are supported?", "APA 7, Harvard, Chicago 17, MLA 9, IEEE, Vancouver, AMA 11, BibTeX, RIS and over 10,000 CSL journal and university styles, in Vietnamese or English."],
       ["What happens below 60?", "No passages are suggested. Instead the app points you to alternative sources and suitable journals for your field from EduFind."],
     ],
-    eco: [["EduFind", "https://edufind.isavn.edu.vn/", "Look up journals scored by the Vietnamese State Professorship Council (28 disciplines)."], ["Records Assistant", "https://trolyvanthu.isavn.edu.vn/", "Spelling, grammar and format checks for Vietnamese administrative documents under Decree 30/2020/ND-CP."]],
+    eco: [["EduFind", "https://isavn.edu.vn/go/edufind?from=ami", "Look up journals scored by the Vietnamese State Professorship Council (28 disciplines)."], ["Records Assistant", "https://isavn.edu.vn/go/may?from=ami", "Spelling, grammar and format checks for Vietnamese administrative documents under Decree 30/2020/ND-CP."]],
     foot: "© 2026 Luong Viet Hoang (ISA Vietnam). All rights reserved.",
   },
 };
