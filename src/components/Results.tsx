@@ -5,7 +5,6 @@ import { Icon, type IconName } from "./Icon.tsx";
 import type { AnalysisResult, Passage, Priority } from "../../shared/types.ts";
 import { PASS_SCORE } from "../../shared/types.ts";
 import { LockedReco } from "./Tier.tsx";
-import { withUtm } from "../lib/config.ts";
 
 export function ScoreGauge({ score }: { score: number }) {
   const { t } = useI18n();
