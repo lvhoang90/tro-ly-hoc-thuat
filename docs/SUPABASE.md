@@ -87,3 +87,8 @@ update public.app_settings set value = '2'::jsonb where key = 'file_limit_basic_
 ## Cập nhật: ngân sách API (trang Quản trị → Thống kê)
 Tính năng theo dõi ngân sách và dự báo cần một bảng riêng tư chỉ quản trị viên đọc được (`admin_kv`) và hàm `admin_spend_since`. Chạy lại toàn bộ `supabase/schema.sql` (an toàn, không mất dữ liệu) hoặc chỉ chạy tệp `supabase/migrations/20261003_api_budget.sql` trong SQL Editor.
 Anthropic không có đường truy vấn số dư tín dụng bằng khóa API, nên ứng dụng tính: *số dư đã nhập* trừ *chi phí ghi nhận từ lúc nhập*. Hãy nhập số dư thật từ Console khi bắt đầu và khi nạp tiền; đối chiếu lại định kỳ.
+
+## Cập nhật: hạng tài khoản (Cơ bản / Đã xác thực)
+Thêm hạn mức theo tuần cho tài khoản chưa xác thực (từ ngày `tier_start`, mặc định 10/10/2026), hạn mức riêng cho tài khoản đã xác thực, khóa xem lại lịch sử và gợi ý chi tiết với hạng Cơ bản, và bộ lọc "dùng thường xuyên, chưa xác thực" cho quản trị viên. Chạy lại toàn bộ `supabase/schema.sql` (an toàn) hoặc chỉ tệp `supabase/migrations/20261004_tiers.sql`. **Chạy trước khi triển khai mã mới**, vì giao diện gọi các hàm mới (`admin_set_quota`, `admin_list_users` có thêm tham số).
+Trước `tier_start` mọi thứ giữ nguyên như cũ (1 lượt/ngày); đổi ngày hoặc số lượt trong Quản trị → Cài đặt → Hạng tài khoản.
+

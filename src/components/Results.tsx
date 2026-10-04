@@ -3,6 +3,8 @@ import { useI18n } from "../i18n.tsx";
 import { Icon, type IconName } from "./Icon.tsx";
 import type { AnalysisResult, Passage, Priority } from "../../shared/types.ts";
 import { PASS_SCORE } from "../../shared/types.ts";
+import { LockedReco } from "./Tier.tsx";
+import { withUtm } from "../lib/config.ts";
 
 export function ScoreGauge({ score }: { score: number }) {
   const { t } = useI18n();
@@ -96,7 +98,7 @@ export function RecoAdvice({ rec }: { rec: Reco }) {
         <div>
           <span className="lbl">{t("reco_fields")}</span>
           <div className="tags static">{rec.disciplines.map((d) => (
-            <a key={d.slug} className="tag link-tag" href={d.url} target="_blank" rel="noopener noreferrer">{d.name[lang]} <Icon name="external" size={12} /></a>
+            <a key={d.slug} className="tag link-tag" href={withUtm(d.url, "reco")} target="_blank" rel="noopener noreferrer">{d.name[lang]} <Icon name="external" size={12} /></a>
           ))}</div>
         </div>
       )}
@@ -116,6 +118,7 @@ export function RecoAdvice({ rec }: { rec: Reco }) {
 
 export function RecoWorks({ rec }: { rec: Reco }) {
   const { t } = useI18n();
+  if (rec.locked) return <LockedReco works={rec.locked.works} journals={rec.locked.journals} />;
   if (rec.works.length === 0) return <p className="muted">{t("reco_none")}</p>;
   return (
     <ul className="works">
@@ -135,6 +138,7 @@ export function RecoWorks({ rec }: { rec: Reco }) {
 export function RecoJournals({ rec }: { rec: Reco }) {
   const { t, lang } = useI18n();
   const why = (w: string) => (w === "venue" ? t("why_venue") : w === "keyword" ? t("why_keyword") : t("why_field"));
+  if (rec.locked) return <p className="muted">{t("teaser_body")}</p>;
   return (
     <div className="stack">
       {rec.journals.length === 0 ? <p className="muted">{t("reco_none")}</p> : (
@@ -144,7 +148,7 @@ export function RecoJournals({ rec }: { rec: Reco }) {
             <tbody>
               {rec.journals.map((j) => (
                 <tr key={j.title}>
-                  <td><a href={j.url} target="_blank" rel="noopener noreferrer"><b>{j.title}</b></a>
+                  <td><a href={withUtm(j.url, "reco")} target="_blank" rel="noopener noreferrer"><b>{j.title}</b></a>
                     <div className="muted small">{j.publisher}</div>
                     <div className="muted small">{j.discipline[lang]}</div></td>
                   <td className="mono small">{j.issn.join(", ")}</td>
@@ -158,9 +162,9 @@ export function RecoJournals({ rec }: { rec: Reco }) {
       )}
       <div className="row wrap">
         {rec.disciplines.map((d) => (
-          <a key={d.slug} className="btn sm" href={d.url} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={15} /> {t("open_field", { name: d.name[lang] })}</a>
+          <a key={d.slug} className="btn sm" href={withUtm(d.url, "reco")} target="_blank" rel="noopener noreferrer"><Icon name="cap" size={15} /> {t("open_field", { name: d.name[lang] })}</a>
         ))}
-        <a className="btn sm" href={rec.edufind.url} target="_blank" rel="noopener noreferrer"><Icon name="external" size={15} /> {t("open_edufind")}</a>
+        <a className="btn sm" href={withUtm(rec.edufind.url, "reco")} target="_blank" rel="noopener noreferrer"><Icon name="external" size={15} /> {t("open_edufind")}</a>
       </div>
     </div>
   );
