@@ -8,7 +8,7 @@ export const APP = {
   name: { vi: "Trợ lý học thuật", en: "AI Academic Agent" },
   version: "1.0",
   /** Phiên bản phát hành (Semantic Versioning), khớp package.json và CHANGELOG.md; tests/release.test.ts kiểm tra. */
-  release: { version: "1.1.0", date: "2026-10-03", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
+  release: { version: "1.2.0", date: "2026-10-04", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
   year: 2026,
   siteUrl: (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, "") || (typeof location !== "undefined" ? location.origin : ""),
   author: {

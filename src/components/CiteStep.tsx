@@ -281,22 +281,14 @@ export default function CiteStep({ meta: initial, passages, ctx, onBack, onAnoth
                 <Icon name="right" size={18} className="choice-go" />
               </a>
             )}
+            {done > 0 && (
+              <a className="choice" href={withUtm(APP.author.ecoEdufind, "after-cite")} target="_blank" rel="noopener noreferrer">
+                <span className="choice-ico"><Icon name="cap" size={22} /></span>
+                <span className="choice-body"><b>{t("finish_eco_edufind")}</b><small>{t("finish_eco_edufind_d")}</small></span>
+                <Icon name="right" size={18} className="choice-go" />
+              </a>
+            )}
           </div>
-          {done > 0 && (
-            <div className="stack">
-              <span className="lbl">{t("finish_eco_h")}</span>
-              <div className="choices two">
-                <a className="choice" href={withUtm(APP.author.ecoEdufind, "after-cite")} target="_blank" rel="noopener noreferrer">
-                  <span className="choice-ico"><Icon name="cap" size={22} /></span>
-                  <span className="choice-body"><b>{t("finish_eco_edufind")}</b><small>{t("finish_eco_edufind_d")}</small></span>
-                </a>
-                <a className="choice" href={withUtm(APP.author.vanthu, "after-cite")} target="_blank" rel="noopener noreferrer">
-                  <span className="choice-ico"><Icon name="file" size={22} /></span>
-                  <span className="choice-body"><b>{t("finish_eco_vanthu")}</b><small>{t("finish_eco_vanthu_d")}</small></span>
-                </a>
-              </div>
-            </div>
-          )}
         </section>
       </div>
     </div>
