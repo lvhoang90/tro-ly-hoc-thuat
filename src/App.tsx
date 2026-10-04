@@ -1,3 +1,4 @@
+import { TierWatcher } from "./components/Tier.tsx";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { useI18n } from "./i18n.tsx";
 import { useApp } from "./ctx.tsx";
@@ -54,6 +55,7 @@ export default function App() {
   return (
     <>
       <Background />
+      <TierWatcher />
       <div className="shell">
         <Header route={route} go={setRoute} />
         {handoff && session && ready && route === "work" && (

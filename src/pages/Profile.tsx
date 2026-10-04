@@ -4,6 +4,7 @@ import { useApp } from "../ctx.tsx";
 import { supabase, type Profile } from "../lib/supabase.ts";
 import { importOrcid, normalizeOrcid, validOrcid } from "../lib/orcid.ts";
 import { QuotaBar } from "../components/Quota.tsx";
+import { TierCard } from "../components/Tier.tsx";
 
 const TITLES = ["", "CN.", "ThS.", "NCS.", "TS.", "PGS.TS.", "GS.TS.", "BS.", "Mr.", "Ms.", "Dr.", "Assoc. Prof.", "Prof."];
 const COUNTRIES: [string, string, string][] = [
@@ -93,6 +94,7 @@ export default function ProfilePage() {
       </div>
 
       <QuotaBar />
+      <TierCard />
       {quota && <p className="muted small">{t("usage_life", { n: quota.lifetime_used })} · {quota.approved ? t("limit_approved", { mb: quota.max_file_mb }) : t("limit_basic", { mb: quota.max_file_mb })}</p>}
 
       <div className="card form-grid">

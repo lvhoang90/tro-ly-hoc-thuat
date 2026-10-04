@@ -6,6 +6,7 @@ import { APP, withUtm } from "../lib/config.ts";
 import { visit, type VisitStats } from "../lib/api.ts";
 import { Flag, Icon } from "./Icon.tsx";
 import { AuthorBadge } from "./AuthorCard.tsx";
+import { ContactLinks, VerifyCard, fmtDay } from "./Tier.tsx";
 
 export const Logo = ({ size = 34 }: { size?: number }) => (
   <img src="/favicon.svg" width={size} height={size} alt="" aria-hidden="true" />
@@ -303,24 +304,17 @@ export function WhatsNew() {
 // ---------- Liên hệ quản trị viên ----------
 export function ContactAdmin({ reason }: { reason?: string }) {
   const { t, lang } = useI18n();
-  const { contact, profile } = useApp();
+  const { quota, contact } = useApp();
+  // Hạng Cơ bản hết lượt tuần: mời xác thực bằng lợi ích của chính họ.
+  if (quota?.tier === "basic" && quota.period === "week")
+    return <VerifyCard title={reason ?? t("nudge_out_title")} body={t("nudge_out_body", { date: fmtDay(quota.next_reset) })} benefits />;
   const note = lang === "vi" ? contact?.note_vi : contact?.note_en;
-  const has = contact && (contact.email || contact.phone || contact.zalo);
-  const subject = encodeURIComponent(`[${APP.name.vi}] ${t("contact_subject")}`);
-  const body = encodeURIComponent(`${t("contact_body")}\n\nEmail: ${profile?.email ?? ""}\n${profile?.full_name ?? ""}\nORCID: ${profile?.orcid ?? ""}`);
-  const zaloNum = (contact?.zalo || contact?.phone || "").replace(/\D/g, "");
   return (
     <div className="card contact">
       <h3>{reason ?? t("quota_out_title")}</h3>
       <p className="muted">{t("quota_out_body")}</p>
       {note && <p>{note}</p>}
-      {has ? (
-        <div className="contact-row">
-          {contact.email && <a className="btn" href={`mailto:${contact.email}?subject=${subject}&body=${body}`}><Icon name="mail" size={16} /> {contact.email}</a>}
-          {contact.phone && <a className="btn" href={`tel:${contact.phone}`}><Icon name="phone" size={16} /> {contact.phone}</a>}
-          {zaloNum && <a className="btn" href={`https://zalo.me/${zaloNum}`} target="_blank" rel="noopener noreferrer">Zalo {contact.zalo || contact.phone}</a>}
-        </div>
-      ) : <p className="muted">{t("contact_missing")}</p>}
+      <ContactLinks verify={false} />
     </div>
   );
 }

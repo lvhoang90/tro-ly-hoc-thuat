@@ -9,6 +9,7 @@ import { detectLang } from "../../shared/lang.ts";
 import { MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MAX_TEXT_CHARS_BASIC, MIN_ABSTRACT_WORDS, type AnalysisResult } from "../../shared/types.ts";
 import { QuotaBar, remaining } from "../components/Quota.tsx";
 import { ContactAdmin } from "../components/Chrome.tsx";
+import { TierAnnounce } from "../components/Tier.tsx";
 import { Icon } from "../components/Icon.tsx";
 import ResultView from "../components/ResultView.tsx";
 import ProjectPicker, { type Project } from "../components/ProjectPicker.tsx";
@@ -146,6 +147,7 @@ export default function Workspace() {
     <div className="page">
       <div className="between"><h2>{t("work_title")}</h2><QuotaBar /></div>
       {stepper}
+      {step === 1 && <TierAnnounce />}
 
       {step === 1 && (
         <div className="card stack">

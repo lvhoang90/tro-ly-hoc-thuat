@@ -7,6 +7,7 @@ import { STYLES, formatCitation, toHtml, toPlain, type StyleId } from "../../sha
 import { PASS_SCORE, type Lang, type SourceMeta } from "../../shared/types.ts";
 import { FlagToggle } from "../components/Chrome.tsx";
 import { Icon } from "../components/Icon.tsx";
+import { VerifyCard } from "../components/Tier.tsx";
 
 interface Row {
   id: string; created_at: string; style: string; cite_lang: string; reference: string; in_text: string; quote: string; page: string;
@@ -101,14 +102,17 @@ function Source({ g, onDelete }: { g: SourceGroup; onDelete: (ids: string[]) => 
 
 export default function History() {
   const { t } = useI18n();
-  const { toast } = useApp();
+  const { toast, quota } = useApp();
+  const gated = !!quota?.gated;
+  const [saved, setSaved] = useState<number | null>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState("");
 
   const load = useCallback(async () => {
+    if (gated) { const { data } = await supabase.rpc("my_citation_count"); setSaved(Number(data) || 0); return; }
     const { data, error } = await supabase.from("citations").select("*").order("created_at", { ascending: false }).limit(1000);
     if (error) toast(error.message, "err"); else setRows(data as Row[]);
-  }, [toast]);
+  }, [toast, gated]);
   useEffect(() => { void load(); }, [load]);
 
   // Gom theo đề tài (abstract): ưu tiên đề tài đã lưu, nếu không thì theo mã băm abstract. Trong mỗi đề tài, gom theo nguồn.
@@ -150,6 +154,14 @@ export default function History() {
     a.download = `citations-${new Date().toISOString().slice(0, 10)}.txt`; a.click(); URL.revokeObjectURL(a.href);
   };
   const multi = topics.length > 1;
+
+  // Hạng Cơ bản: dữ liệu vẫn được lưu nhưng chỉ xem lại khi xác thực.
+  if (gated) return (
+    <div className="page">
+      <h2 className="serif">{t("hist_title")}</h2>
+      {saved === null ? <div className="card">…</div> : <VerifyCard title={t("hist_locked_title")} body={t("hist_locked_body", { n: saved })} benefits />}
+    </div>
+  );
 
   return (
     <div className="page">

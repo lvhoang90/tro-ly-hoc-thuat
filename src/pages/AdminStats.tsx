@@ -16,6 +16,7 @@ interface Stats {
 interface Day { day: string; analyses: number; refunded: number; cost_usd: number; input_tokens: number; output_tokens: number; new_users: number; citations: number }
 interface Top { user_id: string; email: string; full_name: string; analyses: number; cost_usd: number; tokens: number }
 interface Hist { bucket: number; n: number }
+interface Funnel { registered: number; analysed: number; returned: number; cited: number; verified: number }
 
 const RANGES = [7, 30, 90] as const;
 const nf = new Intl.NumberFormat("en-US");
@@ -30,19 +31,20 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
   const [days, setDays] = useState<Day[] | null>(null);
   const [top, setTop] = useState<Top[]>([]);
   const [hist, setHist] = useState<Hist[]>([]);
+  const [fun, setFun] = useState<Funnel | null>(null);
   const [vs, setVs] = useState<VisitStats | null>(null);
   const [rate, setRate] = useState(25500);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [a, b, c, d, e, v] = await Promise.all([
+    const [a, b, c, d, e, v, f] = await Promise.all([
       supabase.rpc("admin_stats"), supabase.rpc("admin_timeseries", { p_days: range }), supabase.rpc("admin_top_users", { p_days: range, p_limit: 8 }),
-      supabase.rpc("admin_score_hist", { p_days: range }), supabase.from("app_settings").select("value").eq("key", "usd_vnd").maybeSingle(), visit(range),
+      supabase.rpc("admin_score_hist", { p_days: range }), supabase.from("app_settings").select("value").eq("key", "usd_vnd").maybeSingle(), visit(range), supabase.rpc("admin_funnel", { p_days: range }),
     ]);
     const err = a.error ?? b.error ?? c.error ?? d.error;
     if (err) toast(err.message, "err");
-    setStats(a.data as Stats); setDays((b.data ?? []) as Day[]); setTop((c.data ?? []) as Top[]); setHist((d.data ?? []) as Hist[]); setVs(v);
+    setStats(a.data as Stats); setDays((b.data ?? []) as Day[]); setTop((c.data ?? []) as Top[]); setHist((d.data ?? []) as Hist[]); setVs(v); setFun(((f.data as Funnel[] | null) ?? [])[0] ?? null);
     const r = Number(e.data?.value); if (r > 0) setRate(r);
     setLoading(false);
   }, [range, toast]);
@@ -53,6 +55,10 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
   const both = (n: number) => `${usd(n)} · ${vnd(n)}`;
   const fd = (iso: string) => { const [, m, d] = iso.split("-"); return lang === "vi" ? `${d}/${m}` : `${m}/${d}`; };
 
+  const funRows = fun && fun.registered > 0
+    ? ([["fun_reg", fun.registered], ["fun_analysed", fun.analysed], ["fun_returned", fun.returned], ["fun_cited", fun.cited], ["fun_verified", fun.verified]] as const)
+        .map(([k, v]) => ({ label: t(k), value: v, sub: `${Math.round((v / fun.registered) * 100)}%` }))
+    : [];
   const D = days ?? [];
   const sum = (k: keyof Day) => D.reduce((a, r) => a + Number(r[k]), 0);
   const periodCost = sum("cost_usd"), periodAnalyses = sum("analyses"), periodRefunded = sum("refunded");
@@ -116,6 +122,10 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
         <ChartCard loading={loading} title={t("ch_hist")} subtitle={t("ch_hist_d")} series={sHist}
           table={{ head: [t("st_score_bin"), t("st_analyses_n")], rows: hist.map((h) => [h.bucket === 9 ? "90–100" : `${h.bucket * 10}–${h.bucket * 10 + 9}`, Number(h.n)]) }}>
           <TimeChart data={hPts} series={sHist} fmt={(v) => nf.format(v)} ref0={{ at: 6, label: t("ch_pass") }} />
+        </ChartCard>
+        <ChartCard loading={loading} title={t("ch_funnel")} subtitle={t("ch_funnel_d")}
+          table={{ head: [t("st_step"), t("st_users_n"), "%"], rows: funRows.map((r) => [r.label, r.value, r.sub ?? ""]) }}>
+          <HBars rows={funRows} color={COLORS.people} fmt={(v) => nf.format(v)} empty={t("reco_none")} />
         </ChartCard>
         <ChartCard loading={loading} title={t("ch_top")} subtitle={t("ch_top_d")}
           table={{ head: [t("adm_user"), t("st_analyses_n"), "USD"], rows: top.map((r) => [r.full_name || r.email, Number(r.analyses), usd(Number(r.cost_usd))]) }}>

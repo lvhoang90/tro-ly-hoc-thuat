@@ -3,11 +3,13 @@ import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { copyRich } from "../lib/clipboard.ts";
+import { APP, withUtm } from "../lib/config.ts";
 import { STYLES, formatCitation, isNumbered, toHtml, toPlain, type Citation, type StyleId } from "../../shared/citation.ts";
 import { CSL_FORMAT, formatCsl, loadCslIndex, type CslEntry } from "../lib/csl.ts";
 import type { Author, Lang, Passage, SourceMeta, SourceType } from "../../shared/types.ts";
 import { FlagToggle } from "./Chrome.tsx";
 import { Icon } from "./Icon.tsx";
+import { APP, withUtm } from "../lib/config.ts";
 
 const TYPES: SourceType[] = ["article", "book", "chapter", "conference", "thesis", "report", "web"];
 
@@ -273,7 +275,29 @@ export default function CiteStep({ meta: initial, passages, ctx, onBack, onAnoth
               <span className="choice-ico"><Icon name="plus" size={22} /></span>
               <span className="choice-body"><b>{t("new_project")}</b><small>{t("opt_new_d")}</small></span>
             </button>
+            {done > 0 && (
+              <a className="choice" href={withUtm(APP.author.vanthu, "cite-finish")} target="_blank" rel="noopener noreferrer">
+                <span className="choice-ico"><Icon name="file" size={22} /></span>
+                <span className="choice-body"><b>{t("finish_may")}</b><small>{t("finish_may_d")}</small></span>
+                <Icon name="right" size={18} className="choice-go" />
+              </a>
+            )}
           </div>
+          {done > 0 && (
+            <div className="stack">
+              <span className="lbl">{t("finish_eco_h")}</span>
+              <div className="choices two">
+                <a className="choice" href={withUtm(APP.author.ecoEdufind, "after-cite")} target="_blank" rel="noopener noreferrer">
+                  <span className="choice-ico"><Icon name="cap" size={22} /></span>
+                  <span className="choice-body"><b>{t("finish_eco_edufind")}</b><small>{t("finish_eco_edufind_d")}</small></span>
+                </a>
+                <a className="choice" href={withUtm(APP.author.vanthu, "after-cite")} target="_blank" rel="noopener noreferrer">
+                  <span className="choice-ico"><Icon name="file" size={22} /></span>
+                  <span className="choice-body"><b>{t("finish_eco_vanthu")}</b><small>{t("finish_eco_vanthu_d")}</small></span>
+                </a>
+              </div>
+            </div>
+          )}
         </section>
       </div>
     </div>
