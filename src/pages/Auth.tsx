@@ -3,7 +3,7 @@ import { Ami } from "../mascot/Ami.tsx";
 import { useMascot } from "../mascot/ctx.tsx";
 import { useI18n } from "../i18n.tsx";
 import { supabase } from "../lib/supabase.ts";
-import { getRef } from "../lib/ref.ts";
+import { clearRef, getRef } from "../lib/ref.ts";
 import { track } from "../lib/isa.ts";
 import { Logo } from "../components/Chrome.tsx";
 import { APP } from "../lib/config.ts";
@@ -54,6 +54,7 @@ export default function Auth() {
         // Email đã tồn tại: Supabase trả về user không có identities (chống dò email).
         if (data.user && data.user.identities?.length === 0) { setErr(t("err_exists")); return; }
         track("ami_dang_ky", getRef() ? "ref" : "");
+        clearRef();
         if (!data.session) setMode("sent");
       } else if (mode === "in") {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pw });
