@@ -10,6 +10,34 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.4.0",
+    date: "2026-10-10",
+    title: ["Giáo sư phản biện ngay trong Ami", "The AI Professor, right inside Ami"],
+    summary: [
+      "Giáo sư phản biện là tính năng cao cấp: tải một đề cương, luận văn, luận án hoặc bài báo, Ami soạn bản nháp phản biện theo mẫu của trường hoặc viện, kèm điểm đề xuất và bằng chứng trích nguyên văn.",
+      "The AI Professor is a premium feature: upload a proposal, thesis, dissertation or article and Ami drafts a review following your institution's template, with a proposed score and verbatim evidence.",
+    ],
+    sections: {
+      Added: [
+        ["Mục Giáo sư phản biện mới: nhận xét từng mục theo khung mẫu, điểm đề xuất thang 100, khuyến nghị thông qua hoặc chỉnh sửa, câu hỏi dành cho tác giả.",
+         "A new AI Professor page: section-by-section comments following the template, a proposed score out of 100, an accept or revise recommendation, and questions for the author."],
+        ["Dành cho nhà khoa học đã xác thực và được phê duyệt: bạn gửi đề nghị kèm lý do và minh chứng khoa học, quản trị viên duyệt rồi cấp số lượt dùng mỗi tuần.",
+         "For verified researchers who are approved: send a request with your reason and scientific evidence, and the administrator reviews it and grants a weekly quota."],
+        ["Dùng mẫu có sẵn theo loại văn bản, hoặc tải mẫu nhận xét của trường/viện để Ami làm theo đúng từng mục.",
+         "Use a built-in template for the document type, or upload your institution's review template so Ami follows it section by section."],
+        ["Mỗi nhận xét kèm đoạn trích nguyên văn đã được đối chiếu với bản gốc; đoạn nào không khớp sẽ bị loại.",
+         "Every comment comes with a verbatim quote checked against the original; quotes that do not match are removed."],
+        ["Tải bản nháp về Word (.docx) để chỉnh sửa và hoàn thiện. Kết quả chỉ lưu trên trình duyệt của bạn và xóa được bất cứ lúc nào.",
+         "Download the draft as Word (.docx) to edit and finish. Results are kept only in your browser and can be deleted at any time."],
+      ],
+      Changed: [
+        ["Đây là bản nháp hỗ trợ: Ami không kiểm tra trùng lặp và không xác minh tài liệu tham khảo; người phản biện chịu trách nhiệm về nội dung cuối cùng.",
+         "This is a drafting aid: Ami does not check plagiarism or verify references; the reviewer remains responsible for the final text."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.3.0",
     date: "2026-10-10",
     title: ["Biết ngay tác giả là ai, nối liền hệ sinh thái ISA", "Know who wrote it, and a connected ISA ecosystem"],

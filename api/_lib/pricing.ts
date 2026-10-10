@@ -17,3 +17,10 @@ export const costUsd = (model: string, inTokens: number, outTokens: number) => {
   const [pi, po] = priceOf(model);
   return (inTokens * pi + outTokens * po) / 1_000_000;
 };
+
+/** Chi phí khi dùng bộ nhớ đệm lời nhắc: ghi đệm tính 1,25 lần giá nhập, đọc đệm 0,1 lần. */
+export function costUsdCached(model: string, u: { input_tokens?: number; output_tokens?: number; cache_creation_input_tokens?: number | null; cache_read_input_tokens?: number | null }) {
+  const [pi, po] = priceOf(model);
+  const plain = u.input_tokens ?? 0, write = u.cache_creation_input_tokens ?? 0, read = u.cache_read_input_tokens ?? 0;
+  return (plain * pi + write * pi * 1.25 + read * pi * 0.1 + (u.output_tokens ?? 0) * po) / 1_000_000;
+}

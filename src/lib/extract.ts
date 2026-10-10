@@ -17,7 +17,7 @@ export interface Progress { done: number; total: number; phase: "text" | "ocr" |
 export type Kind = "pdf" | "docx" | "doc";
 
 /** Đọc byte của tệp; trên iOS, `arrayBuffer()` đôi khi lỗi với tệp ở iCloud/Drive nên thử thêm FileReader. */
-async function readBytes(blob: Blob): Promise<ArrayBuffer> {
+export async function readBytes(blob: Blob): Promise<ArrayBuffer> {
   try { return await blob.arrayBuffer(); } catch (first) {
     try {
       return await new Promise<ArrayBuffer>((res, rej) => {
@@ -30,7 +30,7 @@ async function readBytes(blob: Blob): Promise<ArrayBuffer> {
   }
 }
 
-async function sniff(file: File): Promise<Kind> {
+export async function sniff(file: File): Promise<Kind> {
   const ext = file.name.split(".").pop()?.toLowerCase();
   if (!ext || !["pdf", "doc", "docx"].includes(ext)) throw new ExtractFailure("type");
   const h = new Uint8Array(await readBytes(file.slice(0, 8)));
@@ -45,7 +45,8 @@ function needsMainThreadPdf(): boolean {
   try { return new URLSearchParams(location.search).get("pdfworker") === "main"; } catch { return false; }
 }
 
-async function pdfText(buf: ArrayBuffer, onProgress: (p: Progress) => void, ocr: boolean, signal?: AbortSignal): Promise<string> {
+/** Mở PDF bằng pdf.js (bộ đọc chạy trong Web Worker). */
+export async function openPdf(buf: ArrayBuffer) {
   polyfillStreamAsyncIterator();
   const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
   const worker = (await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs?url")).default;
@@ -53,7 +54,11 @@ async function pdfText(buf: ArrayBuffer, onProgress: (p: Progress) => void, ocr:
   // Tùy chọn gỡ lỗi: thêm `?pdfworker=main` vào địa chỉ để chạy bộ đọc PDF trên luồng chính thay vì Web Worker.
   if (needsMainThreadPdf()) (globalThis as { pdfjsWorker?: unknown }).pdfjsWorker = await import("pdfjs-dist/legacy/build/pdf.worker.min.mjs");
   const task = pdfjs.getDocument({ data: new Uint8Array(buf.slice(0)) });
-  const doc = await task.promise;
+  return { task, doc: await task.promise };
+}
+
+async function pdfText(buf: ArrayBuffer, onProgress: (p: Progress) => void, ocr: boolean, signal?: AbortSignal): Promise<string> {
+  const { task, doc } = await openPdf(buf);
   const out: string[] = [];
   const n = doc.numPages;
   const blank: number[] = [];

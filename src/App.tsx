@@ -16,13 +16,14 @@ captureRef();
 
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const History = lazy(() => import("./pages/History.tsx"));
+const Review = lazy(() => import("./pages/Review.tsx"));
 import { Ami } from "./mascot/Ami.tsx";
 import { useMascot } from "./mascot/ctx.tsx";
 const Admin = lazy(() => import("./pages/Admin.tsx"));
 
 const fromHash = (): Route => {
   const h = location.hash.replace(/^#\/?/, "").split(/[?&]/)[0];
-  return h === "history" || h === "profile" || h === "admin" ? h : "work";
+  return h === "history" || h === "profile" || h === "admin" || h === "review" ? h : "work";
 };
 
 export default function App() {
@@ -37,6 +38,7 @@ export default function App() {
     if (!session || !ready) return;
     if (route === "history") ami.say(t("ami_history"), "happy", 7000);
     else if (route === "profile") ami.say(t("ami_profile"), "idle", 7000);
+    else if (route === "review") ami.say(t("ami_review"), "happy", 7000);
     else if (route === "admin") ami.say(t("ami_admin"), "wave", 6000);
   }, [route, session, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -48,6 +50,7 @@ export default function App() {
   else body = (
     <Suspense fallback={<div className="center"><div className="spinner" /></div>}>
       {route === "work" && <Workspace />}
+      {route === "review" && <Review />}
       {route === "history" && <History />}
       {route === "profile" && <Profile />}
       {route === "admin" && <Admin />}

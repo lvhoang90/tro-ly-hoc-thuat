@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.4.0] - 2026-10-10
+
+The AI Professor is a premium feature: upload a proposal, thesis, dissertation or article and Ami drafts a review following your institution's template, with a proposed score and verbatim evidence.
+
+### Added
+
+- A new AI Professor page: section-by-section comments following the template, a proposed score out of 100, an accept or revise recommendation, and questions for the author.
+- For verified researchers who are approved: send a request with your reason and scientific evidence, and the administrator reviews it and grants a weekly quota.
+- Use a built-in template for the document type, or upload your institution's review template so Ami follows it section by section.
+- Every comment comes with a verbatim quote checked against the original; quotes that do not match are removed.
+- Download the draft as Word (.docx) to edit and finish. Results are kept only in your browser and can be deleted at any time.
+
+### Changed
+
+- This is a drafting aid: Ami does not check plagiarism or verify references; the reviewer remains responsible for the final text.
+
 ## [1.3.0] - 2026-10-10
 
 Ami now tells you whether a document's authors have a researcher profile on ProFind, helps you get your own profile in a few taps, and lets you invite colleagues.

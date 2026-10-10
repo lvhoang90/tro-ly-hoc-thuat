@@ -109,6 +109,7 @@ export interface Quota {
 
 export type ApiErrorCode =
   | "unauthorized" | "email_unverified" | "suspended" | "quota_exhausted"
+  | "not_verified" | "review_locked" | "review_token" | "truncated"
   | "unsupported_language" | "no_text" | "too_long" | "bad_request" | "ai_failed" | "ai_refused" | "server_misconfigured" | "server_error";
 
 export interface ApiError { error: ApiErrorCode; message?: string; quota?: Quota | null }
