@@ -124,6 +124,7 @@ export default function Admin() {
   const [pending, setPending] = useState(false);
   const [frequent, setFrequent] = useState(false);
   const [weekly, setWeekly] = useState("1");
+  const [reviewWeekly, setReviewWeekly] = useState("2");
   const [tierStart, setTierStart] = useState("2026-10-10");
   const [refBonus, setRefBonus] = useState("1");
   const [refCap, setRefCap] = useState("5");
@@ -146,6 +147,7 @@ export default function Admin() {
         if (get("file_limit_approved_mb") != null) setMbApproved(String(get("file_limit_approved_mb")));
         if (get("usd_vnd") != null) setRate(String(get("usd_vnd")));
         if (get("basic_weekly_limit") != null) setWeekly(String(get("basic_weekly_limit")));
+        if (get("review_weekly_limit") != null) setReviewWeekly(String(get("review_weekly_limit")));
         if (typeof get("tier_start") === "string") setTierStart(get("tier_start") as string);
         if (get("referral_bonus") != null) setRefBonus(String(get("referral_bonus")));
         if (get("referral_cap") != null) setRefCap(String(get("referral_cap")));
@@ -185,7 +187,8 @@ export default function Admin() {
     const e5 = await supabase.rpc("admin_set_setting", { p_key: "tier_start", p_value: tierStart.trim() });
     const e6 = await supabase.rpc("admin_set_setting", { p_key: "referral_bonus", p_value: Math.max(0, Math.min(20, parseInt(refBonus, 10) || 0)) });
     const e7 = await supabase.rpc("admin_set_setting", { p_key: "referral_cap", p_value: Math.max(0, Math.min(200, parseInt(refCap, 10) || 0)) });
-    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error ?? e4.error ?? e5.error ?? e6.error ?? e7.error;
+    const e8 = await supabase.rpc("admin_set_setting", { p_key: "review_weekly_limit", p_value: Math.max(0, Math.min(50, parseInt(reviewWeekly, 10) || 0)) });
+    const err = a.error ?? e8.error ?? b.error ?? e1.error ?? e2.error ?? e3.error ?? e4.error ?? e5.error ?? e6.error ?? e7.error;
     if (err) toast(err.message, "err"); else { toast(t("saved")); void refresh(); }
   }
 
@@ -256,6 +259,9 @@ export default function Admin() {
           <label>{t("adm_basic_weekly")}<input inputMode="numeric" value={weekly} onChange={(e) => setWeekly(e.target.value)} /></label>
           <label>{t("adm_tier_start")}<input value={tierStart} onChange={(e) => setTierStart(e.target.value)} placeholder="2026-10-10" /></label>
           <p className="muted small wide">{t("adm_tier_hint")}</p>
+          <h3 className="wide">{t("adm_review_h")}</h3>
+          <label>{t("adm_review_weekly")}<input inputMode="numeric" value={reviewWeekly} onChange={(e) => setReviewWeekly(e.target.value)} /></label>
+          <p className="muted small wide">{t("adm_review_hint")}</p>
           <h3 className="wide">{t("adm_ref_h")}</h3>
           <label>{t("adm_ref_bonus")}<input inputMode="numeric" value={refBonus} onChange={(e) => setRefBonus(e.target.value)} /></label>
           <label>{t("adm_ref_cap")}<input inputMode="numeric" value={refCap} onChange={(e) => setRefCap(e.target.value)} /></label>

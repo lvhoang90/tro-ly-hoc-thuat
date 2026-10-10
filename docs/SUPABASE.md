@@ -95,3 +95,6 @@ Trước `tier_start` mọi thứ giữ nguyên như cũ (1 lượt/ngày); đ�
 ## Cập nhật: hệ sinh thái ISA và giới thiệu đồng nghiệp
 Thêm mã giới thiệu cá nhân, thưởng lượt cho người mời và thống kê giới thiệu trong Quản trị. Chạy lại toàn bộ `supabase/schema.sql` (an toàn) hoặc chỉ `supabase/migrations/20261010_ecosystem.sql`, **trước khi triển khai mã mới**. Chi tiết và việc cần làm ở các ứng dụng khác: `docs/ECOSYSTEM.md`.
 
+
+## Phản biện học thuật (1.4.0)
+Chạy thêm `supabase/migrations/20261011_review.sql` trong SQL Editor (chạy lại an toàn). Xem `docs/REVIEW.md`.

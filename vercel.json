@@ -5,6 +5,9 @@
   "functions": {
     "api/analyze.ts": {
       "maxDuration": 120
+    },
+    "api/review.ts": {
+      "maxDuration": 300
     }
   },
   "headers": [

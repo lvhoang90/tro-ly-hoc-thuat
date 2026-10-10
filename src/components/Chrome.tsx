@@ -47,12 +47,12 @@ export function ThemeToggle() {
   );
 }
 
-export type Route = "work" | "history" | "profile" | "admin";
+export type Route = "work" | "review" | "history" | "profile" | "admin";
 
 export function Header({ route, go }: { route: Route; go: (r: Route) => void }) {
   const { t, lang } = useI18n();
   const { session, profile, signOut } = useApp();
-  const items: [Route, string][] = [["work", t("nav_work")], ["history", t("nav_history")], ["profile", t("nav_profile")]];
+  const items: [Route, string][] = [["work", t("nav_work")], ["review", t("nav_review")], ["history", t("nav_history")], ["profile", t("nav_profile")]];
   if (profile?.role === "admin") items.push(["admin", t("nav_admin")]);
   return (
     <header className="topbar">
