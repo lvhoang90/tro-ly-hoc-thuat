@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.0] - 2026-10-10
+
+Pick many works from many authors at once, one Word file each; Ami drafts a separate review for each in turn and lets you download them all as one .zip.
+
+### Added
+
+- Batch review: choose several files at once, each the work of one person; every work gets its own review and its own Word file.
+- Download all reviews in one .zip, each file named after the work or its author.
+- Edit results right on screen: adjust each section's points, comments, strengths, weaknesses and revision requests; the total and the recommendation update by themselves.
+- A work that fails or cannot be read is skipped with a clear reason while the others carry on; there are buttons to retry and to stop the batch.
+
+### Changed
+
+- Each work in a batch counts as one review; the remaining allowance is shown before you start.
+- Your browser keeps up to your 30 most recent reviews (it was 5), and you can delete them at any time.
+
 ## [1.5.0] - 2026-10-10
 
 Ami has a lighter, more modern look in the same style as EduFind and ProFind, and the guide now walks through every step with screenshots from the app.

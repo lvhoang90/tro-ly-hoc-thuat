@@ -11,3 +11,7 @@ export const MAX_REVIEW_FAILS = 8;
 export const TEMPLATES_PER_HOUR = 10;
 /** Số mục xử lý trong một lần gọi AI. */
 export const SECTIONS_PER_CALL = 4;
+/** Số công trình tối đa trong một lô (mỗi tệp là một công trình của một người, dùng 1 lượt). */
+export const MAX_BATCH_WORKS = 30;
+/** Số bản nhận xét lưu cục bộ trên trình duyệt. */
+export const MAX_SAVED_REVIEWS = 30;

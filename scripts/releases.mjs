@@ -10,6 +10,34 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.6.0",
+    date: "2026-10-10",
+    title: ["Giáo sư phản biện chấm cả lô và cho sửa ngay trên màn hình", "The AI Professor reviews a whole batch and lets you edit on screen"],
+    summary: [
+      "Chọn cùng lúc nhiều công trình của nhiều người, mỗi người một tệp Word; Ami soạn lần lượt từng bản nhận xét riêng và cho tải về cả gói .zip.",
+      "Pick many works from many authors at once, one Word file each; Ami drafts a separate review for each in turn and lets you download them all as one .zip.",
+    ],
+    sections: {
+      Added: [
+        ["Chấm lô: chọn nhiều tệp một lần, mỗi tệp là công trình của một người; mỗi công trình có bản nhận xét và tệp Word riêng.",
+         "Batch review: choose several files at once, each the work of one person; every work gets its own review and its own Word file."],
+        ["Tải tất cả bản nhận xét trong một gói .zip, mỗi tệp đặt tên theo tên công trình hoặc tác giả.",
+         "Download all reviews in one .zip, each file named after the work or its author."],
+        ["Sửa kết quả ngay trên màn hình: chỉnh điểm từng mục, nhận xét, ưu điểm, hạn chế và yêu cầu chỉnh sửa; tổng điểm và khuyến nghị tự tính lại.",
+         "Edit results right on screen: adjust each section's points, comments, strengths, weaknesses and revision requests; the total and the recommendation update by themselves."],
+        ["Công trình nào lỗi hoặc không đọc được thì bỏ qua và báo rõ lý do, các công trình còn lại vẫn được chấm; có nút thử lại và nút dừng lô.",
+         "A work that fails or cannot be read is skipped with a clear reason while the others carry on; there are buttons to retry and to stop the batch."],
+      ],
+      Changed: [
+        ["Mỗi công trình trong lô tính một lượt; số lượt còn lại được hiển thị trước khi bắt đầu.",
+         "Each work in a batch counts as one review; the remaining allowance is shown before you start."],
+        ["Trình duyệt giữ tối đa 30 bản nhận xét gần nhất (trước đây là 5), xóa được bất cứ lúc nào.",
+         "Your browser keeps up to your 30 most recent reviews (it was 5), and you can delete them at any time."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.5.0",
     date: "2026-10-10",
     title: ["Giao diện mới, hướng dẫn có hình, Giáo sư phản biện nổi bật", "A fresh look, an illustrated guide, and a more visible AI Professor"],

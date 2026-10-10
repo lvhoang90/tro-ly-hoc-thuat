@@ -2,7 +2,7 @@
 // nên không vướng giới hạn thời gian của hàm máy chủ. Văn bản công trình được gửi lại ở từng bước nhưng chỉ tính tiền một lần nhờ bộ nhớ đệm.
 import { assemble, sectionDigest, type ReviewResult } from "../../shared/review/assemble.ts";
 import { corpusToText, numberBlocks, type RawBlock } from "../../shared/review/corpus.ts";
-import { MAX_REVIEW_CHARS, SECTIONS_PER_CALL } from "../../shared/review/limits.ts";
+import { MAX_REVIEW_CHARS, MAX_SAVED_REVIEWS, SECTIONS_PER_CALL } from "../../shared/review/limits.ts";
 import type { ReviewMeta } from "../../shared/review/prompts.ts";
 import { corpusChars } from "../../shared/review/corpus.ts";
 import { sectionBatches, type Template } from "../../shared/review/template.ts";
@@ -92,14 +92,26 @@ export interface SavedReview { id: string; at: string; result: ReviewResult }
 export function loadSaved(): SavedReview[] {
   try { const v = JSON.parse(localStorage.getItem(KEY) ?? "[]"); return Array.isArray(v) ? v : []; } catch { return []; }
 }
-export function saveReview(result: ReviewResult): SavedReview[] {
-  const list = [{ id: `${Date.now()}`, at: new Date().toISOString(), result }, ...loadSaved()].slice(0, 5);
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* đầy bộ nhớ hoặc bị chặn: bỏ qua */ }
-  return list;
+/** Ghi danh sách xuống trình duyệt; đầy bộ nhớ thì ghi ít bản hơn (bỏ dần bản cũ nhất). Danh sách trả về vẫn đủ để dùng trong phiên này. */
+export function persistSaved(list: SavedReview[]): SavedReview[] {
+  const all = list.slice(0, MAX_SAVED_REVIEWS);
+  let keep = all;
+  for (;;) {
+    try { localStorage.setItem(KEY, JSON.stringify(keep)); break; } catch {
+      if (keep.length <= 1) break; // bị chặn hoặc không đủ chỗ: vẫn giữ trong phiên này
+      keep = keep.slice(0, -1);
+    }
+  }
+  return all;
 }
+let seq = 0;
+export function saveReview(result: ReviewResult): SavedReview[] {
+  const item = { id: `${Date.now()}-${++seq}`, at: new Date().toISOString(), result };
+  return persistSaved([item, ...loadSaved()]);
+}
+/** Thay một bản đã lưu bằng bản đã sửa (chỉ trong bộ nhớ; ghi xuống bằng persistSaved, có thể gộp nhiều lần sửa). */
+export const replaceReview = (list: SavedReview[], id: string, result: ReviewResult): SavedReview[] => list.map((x) => (x.id === id ? { ...x, result } : x));
 export function removeReview(id: string): SavedReview[] {
-  const list = loadSaved().filter((x) => x.id !== id);
-  try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { /* bỏ qua */ }
-  return list;
+  return persistSaved(loadSaved().filter((x) => x.id !== id));
 }
 export function clearReviews() { try { localStorage.removeItem(KEY); } catch { /* bỏ qua */ } }

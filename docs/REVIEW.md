@@ -40,7 +40,9 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 3. Chạy lại migration `20261011_review.sql` sau khi cập nhật mã (cột `corpus_hash`, `fails`, hàm `bind_review`, `log_template`, `add_usage` mới): mã mới cần các hàm này.
 
 ## Giới hạn đã biết
-- Mỗi lần chỉ một công trình; chấm lô nhiều công trình của nhiều người (mỗi người một tệp Word, gói .zip), sửa kết quả ngay trên màn hình trước khi tải: chưa làm. Kết quả (kèm trích đoạn công trình) lưu ở `localStorage` tối đa 5 bản, xóa được bất cứ lúc nào.
+- Chấm lô tối đa 30 công trình mỗi lần (`MAX_BATCH_WORKS`), chạy tuần tự; mỗi công trình tốn 1 lượt, và cả lô dùng chung loại văn bản, vai trò, mẫu nhận xét. Hết lượt/khóa/đình chỉ thì dừng cả lô, các tệp còn lại ghi "bỏ qua"; lỗi riêng một tệp không ảnh hưởng tệp khác (lượt được hoàn).
+- Sửa tại chỗ (`shared/review/edit.ts`): điểm từng mục, nhận xét, ưu/nhược điểm, yêu cầu chỉnh sửa; điểm tổng và khuyến nghị tính lại bằng mã. Gói .zip một tệp .docx mỗi công trình (`src/lib/review-docx.ts`, `buildZip`).
+- Kết quả (kèm trích đoạn công trình) lưu ở `localStorage` tối đa 30 bản (`MAX_SAVED_REVIEWS`), tự giảm khi hết chỗ; xóa được bất cứ lúc nào.
 - Chưa kiểm tra trùng lặp (đạo văn) và không xác minh tài liệu tham khảo có thật; giao diện và bản Word đều nói rõ.
 - PDF ảnh quét chưa hỗ trợ (chưa OCR); `.doc` cần lưu lại thành `.docx`.
 - Chưa thử với mô hình thật trong phiên phát triển: kiểm thử dùng máy chủ AI giả (`tests/review-api.test.ts`). Bộ nhớ đệm lời nhắc có thể không phát huy khi dùng đầu ra có lược đồ; chi phí thực tế đọc ở nhật ký sau những lượt đầu.
