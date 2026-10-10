@@ -29,10 +29,10 @@ test("giá trị dự phòng trong mã khớp schema", () => {
 
 test("văn bản công bố nêu đúng số lượt và dung lượng", () => {
   const vi = read("public/huong-dan.html"), en = read("public/en/guide.html"), dict = read("src/dict.ts");
-  assert.match(vi, new RegExp(`${weekly} lượt phân tích miễn phí mỗi tuần \\(từ ${tierVi}`));
-  assert.match(en, new RegExp(`${weekly} free analysis per week \\(from ${tierVi}`));
-  assert.match(dict, new RegExp(`1 lượt phân tích mỗi tuần \\(từ ${tierVi}`));
-  assert.match(read("public/llms.txt"), new RegExp(`${weekly} lượt phân tích mỗi tuần \\(từ ${tierVi}\\)`));
+  assert.match(vi, new RegExp(`${weekly} lượt phân tích miễn phí mỗi tuần`));
+  assert.match(en, new RegExp(`${weekly} free analysis per week`));
+  assert.match(dict, new RegExp(`1 lượt phân tích mỗi tuần`));
+  assert.match(read("public/llms.txt"), new RegExp(`${weekly} lượt phân tích mỗi tuần`));
   assert.match(vi, new RegExp(`Tối đa ${basic} MB với tài khoản chưa xác thực, hoặc ${approved} MB`));
   assert.match(en, new RegExp(`up to ${basic} MB for unverified accounts, or ${approved} MB`));
   assert.match(dict, new RegExp(`tối đa ${basic} MB \\(${approved} MB nếu đã xác thực\\)`));

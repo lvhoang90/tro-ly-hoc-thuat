@@ -103,9 +103,15 @@ apply(false)})();
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${SITE}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(t.title)}">
 <meta property="og:locale" content="${t.locale}">
 <meta property="og:locale:alternate" content="${o.locale}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(t.title)}">
+<meta name="twitter:description" content="${esc(t.desc)}">
+<meta name="twitter:image" content="${SITE}/og.png">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
 :root{--bg:#0a0f1e;--card:#121a34;--line:#2a3763;--text:#e6ecf8;--muted:#9aa8c4;--accent:#38bdf8;--on:#04101f}

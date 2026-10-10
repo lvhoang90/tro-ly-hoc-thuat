@@ -92,7 +92,7 @@ for (const t of Object.values(T)) {
   const url = SITE + t.path, ourl = SITE + o.path;
   let n = 0;
   const ld = [
-    { "@context": "https://schema.org", "@type": "HowTo", name: t.howName, inLanguage: t.lang, step: t.steps.map((st, i) => ({ "@type": "HowToStep", position: i + 1, name: st[0], text: st[1] })) },
+    { "@context": "https://schema.org", "@type": "HowTo", name: t.howName, inLanguage: t.lang, image: `${SITE}/og.png`, step: t.steps.map((st, i) => ({ "@type": "HowToStep", position: i + 1, name: st[0], text: st[1], url: `${url}#h${i + 1}`, image: `${SITE}/guide/${t.lang}/${st[3]}.webp` })) },
     { "@context": "https://schema.org", "@type": "FAQPage", inLanguage: t.lang, mainEntity: t.faq.map(([q, a]) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
     { "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: t.home, item: SITE + "/" }, { "@type": "ListItem", position: 2, name: t.h1, item: url }] },
   ];
@@ -122,9 +122,16 @@ ${fig(t.lang, img, alt, ++n, t.figure)}</li>`).join("\n");
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${SITE}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(t.title)}">
 <meta property="og:locale" content="${t.locale}">
 <meta property="og:locale:alternate" content="${o.locale}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(t.title)}">
+<meta name="twitter:description" content="${esc(t.desc)}">
+<meta name="twitter:image" content="${SITE}/og.png">
+<meta name="author" content="Lương Việt Hoàng">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
 @font-face{font-family:Inter;font-weight:400 700;font-display:swap;src:url(/fonts/inter-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+20AC,U+2122}

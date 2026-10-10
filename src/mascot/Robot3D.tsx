@@ -122,12 +122,13 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
     const cord = new THREE.Mesh(keep(new THREE.CylinderGeometry(0.014, 0.014, 0.34, 8)), gold); cord.position.y = -0.17; tassel.add(cord);
     const tip = new THREE.Mesh(keep(new THREE.SphereGeometry(0.06, 14, 12)), gold); tip.position.y = -0.37; tassel.add(tip);
 
-    // Tay: hai cánh tay có khớp vai
+    // Tay: hai cánh tay có khớp vai, gắn liền vào thân (vai nằm sát mặt thân, tay buông lại chạm nhẹ vào hông)
     const arms = [-1, 1].map((sx) => {
-      const pivot = new THREE.Group(); pivot.position.set(sx * 0.7, 0.5, 0); root.add(pivot);
-      const sh = new THREE.Mesh(keep(new THREE.SphereGeometry(0.16, 24, 18)), accent); pivot.add(sh);
-      const up = new THREE.Mesh(keep(new THREE.CapsuleGeometry(0.115, 0.34, 8, 16)), pearl); up.position.y = -0.32; pivot.add(up);
-      const hand = new THREE.Mesh(keep(new THREE.SphereGeometry(0.17, 24, 18)), accent); hand.position.y = -0.66; pivot.add(hand);
+      const pivot = new THREE.Group(); pivot.position.set(sx * 0.5, 0.4, 0); root.add(pivot);
+      const sh = new THREE.Mesh(keep(new THREE.SphereGeometry(0.17, 24, 18)), accent); pivot.add(sh);
+      const up = new THREE.Mesh(keep(new THREE.CapsuleGeometry(0.115, 0.34, 8, 16)), pearl); up.position.y = -0.3; pivot.add(up);
+      const cuff = new THREE.Mesh(keep(new THREE.TorusGeometry(0.105, 0.03, 12, 28)), accent); cuff.rotation.x = Math.PI / 2; cuff.position.y = -0.54; pivot.add(cuff);
+      const hand = new THREE.Mesh(keep(new THREE.SphereGeometry(0.165, 24, 18)), accent); hand.position.y = -0.64; pivot.add(hand);
       return pivot;
     });
 
@@ -194,7 +195,7 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
       const speed = m === "celebrate" ? 2.4 : m === "sleep" ? 0.7 : 1.4;
       let y = Math.sin(t * speed) * 0.06, tilt = Math.sin(t * 0.8) * 0.03;
       let yaw = ptr.x * 0.5, pitch = -ptr.y * 0.22 + 0.03, hz = 0;
-      let aL = -0.12 + Math.sin(t * 1.4) * 0.05, aR = 0.12 - Math.sin(t * 1.4 + 1) * 0.05, fwdL = 0, fwdR = 0;
+      let aL = -0.14 + Math.sin(t * 1.4) * 0.04, aR = 0.14 - Math.sin(t * 1.4 + 1) * 0.04, fwdL = 0, fwdR = 0;
       let docT = 0, orbCol = CYAN, orbI = 1.6 + Math.sin(t * 3) * 0.5;
 
       if (m === "wave") { aR = 2.35 + Math.sin(t * 9) * 0.32; yaw = lerp(yaw, -0.15, 0.7); hz = 0.05; fwdR = 0; }

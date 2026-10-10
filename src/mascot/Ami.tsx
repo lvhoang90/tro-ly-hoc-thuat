@@ -30,7 +30,8 @@ export function AmiSvg({ mood = "idle" }: { mood?: Mood }) {
       <path d="M52 126h56l-8 38H60z" fill="#1b2a5c" /><ellipse cx="80" cy="168" rx="26" ry="5" fill="#38bdf8" opacity=".8" />
       <ellipse cx="80" cy="116" rx="40" ry="38" fill="url(#amiB)" /><rect x="64" y="100" width="32" height="32" rx="9" fill="url(#amiA)" />
       <path d="M72 124l8-18 8 18z" fill="#fff" />
-      <circle cx="36" cy="106" r="12" fill="#38bdf8" /><circle cx="124" cy="106" r="12" fill="#38bdf8" />
+      <path d="M46 98q-16 4-14 22" stroke="url(#amiB)" strokeWidth="12" fill="none" strokeLinecap="round" /><path d="M114 98q16 4 14 22" stroke="url(#amiB)" strokeWidth="12" fill="none" strokeLinecap="round" />
+      <circle cx="46" cy="98" r="8" fill="#38bdf8" /><circle cx="114" cy="98" r="8" fill="#38bdf8" /><circle cx="32" cy="124" r="10" fill="#38bdf8" /><circle cx="128" cy="124" r="10" fill="#38bdf8" />
       <rect x="32" y="40" width="96" height="72" rx="28" fill="url(#amiB)" /><rect x="42" y="52" width="76" height="46" rx="18" fill="#070b18" />
       {happy ? <><path d="M54 78q8-12 16 0" stroke="#7dd3fc" strokeWidth="5" fill="none" strokeLinecap="round" /><path d="M90 78q8-12 16 0" stroke="#7dd3fc" strokeWidth="5" fill="none" strokeLinecap="round" /></>
         : <><rect x="54" y="62" width="16" height="22" rx="8" fill="#7dd3fc" /><rect x="90" y="62" width="16" height="22" rx="8" fill="#7dd3fc" /></>}

@@ -21,6 +21,8 @@ Ami has a lighter, more modern look in the same style as EduFind and ProFind, an
 - The AI Professor (simulated committee) is easier to find: an introduction on the home page, a starred menu item and a banner on the Analyse page.
 - The app name is now "Ami - Trợ lý học thuật | AI Academic Agent" everywhere, and the version number is written the same way in every place.
 - The preview image shown when the link is shared has been redesigned.
+- Ami has been tidied up: both arms are now attached to the body instead of floating away from it.
+- AI Professor result labels (document type, recommendation, scoring scale, Word file) now show in English when you use the English interface.
 
 ## [1.4.0] - 2026-10-10
 
