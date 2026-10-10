@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { isUiBusy } from "../lib/ui-busy.ts";
 
 // Nền động khoa học: sóng xác suất lượng tử (giao thoa), công thức toán trôi nhẹ và chuỗi xoắn kép ADN.
 // Tiết kiệm CPU/pin: giới hạn ~30 khung/giây, dừng khi tab ẩn, một khung tĩnh nếu người dùng chọn "giảm chuyển động".
@@ -84,7 +85,7 @@ export default function Background() {
 
     const frame = (now: number) => {
       raf = requestAnimationFrame(frame);
-      if (!running || scrolling || now - last < 42) return; // ~24 khung/giây, tạm dừng khi đang cuộn trang
+      if (!running || scrolling || isUiBusy() || now - last < 42) return; // ~24 khung/giây, tạm dừng khi đang cuộn trang hoặc đang thao tác với ô nhập
       last = now; t += 0.042;
       ctx.clearRect(0, 0, w, h);
       waves(); dna(); text();
