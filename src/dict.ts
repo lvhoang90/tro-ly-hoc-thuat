@@ -107,7 +107,7 @@ const D = {
   have_account: { vi: "Đã có tài khoản? Đăng nhập", en: "Have an account? Sign in" },
   no_account: { vi: "Chưa có tài khoản? Đăng ký", en: "No account? Sign up" },
   forgot: { vi: "Quên mật khẩu?", en: "Forgot password?" },
-  free_note: { vi: "Miễn phí để bắt đầu: 1 lượt phân tích mỗi tuần (từ 10/10/2026; trước đó mỗi ngày). Cần dùng nhiều hơn, bạn có thể xin xác thực tài khoản.", en: "Free to start: 1 analysis per week (from 10/10/2026; 1 per day before). Need more? You can ask to have your account verified." },
+  free_note: { vi: "Miễn phí để bắt đầu: 1 lượt phân tích mỗi tuần. Cần dùng nhiều hơn, bạn có thể xin xác thực tài khoản.", en: "Free to start: 1 analysis per week. Need more? You can ask to have your account verified." },
   err_login: { vi: "Email hoặc mật khẩu không đúng.", en: "Incorrect email or password." },
   err_exists: { vi: "Email này đã được đăng ký. Hãy đăng nhập hoặc đặt lại mật khẩu.", en: "This email is already registered. Sign in or reset your password." },
   err_rate: { vi: "Thao tác quá nhanh. Vui lòng thử lại sau ít phút.", en: "Too many attempts. Please try again in a few minutes." },

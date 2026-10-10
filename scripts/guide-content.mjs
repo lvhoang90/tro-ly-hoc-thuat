@@ -12,7 +12,7 @@ export const CONTENT = {
     stepsH: "Phân tích tài liệu: 8 bước",
     stepsLead: "Từ một tài liệu đến trích dẫn đúng chuẩn. Làm theo thứ tự; bạn có thể quay lại bước trước bất cứ lúc nào.",
     steps: [
-      ["Đăng ký tài khoản", "Tạo tài khoản bằng email và xác nhận qua thư. Tài khoản Cơ bản có 1 lượt phân tích miễn phí mỗi tuần (từ 10/10/2026).",
+      ["Đăng ký tài khoản", "Tạo tài khoản bằng email và xác nhận qua thư. Tài khoản Cơ bản có 1 lượt phân tích miễn phí mỗi tuần.",
         ["Mở Ami, bấm \"Chưa có tài khoản? Đăng ký\", nhập họ tên, email và mật khẩu từ 8 ký tự, đồng ý với điều khoản.", "Ami gửi thư xác nhận; bấm liên kết trong thư (xem cả thư rác nếu chưa thấy) rồi đăng nhập.", "Tài khoản Cơ bản dùng được ngay. Muốn hạn mức riêng, xem lịch sử đầy đủ và tải tệp lớn hơn, hãy xin xác thực tài khoản ở trang Hồ sơ."], "01-landing", "Biểu mẫu đăng ký của Ami"],
       ["Dán tóm tắt đề tài", "Nhập Abstract hoặc đề cương nghiên cứu. Đây là thước đo để Ami chấm mọi tài liệu.",
         ["Dán abstract hoặc đề cương của bạn, tối thiểu 40 từ. Càng nêu rõ mục tiêu, câu hỏi, khung lý thuyết và phương pháp thì điểm chấm càng sát.", "Có thể đặt tên đề tài để gom lịch sử trích dẫn theo đề tài. Abstract chỉ được lưu khi bạn bấm \"Lưu thành đề tài\"."], "02-abstract", "Bước 1: dán abstract rồi bấm Tiếp tục"],
@@ -66,7 +66,7 @@ export const CONTENT = {
     stepsH: "Analyse a source: 8 steps",
     stepsLead: "From a source document to a correct citation. Follow the order; you can go back to an earlier step at any time.",
     steps: [
-      ["Create an account", "Create an account with your email and confirm by mail. A Basic account gets 1 free analysis per week (from 10/10/2026).",
+      ["Create an account", "Create an account with your email and confirm by mail. A Basic account gets 1 free analysis per week.",
         ["Open Ami, press \"No account? Sign up\", enter your name, email and a password of 8+ characters, and accept the terms.", "Ami sends a confirmation email; press the link (check spam if you cannot see it) and sign in.", "A Basic account works right away. For a personal allowance, full history and larger files, ask to have your account verified on the Profile page."], "01-landing", "The Ami sign-up form"],
       ["Paste your abstract", "Enter your abstract or research proposal. This is the yardstick Ami uses to score every source.",
         ["Paste your abstract or proposal, at least 40 words. The clearer the aims, questions, framework and method, the closer the score.", "You can name the topic to group your citation history. The abstract is saved only when you press \"Save as topic\"."], "02-abstract", "Step 1: paste your abstract, then press Continue"],
