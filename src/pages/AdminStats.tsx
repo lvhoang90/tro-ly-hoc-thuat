@@ -13,7 +13,7 @@ interface Stats {
   refunded_total: number; citations_total: number; bonus_outstanding: number; exhausted_today: number;
   cost_total: number; cost_today: number; cost_30d: number; cost_refunded: number; tokens_in: number; tokens_out: number;
 }
-interface Day { day: string; analyses: number; refunded: number; cost_usd: number; input_tokens: number; output_tokens: number; new_users: number; citations: number }
+interface Day { day: string; analyses: number; refunded: number; cost_usd: number; input_tokens: number; output_tokens: number; new_users: number; citations: number; review_cost_usd?: number; reviews?: number }
 interface Top { user_id: string; email: string; full_name: string; analyses: number; cost_usd: number; tokens: number }
 interface Hist { bucket: number; n: number }
 interface Refs { invited: number; converted: number; credits: number; referrers: number }
@@ -64,7 +64,9 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
   const D = days ?? [];
   const sum = (k: keyof Day) => D.reduce((a, r) => a + Number(r[k]), 0);
   const periodCost = sum("cost_usd"), periodAnalyses = sum("analyses"), periodRefunded = sum("refunded");
-  const avg = periodAnalyses + periodRefunded > 0 ? periodCost / (periodAnalyses + periodRefunded) : 0;
+  const periodReviewCost = sum("review_cost_usd"), periodReviews = sum("reviews");
+  // Trung bình mỗi lần phân tích chỉ tính chi phí của phân tích thường; chi phí Giáo sư phản biện tách riêng.
+  const avg = periodAnalyses + periodRefunded > 0 ? (periodCost - periodReviewCost) / (periodAnalyses + periodRefunded) : 0;
   const tokIn = sum("input_tokens"), tokOut = sum("output_tokens");
 
   const sCost: Series[] = [{ key: "c", label: t("st_cost"), color: COLORS.cost, kind: "area" }];
@@ -99,6 +101,7 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
           <Kpi label={t("st_cost_period", { n: range })} value={usd(periodCost)} sub={vnd(periodCost)} spark={D.map((r) => Number(r.cost_usd))} color={COLORS.cost} />
           <Kpi label={t("st_cost_today")} value={usd(stats.cost_today)} sub={vnd(stats.cost_today)} />
           <Kpi label={t("st_cost_avg")} value={usd(avg)} sub={t("st_per_analysis")} />
+          <Kpi label={t("st_review")} value={usd(periodReviewCost)} sub={t("st_review_sub", { n: periodReviews, avg: usd(periodReviews > 0 ? periodReviewCost / periodReviews : 0) })} />
           <Kpi label={t("st_cost_total")} value={usd(stats.cost_total)} sub={t("st_wasted", { v: usd(stats.cost_refunded) })} />
           <Kpi label={t("st_analyses_period", { n: range })} value={nf.format(periodAnalyses)} sub={t("st_refunded_n", { n: periodRefunded })} spark={D.map((r) => r.analyses)} color={COLORS.analyses} />
           <Kpi label={t("st_tokens")} value={`${nf.format(Math.round(tokIn / 1000))}k / ${nf.format(Math.round(tokOut / 1000))}k`} sub={t("st_tok_split")} />
