@@ -6,6 +6,7 @@ import { MAX_REVIEW_CHARS, SECTIONS_PER_CALL } from "../../shared/review/limits.
 import type { ReviewMeta } from "../../shared/review/prompts.ts";
 import { corpusChars } from "../../shared/review/corpus.ts";
 import { sectionBatches, type Template } from "../../shared/review/template.ts";
+import { shouldRetry } from "../../shared/review/retry.ts";
 import { ApiFailure, call } from "./api.ts";
 
 export interface ReviewQuota { eligible: boolean; has_access: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string }
@@ -15,7 +16,7 @@ const post = <T>(body: unknown) => call<T>("/api/review", { method: "POST", head
 
 export const analyzeTemplate = (text: string) => post<{ template: Template }>({ op: "template", text }).then((r) => r.template);
 
-const transient = (e: unknown) => !(e instanceof ApiFailure) || e.info.error === "ai_failed" || e.info.error === "server_error" || e.status >= 500 || e.status === 429;
+const transient = (e: unknown) => shouldRetry(e instanceof ApiFailure ? e.info.error : null, e instanceof ApiFailure ? e.status : 0);
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 async function retry<T>(fn: () => Promise<T>, tries = 3): Promise<T> {
   for (let i = 1; ; i++) {
@@ -54,7 +55,7 @@ export async function runReview(p: { blocks: RawBlock[]; fileName: string; meta:
         if (code === "truncated" && ids.length > 1) {
           const mid = Math.ceil(ids.length / 2);
           await doBatch(ids.slice(0, mid)); await doBatch(ids.slice(mid));
-        } else if (["review_token", "unauthorized", "suspended", "not_verified"].includes(code)) throw e;
+        } else if (["review_token", "review_locked", "unauthorized", "suspended", "not_verified"].includes(code)) throw e;
         else if (rawSections.length === 0 && failedIds.length === 0) throw e; // phần đầu tiên hỏng: dừng (máy chủ đã hoàn lượt)
         else failedIds.push(...ids);
       }
@@ -70,7 +71,7 @@ export async function runReview(p: { blocks: RawBlock[]; fileName: string; meta:
     try {
       overall = (await retry(() => post<{ raw: unknown }>({ ...base, op: "part", kind: "overall", digest: sectionDigest(p.template, rawSections as never[]) }))).raw;
     } catch (e) {
-      if (e instanceof ApiFailure && ["review_token", "unauthorized", "suspended"].includes(e.info.error)) throw e;
+      if (e instanceof ApiFailure && ["review_token", "review_locked", "unauthorized", "suspended"].includes(e.info.error)) throw e;
     }
     const result = assemble({ sections: rawSections as never[], overall, template: p.template, blocks, meta: p.meta, fileName: p.fileName, model });
     if (failedIds.length) result.warnings.unshift(p.meta.lang === "en" ? `Some sections could not be processed (${failedIds.length}); the reviewer must comment on them.` : `Một số mục không xử lý được (${failedIds.length}); cần người phản biện tự nhận xét.`);

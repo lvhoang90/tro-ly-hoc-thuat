@@ -18,9 +18,12 @@ export const costUsd = (model: string, inTokens: number, outTokens: number) => {
   return (inTokens * pi + outTokens * po) / 1_000_000;
 };
 
-/** Chi phí khi dùng bộ nhớ đệm lời nhắc: ghi đệm tính 1,25 lần giá nhập, đọc đệm 0,1 lần. */
+/** Hệ số giá đọc bộ nhớ đệm so với giá nhập. 0,1 là mức thận trọng (có thể cao hơn thực tế); đặt ANTHROPIC_CACHE_READ_FACTOR để chỉnh theo mô hình đang dùng. */
+const CACHE_READ_FACTOR = Number(process.env.ANTHROPIC_CACHE_READ_FACTOR) > 0 ? Number(process.env.ANTHROPIC_CACHE_READ_FACTOR) : 0.1;
+
+/** Chi phí khi dùng bộ nhớ đệm lời nhắc: ghi đệm tính 1,25 lần giá nhập, đọc đệm theo hệ số trên. */
 export function costUsdCached(model: string, u: { input_tokens?: number; output_tokens?: number; cache_creation_input_tokens?: number | null; cache_read_input_tokens?: number | null }) {
   const [pi, po] = priceOf(model);
   const plain = u.input_tokens ?? 0, write = u.cache_creation_input_tokens ?? 0, read = u.cache_read_input_tokens ?? 0;
-  return (plain * pi + write * pi * 1.25 + read * pi * 0.1 + (u.output_tokens ?? 0) * po) / 1_000_000;
+  return (plain * pi + write * pi * 1.25 + read * pi * CACHE_READ_FACTOR + (u.output_tokens ?? 0) * po) / 1_000_000;
 }

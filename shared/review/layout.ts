@@ -69,7 +69,7 @@ export function pdfTextProblem(pageTexts: string[]): "scan" | "encoding" | null 
   if (n === 0 || total < 200 || total / n < 120 || empty / n > 0.6) return 'scan';
   const all = pageTexts.join(' ');
   const letters = (all.match(/\p{L}/gu) || []).length;
-  const weird = (all.match(/[�-¡-¿\u0080-\u009F×÷]/g) || []).length;
+  const weird = (all.match(/[\uFFFD\uE000-\uF8FF\u00A1-\u00BF\u0080-\u009F\u00D7\u00F7]/g) || []).length;
   if (letters < 0.4 * all.replace(/\s/g, '').length || weird / Math.max(1, all.length) > 0.03) return 'encoding';
   return null;
 }

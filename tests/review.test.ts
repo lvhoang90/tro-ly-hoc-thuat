@@ -150,3 +150,12 @@ test("nhãn kết quả theo ngôn ngữ: loại văn bản, vai trò, khuyến 
   assert.equal(r.meta.docTypeLabel, "Research proposal");
   assert.ok(r.warnings.every((w) => /^(Section|Criterion|The total)/.test(w)), r.warnings.join("|"));
 });
+
+test("thử lại: chỉ lỗi tạm thời; bị cắt giữa chừng, AI từ chối, chạm trần thì không", async () => {
+  const { shouldRetry } = await import("../shared/review/retry.ts");
+  assert.equal(shouldRetry(null, 0), true); // lỗi mạng
+  assert.equal(shouldRetry("ai_failed", 502), true);
+  assert.equal(shouldRetry("ai_failed", 429), true);
+  assert.equal(shouldRetry("server_error", 500), true);
+  for (const c of ["truncated", "ai_refused", "review_limit", "review_token", "review_locked", "not_verified", "bad_request"]) assert.equal(shouldRetry(c, 502), false, c);
+});
