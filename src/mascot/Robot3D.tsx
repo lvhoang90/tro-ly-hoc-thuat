@@ -1,3 +1,4 @@
+import { isUiBusy } from "../lib/ui-busy.ts";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
@@ -240,7 +241,7 @@ export default function Robot3D({ mood, nonce, interactive = true, reduced = fal
       if (stopped) return;
       raf = requestAnimationFrame(tick);
       const now = performance.now(); const dt = Math.max(0, Math.min((now - last) / 1000, 0.05)); last = now; acc += dt;
-      if (document.hidden || !visible) return;
+      if (document.hidden || !visible || isUiBusy()) return;
       if (fpsCap < 60 && acc < 1 / fpsCap - 0.002) return;
       t += acc; const step = acc; acc = 0;
       const t0 = performance.now(); frame(step, false); const cost = performance.now() - t0;
