@@ -857,6 +857,8 @@ const D = {
   promo_d: { vi: "Giả lập hội đồng: nhận xét, chấm điểm đề cương, luận văn, luận án theo mẫu của trường/viện.", en: "Simulated committee: comments and scores for proposals, theses and dissertations, following your institution's template." },
   promo_gate: { vi: "Tính năng cao cấp, cần được phê duyệt.", en: "Premium feature, needs approval." },
   promo_cta: { vi: "Khám phá", en: "Explore" },
+  err_review_locked: { vi: "Bạn chưa có hạn mức Giáo sư phản biện hoặc quyền đã bị thu hồi. Hãy gửi đề nghị hoặc liên hệ quản trị viên.", en: "You have no AI Professor quota, or it was revoked. Send a request or contact the administrator." },
+  err_review_limit: { vi: "Lượt phản biện này đã chạm giới hạn chi phí hoặc số lần gọi nên dừng lại. Kết quả đã có (nếu có) vẫn được giữ.", en: "This review reached its cost or call limit and stopped. Any result already produced is kept." },
 } as const satisfies Record<string, { vi: string; en: string }>;
 
 export type Key = keyof typeof D;

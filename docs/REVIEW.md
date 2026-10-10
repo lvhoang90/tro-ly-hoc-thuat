@@ -21,11 +21,26 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 - Ước tính khoảng 1–2 USD API mỗi lượt (văn bản dài; xem `usage_log.cost_usd`). Theo dõi ở tab Ngân sách.
 - Giới hạn văn bản: 900.000 ký tự (`shared/review/limits.ts`); dài hơn thì tách theo chương. Chế độ "đọc từng phần" của bản gốc không được đưa vào.
 
+## Chống lạm dụng chi phí
+- **Trần mỗi lượt**: một lượt dừng khi chi phí API đạt `MAX_REVIEW_COST_USD` (6 USD), số lần gọi lỗi đạt `MAX_REVIEW_FAILS` (8) hoặc số phần thành công đạt `MAX_REVIEW_PARTS` (24); trả mã `review_limit` (429). Trình duyệt dừng thử và vẫn ghép phần đã có thành bản nhận xét dở dang.
+- **Một văn bản cho cả lượt**: bước đầu ghi mã băm SHA-256 của văn bản (`bind_review`), các bước sau phải khớp (409 nếu khác).
+- **Bước tách mẫu** ghi một dòng `usage_log` riêng (`kind = 'review_template'`) kèm chi phí và giới hạn 10 lần mỗi giờ cho mỗi người (`log_template`); quản trị viên không giới hạn.
+- **Thưởng giới thiệu** chỉ trả khi lượt đã có ít nhất một phần AI xử lý xong (`finish_review`).
+- **Thử lại**: chỉ với lỗi tạm thời (`shared/review/retry.ts`). Bị cắt giữa chừng thì chia đôi lô ngay; AI từ chối (`ai_refused`) và chạm trần không thử lại.
+- Bảng điều khiển chỉ đếm lượt phân tích thường (`kind = 'analyze'`); chi phí và token tính đủ mọi loại.
+
+## Thời gian và mức suy nghĩ
+- Mã lượt sống 3 giờ (công trình dài cần nhiều bước tuần tự).
+- Nhận xét từng mục dùng mức suy nghĩ `medium` (`REVIEW_EFFORT_SECTIONS`), phần tổng hợp dùng `high` (`REVIEW_EFFORT`) để mỗi bước nằm gọn trong 300 giây. Nên đo thời gian thật ở những lượt đầu; nếu có bước bị cắt (504) thì giảm `REVIEW_EFFORT_SECTIONS` hoặc `SECTIONS_PER_CALL`.
+- Chi phí bộ nhớ đệm tính đọc đệm bằng 0,1 lần giá nhập (thận trọng, có thể cao hơn thực tế); chỉnh bằng `ANTHROPIC_CACHE_READ_FACTOR`.
+
 ## Triển khai
 1. Supabase → SQL Editor: chạy `supabase/migrations/20261011_review.sql` (chạy lại an toàn).
-2. Biến môi trường tùy chọn: `REVIEW_MODEL` (mặc định `ANTHROPIC_MODEL` hoặc `claude-opus-5-5`), `REVIEW_EFFORT` (mặc định `high`).
+2. Biến môi trường tùy chọn: `REVIEW_MODEL` (mặc định `ANTHROPIC_MODEL` hoặc `claude-opus-5-5`), `REVIEW_EFFORT` (tổng hợp, mặc định `high`), `REVIEW_EFFORT_SECTIONS` (nhận xét mục, mặc định `medium`), `ANTHROPIC_CACHE_READ_FACTOR`.
+3. Chạy lại migration `20261011_review.sql` sau khi cập nhật mã (cột `corpus_hash`, `fails`, hàm `bind_review`, `log_template`, `add_usage` mới): mã mới cần các hàm này.
 
 ## Giới hạn đã biết
+- Mỗi lần chỉ một công trình; chấm lô nhiều công trình của nhiều người (mỗi người một tệp Word, gói .zip), sửa kết quả ngay trên màn hình trước khi tải: chưa làm. Kết quả (kèm trích đoạn công trình) lưu ở `localStorage` tối đa 5 bản, xóa được bất cứ lúc nào.
 - Chưa kiểm tra trùng lặp (đạo văn) và không xác minh tài liệu tham khảo có thật; giao diện và bản Word đều nói rõ.
 - PDF ảnh quét chưa hỗ trợ (chưa OCR); `.doc` cần lưu lại thành `.docx`.
 - Chưa thử với mô hình thật trong phiên phát triển: kiểm thử dùng máy chủ AI giả (`tests/review-api.test.ts`). Bộ nhớ đệm lời nhắc có thể không phát huy khi dùng đầu ra có lược đồ; chi phí thực tế đọc ở nhật ký sau những lượt đầu.

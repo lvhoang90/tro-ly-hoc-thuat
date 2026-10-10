@@ -1,20 +1,26 @@
 import Anthropic from "@anthropic-ai/sdk";
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { adminClient, fail, json, requireUser, type AuthedUser } from "./_lib/common.ts";
 import { costUsdCached } from "./_lib/pricing.ts";
 import { OVERALL_ID, SECTIONS_SCHEMA, TEMPLATE_SCHEMA, overallSchema } from "../shared/review/schemas.ts";
 import { SYSTEM_REVIEWER, SYSTEM_TEMPLATE, documentBlock, overallPrompt, sectionsPrompt, templatePrompt } from "../shared/review/prompts.ts";
 import { defaultRubric } from "../shared/review/rubric.ts";
 import { normalizeTemplate, usesDefaultRubric } from "../shared/review/template.ts";
-import { MAX_REVIEW_CHARS, MAX_REVIEW_PARTS, MAX_TEMPLATE_CHARS } from "../shared/review/limits.ts";
+import { MAX_REVIEW_CHARS, MAX_REVIEW_COST_USD, MAX_REVIEW_FAILS, MAX_REVIEW_PARTS, MAX_TEMPLATE_CHARS } from "../shared/review/limits.ts";
 
 const MODEL = process.env.REVIEW_MODEL ?? process.env.ANTHROPIC_MODEL ?? "claude-opus-5-5";
-const EFFORT = process.env.REVIEW_EFFORT ?? "high";
-const TOKEN_TTL_MS = 45 * 60_000;
+// Phần tổng hợp (điểm, khuyết điểm, kết luận) dùng mức suy nghĩ cao; nhận xét từng mục dùng mức vừa để mỗi bước nằm gọn trong thời gian cho phép.
+const EFFORT_OVERALL = process.env.REVIEW_EFFORT ?? "high";
+const EFFORT_SECTIONS = process.env.REVIEW_EFFORT_SECTIONS ?? "medium";
+const TOKEN_TTL_MS = 3 * 60 * 60_000;
 const s = (v: unknown) => (typeof v === "string" ? v.trim() : "");
 
 // Mã thông báo ký bằng HMAC (khóa suy ra từ khóa dịch vụ Supabase): chứng minh lượt phản biện đã được ghi nhận cho đúng người dùng.
-const secret = () => createHmac("sha256", "review-v1").update(process.env.SUPABASE_SERVICE_ROLE_KEY ?? "").digest();
+const secret = () => {
+  const k = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!k) throw new Error("server_misconfigured");
+  return createHmac("sha256", "review-v1").update(k).digest();
+};
 const sign = (b: string) => createHmac("sha256", secret()).update(b).digest("base64url");
 export function makeToken(uid: string, log: number, now = Date.now()) {
   const b = Buffer.from(JSON.stringify({ u: uid, l: log, e: now + TOKEN_TTL_MS })).toString("base64url");
@@ -33,6 +39,7 @@ export function readToken(tok: string, uid: string, now = Date.now()): number | 
 
 type Usage = { input_tokens?: number; output_tokens?: number; cache_creation_input_tokens?: number | null; cache_read_input_tokens?: number | null };
 class Truncated extends Error {}
+class Refused extends Error {}
 
 async function callJson(p: { system: string; blocks: Anthropic.TextBlockParam[]; schema: unknown; maxTokens: number; effort: string }) {
   const client = new Anthropic({ maxRetries: 1 });
@@ -46,12 +53,13 @@ async function callJson(p: { system: string; blocks: Anthropic.TextBlockParam[];
   const text = msg.content.find((b) => b.type === "text");
   const usage = msg.usage as Usage;
   if (msg.stop_reason === "max_tokens") throw Object.assign(new Truncated(), { usage });
-  if (msg.stop_reason === "refusal" || !text || text.type !== "text") throw Object.assign(new Error("refused"), { usage });
-  return { raw: JSON.parse(text.text) as unknown, usage };
+  if (msg.stop_reason === "refusal" || !text || text.type !== "text") throw Object.assign(new Refused(), { usage });
+  try { return { raw: JSON.parse(text.text) as unknown, usage }; } catch { throw Object.assign(new Error("bad_json"), { usage }); } // vẫn ghi chi phí đã tiêu
 }
 
 const aiError = (e: unknown) => {
   if (e instanceof Truncated) return fail("truncated", 502, "Phản hồi AI bị cắt giữa chừng.");
+  if (e instanceof Refused) return fail("ai_refused", 422);
   if (e instanceof Anthropic.RateLimitError) return fail("ai_failed", 429, "Hệ thống AI đang quá tải, vui lòng thử lại sau ít phút.");
   if (e instanceof Anthropic.APIError) return fail("ai_failed", 502, `Lỗi dịch vụ AI (${e.status}).`);
   return fail("ai_failed", 500, "Không xử lý được phần này.");
@@ -83,10 +91,16 @@ export async function POST(request: Request): Promise<Response> {
   if (body.op === "template") {
     const text = s(body.text);
     if (text.length < 80 || text.length > MAX_TEMPLATE_CHARS) return fail("bad_request", 400, "Mẫu quá ngắn hoặc quá dài.");
+    // Ghi một dòng nhật ký riêng (kèm chi phí) và giới hạn tần suất theo giờ.
+    const { data: lt } = await sb.rpc("log_template", { p_user: id });
+    if (!lt?.ok) return fail("review_limit", 429, "Bạn tách mẫu quá nhiều lần trong một giờ. Hãy thử lại sau.");
+    const trackT = (u: Usage | undefined) => (u ? sb.rpc("add_usage", { p_log: lt.log_id, p_model: MODEL, p_in: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), p_out: u.output_tokens ?? 0, p_cost: costUsdCached(MODEL, u), p_unit: true, p_failed: false }) : Promise.resolve());
     try {
-      const { raw } = await callJson({ system: SYSTEM_TEMPLATE, blocks: [{ type: "text", text: templatePrompt(text) }], schema: TEMPLATE_SCHEMA, maxTokens: 16000, effort: "medium" });
-      return json({ template: normalizeTemplate(raw as never) });
+      const r = await callJson({ system: SYSTEM_TEMPLATE, blocks: [{ type: "text", text: templatePrompt(text) }], schema: TEMPLATE_SCHEMA, maxTokens: 16000, effort: "medium" });
+      await trackT(r.usage);
+      return json({ template: normalizeTemplate(r.raw as never) });
     } catch (e) {
+      await trackT((e as { usage?: Usage }).usage);
       if (e instanceof Error && e.message === "template_empty") return fail("bad_request", 422, "Không nhận diện được mục nào trong mẫu (mẫu có thể là ảnh quét).");
       return aiError(e);
     }
@@ -115,33 +129,38 @@ export async function POST(request: Request): Promise<Response> {
   }
 
   if (body.op === "part") {
-    const { data: row } = await sb.from("usage_log").select("units_done,refunded").eq("id", log).eq("user_id", id).single();
+    const { data: row } = await sb.from("usage_log").select("units_done,refunded,cost_usd,fails").eq("id", log).eq("user_id", id).eq("kind", "review").single();
     if (!row || row.refunded) return fail("review_token", 401);
-    if (row.units_done >= MAX_REVIEW_PARTS) return fail("bad_request", 429, "Đã quá số phần cho phép của một lượt phản biện.");
+    // Ba trần chống lạm dụng: số phần thành công, số lần gọi lỗi và chi phí API của lượt.
+    if (row.units_done >= MAX_REVIEW_PARTS || row.fails >= MAX_REVIEW_FAILS || Number(row.cost_usd) >= MAX_REVIEW_COST_USD)
+      return fail("review_limit", 429, "Lượt phản biện này đã chạm giới hạn chi phí hoặc số lần gọi. Hãy dừng và liên hệ quản trị viên.");
     const corpus = s(body.corpus);
     if (corpus.length < 400) return fail("no_text", 422);
     if (corpus.length > MAX_REVIEW_CHARS) return fail("too_long", 413);
+    // Mọi bước của một lượt phải dùng đúng một văn bản (so mã băm với bước đầu).
+    const { data: same } = await sb.rpc("bind_review", { p_log: log, p_hash: createHash("sha256").update(corpus).digest("hex") });
+    if (!same) return fail("bad_request", 409, "Văn bản khác với văn bản của bước đầu tiên trong lượt này.");
     const m = { docType: s(body.meta?.docType) || "other", role: s(body.meta?.role) || "reviewer", lang: body.meta?.lang === "en" ? "en" as const : "vi" as const, field: s(body.meta?.field).slice(0, 200), notes: s(body.meta?.notes).slice(0, 1500) };
     let template;
     try { template = normalizeTemplate(body.template as never); } catch { return fail("bad_request", 400, "Khung mẫu không hợp lệ."); }
     const rubric = usesDefaultRubric(template) ? defaultRubric(m.docType, m.lang) : null;
     const doc: Anthropic.TextBlockParam = { type: "text", text: documentBlock(corpus), cache_control: { type: "ephemeral" } };
-    const track = (u: Usage | undefined, unit: boolean) =>
-      u ? sb.rpc("add_usage", { p_log: log, p_model: MODEL, p_in: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), p_out: u.output_tokens ?? 0, p_cost: costUsdCached(MODEL, u), p_unit: unit }) : Promise.resolve();
+    const track = (u: Usage | undefined, unit: boolean, failedStep = false) =>
+      sb.rpc("add_usage", { p_log: log, p_model: MODEL, p_in: u ? (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0) : 0, p_out: u?.output_tokens ?? 0, p_cost: u ? costUsdCached(MODEL, u) : 0, p_unit: unit, p_failed: failedStep });
     // Phần thất bại vẫn ghi chi phí (token đã tiêu thật); trình duyệt thử lại, và gọi "fail" để hoàn lượt nếu chưa có phần nào xong.
     const failed = async (e: unknown) => {
-      await track((e as { usage?: Usage }).usage, false);
+      await track((e as { usage?: Usage }).usage, false, true);
       return aiError(e);
     };
     try {
       if (body.kind === "overall") {
-        const r = await callJson({ system: SYSTEM_REVIEWER, blocks: [doc, { type: "text", text: overallPrompt({ m, template, rubric, sectionDigest: s(body.digest).slice(0, 60_000) }) }], schema: overallSchema({ withRubric: !!rubric }), maxTokens: 32000, effort: EFFORT });
+        const r = await callJson({ system: SYSTEM_REVIEWER, blocks: [doc, { type: "text", text: overallPrompt({ m, template, rubric, sectionDigest: s(body.digest).slice(0, 60_000) }) }], schema: overallSchema({ withRubric: !!rubric }), maxTokens: 32000, effort: EFFORT_OVERALL });
         await track(r.usage, true);
         return json({ raw: r.raw, model: MODEL, part: OVERALL_ID });
       }
       const ids = (Array.isArray(body.ids) ? body.ids : []).map(String).filter((x) => template.sections.some((t) => t.id === x)).slice(0, 8);
       if (!ids.length) return fail("bad_request", 400);
-      const r = await callJson({ system: SYSTEM_REVIEWER, blocks: [doc, { type: "text", text: sectionsPrompt({ m, template, rubric, ids }) }], schema: SECTIONS_SCHEMA, maxTokens: 40000, effort: EFFORT });
+      const r = await callJson({ system: SYSTEM_REVIEWER, blocks: [doc, { type: "text", text: sectionsPrompt({ m, template, rubric, ids }) }], schema: SECTIONS_SCHEMA, maxTokens: 40000, effort: EFFORT_SECTIONS });
       await track(r.usage, true);
       return json({ raw: r.raw, model: MODEL });
     } catch (e) { return failed(e); }

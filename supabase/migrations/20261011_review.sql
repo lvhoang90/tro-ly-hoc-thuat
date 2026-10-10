@@ -1,7 +1,11 @@
 -- Tính năng Phản biện học thuật. Chạy một lần trong Supabase → SQL Editor (chạy lại an toàn). Cần schema.sql, 20261004_tiers.sql, 20261010_ecosystem.sql đã chạy trước đó.
 -- ---------- Phản biện học thuật: hạn mức riêng, tách khỏi lượt phân tích ----------
 -- Chỉ người dùng đã xác thực (và quản trị viên) dùng được. Hạn mức theo tuần (giờ Việt Nam), do quản trị viên đặt.
-alter table public.usage_log add column if not exists kind text not null default 'analyze' check (kind in ('analyze', 'review'));
+alter table public.usage_log add column if not exists kind text not null default 'analyze' check (kind in ('analyze', 'review', 'review_template'));
+alter table public.usage_log drop constraint if exists usage_log_kind_check;
+alter table public.usage_log add constraint usage_log_kind_check check (kind in ('analyze', 'review', 'review_template'));
+alter table public.usage_log add column if not exists corpus_hash text;
+alter table public.usage_log add column if not exists fails integer not null default 0;
 alter table public.usage_log add column if not exists units_done integer not null default 0;
 alter table public.profiles add column if not exists review_limit integer check (review_limit is null or review_limit >= 0);
 -- Mặc định 0: tính năng cao cấp, chỉ mở cho người được quản trị viên phê duyệt (review_limit riêng từng người; null = theo mặc định chung).
@@ -97,25 +101,52 @@ begin
   return true;
 end $$;
 
--- Cộng dồn chi phí API của từng phần (mỗi phần là một lần gọi AI); trả về số phần đã hoàn tất.
-create or replace function public.add_usage(p_log bigint, p_model text, p_in integer, p_out integer, p_cost numeric, p_unit boolean)
+-- Cộng dồn chi phí API của từng lần gọi AI (kể cả lần lỗi); trả về số phần đã hoàn tất. Dùng cho lượt phản biện và cho bước tách mẫu.
+drop function if exists public.add_usage(bigint, text, integer, integer, numeric, boolean);
+create or replace function public.add_usage(p_log bigint, p_model text, p_in integer, p_out integer, p_cost numeric, p_unit boolean, p_failed boolean default false)
 returns integer language plpgsql security definer set search_path = public as $$
 declare n integer;
 begin
   update public.usage_log set model = coalesce(nullif(p_model, ''), model),
     input_tokens = input_tokens + greatest(coalesce(p_in, 0), 0), output_tokens = output_tokens + greatest(coalesce(p_out, 0), 0),
-    cost_usd = cost_usd + greatest(coalesce(p_cost, 0), 0), units_done = units_done + (case when p_unit then 1 else 0 end)
-  where id = p_log and kind = 'review' returning units_done into n;
+    cost_usd = cost_usd + greatest(coalesce(p_cost, 0), 0), units_done = units_done + (case when p_unit then 1 else 0 end),
+    fails = fails + (case when p_failed then 1 else 0 end)
+  where id = p_log and kind in ('review', 'review_template') returning units_done into n;
   return coalesce(n, 0);
+end $$;
+
+-- Buộc mọi bước của một lượt dùng cùng một văn bản: bước đầu ghi mã băm, các bước sau phải khớp.
+create or replace function public.bind_review(p_log bigint, p_hash text) returns boolean
+language plpgsql security definer set search_path = public as $$
+declare h text;
+begin
+  update public.usage_log set corpus_hash = coalesce(corpus_hash, p_hash) where id = p_log and kind = 'review' returning corpus_hash into h;
+  return h is not null and h = p_hash;
+end $$;
+
+-- Bước tách mẫu: ghi một dòng nhật ký riêng và giới hạn tần suất theo giờ cho mỗi người (quản trị viên không giới hạn).
+create or replace function public.log_template(p_user uuid) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare p public.profiles%rowtype; n integer; lid bigint;
+begin
+  select * into p from public.profiles where id = p_user;
+  if not found or p.status <> 'active' then return jsonb_build_object('ok', false, 'reason', 'forbidden'); end if;
+  select count(*)::int into n from public.usage_log where user_id = p_user and kind = 'review_template' and created_at > now() - interval '1 hour';
+  if p.role <> 'admin' and n >= 10 then return jsonb_build_object('ok', false, 'reason', 'rate'); end if;
+  insert into public.usage_log(user_id, source, kind) values (p_user, case when p.role = 'admin' then 'admin' else 'free' end, 'review_template') returning id into lid;
+  return jsonb_build_object('ok', true, 'log_id', lid);
 end $$;
 
 -- Kết thúc lượt phản biện thành công: ghi điểm đề xuất và trả thưởng giới thiệu (nếu có).
 create or replace function public.finish_review(p_log bigint, p_score integer) returns void
 language plpgsql security definer set search_path = public as $$
-declare uid uuid;
+declare r public.usage_log%rowtype;
 begin
-  update public.usage_log set score = p_score where id = p_log and kind = 'review' returning user_id into uid;
-  if uid is not null and p_score is not null then perform public.pay_referral(uid); end if;
+  select * into r from public.usage_log where id = p_log and kind = 'review' for update;
+  -- Chỉ ghi điểm và trả thưởng giới thiệu khi đã có ít nhất một phần AI xử lý xong và lượt chưa bị hoàn.
+  if not found or r.refunded or r.units_done <= 0 then return; end if;
+  update public.usage_log set score = p_score where id = p_log;
+  if p_score is not null then perform public.pay_referral(r.user_id); end if;
 end $$;
 
 -- Người dùng đã xác thực gửi đề nghị cấp hạn mức kèm lý do và minh chứng khoa học; quản trị viên xét duyệt.
@@ -178,12 +209,16 @@ grant execute on function public.admin_set_review_limit(uuid, integer) to authen
 revoke all on function public.review_quota_of(uuid) from public, anon, authenticated;
 revoke all on function public.consume_review(uuid) from public, anon, authenticated;
 revoke all on function public.refund_review(bigint) from public, anon, authenticated;
-revoke all on function public.add_usage(bigint, text, integer, integer, numeric, boolean) from public, anon, authenticated;
+revoke all on function public.add_usage(bigint, text, integer, integer, numeric, boolean, boolean) from public, anon, authenticated;
+revoke all on function public.bind_review(bigint, text) from public, anon, authenticated;
+revoke all on function public.log_template(uuid) from public, anon, authenticated;
 revoke all on function public.finish_review(bigint, integer) from public, anon, authenticated;
 grant execute on function public.review_quota_of(uuid) to service_role;
 grant execute on function public.consume_review(uuid) to service_role;
 grant execute on function public.refund_review(bigint) to service_role;
-grant execute on function public.add_usage(bigint, text, integer, integer, numeric, boolean) to service_role;
+grant execute on function public.add_usage(bigint, text, integer, integer, numeric, boolean, boolean) to service_role;
+grant execute on function public.bind_review(bigint, text) to service_role;
+grant execute on function public.log_template(uuid) to service_role;
 grant execute on function public.finish_review(bigint, integer) to service_role;
 
 -- Cho phép quản trị viên đặt hạn mức phản biện mỗi tuần.
@@ -197,3 +232,52 @@ begin
     on conflict (key) do update set value = excluded.value;
 end $$;
 grant execute on function public.admin_set_setting(text, jsonb) to authenticated;
+
+-- Bảng điều khiển chỉ đếm lượt phân tích thường (không gồm phản biện và tách mẫu); chi phí và token vẫn tính đủ.
+create or replace function public.admin_stats() returns jsonb
+language plpgsql stable security definer set search_path = public as $$
+declare r jsonb;
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  select jsonb_build_object(
+    'users', (select count(*) from public.profiles),
+    'approved_users', (select count(*) from public.profiles where approved or role = 'admin'),
+    'pending_users', (select count(*) from public.profiles where not approved and role <> 'admin'),
+    'new_7d', (select count(*) from public.profiles where created_at > now() - interval '7 days'),
+    'analyses_today', (select count(*) from public.usage_log where kind = 'analyze' and not refunded and (created_at at time zone 'Asia/Ho_Chi_Minh')::date = public.vn_today()),
+    'analyses_7d', (select count(*) from public.usage_log where kind = 'analyze' and not refunded and created_at > now() - interval '7 days'),
+    'analyses_total', (select count(*) from public.usage_log where kind = 'analyze' and not refunded),
+    'refunded_total', (select count(*) from public.usage_log where kind = 'analyze' and refunded),
+    'citations_total', (select count(*) from public.citations),
+    'bonus_outstanding', (select coalesce(sum(bonus_credits), 0) from public.profiles),
+    'exhausted_today', (select count(*) from public.usage_daily d join public.profiles p on p.id = d.user_id
+                        where d.day = public.vn_today() and d.used >= public.free_limit() and p.bonus_credits = 0 and p.role = 'user'),
+    'cost_total', (select coalesce(sum(cost_usd), 0) from public.usage_log),
+    'cost_today', (select coalesce(sum(cost_usd), 0) from public.usage_log where (created_at at time zone 'Asia/Ho_Chi_Minh')::date = public.vn_today()),
+    'cost_30d', (select coalesce(sum(cost_usd), 0) from public.usage_log where created_at > now() - interval '30 days'),
+    'cost_refunded', (select coalesce(sum(cost_usd), 0) from public.usage_log where refunded),
+    'tokens_in', (select coalesce(sum(input_tokens), 0) from public.usage_log),
+    'tokens_out', (select coalesce(sum(output_tokens), 0) from public.usage_log)
+  ) into r;
+  return r;
+end $$;
+
+create or replace function public.admin_timeseries(p_days integer default 30)
+returns table (day date, analyses integer, refunded integer, cost_usd numeric, input_tokens bigint, output_tokens bigint, new_users integer, citations integer)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  return query
+    select g::date,
+      coalesce((select count(*) from public.usage_log l where l.kind = 'analyze' and not l.refunded and (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int,
+      coalesce((select count(*) from public.usage_log l where l.kind = 'analyze' and l.refunded and (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int,
+      coalesce((select sum(l.cost_usd) from public.usage_log l where (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0),
+      coalesce((select sum(l.input_tokens) from public.usage_log l where (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::bigint,
+      coalesce((select sum(l.output_tokens) from public.usage_log l where (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::bigint,
+      coalesce((select count(*) from public.profiles p where (p.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int,
+      coalesce((select count(*) from public.citations c where (c.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int
+    from generate_series(public.vn_today() - (least(greatest(p_days, 1), 365) - 1), public.vn_today(), interval '1 day') g
+    order by 1;
+end $$;
+grant execute on function public.admin_stats() to authenticated;
+grant execute on function public.admin_timeseries(integer) to authenticated;
