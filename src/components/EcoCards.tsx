@@ -103,7 +103,7 @@ export function ProfindCard({ status }: { status: Status | null }) {
       <div className="card contact">
         <h3><Icon name="checkCircle" size={16} /> {t("pf_me_verified")}</h3>
         <p className="muted">{t("pf_me_verified_d")}</p>
-        <a className="btn" href={profindAuthorUrl(status.authorId || "", "me")} target="_blank" rel="noopener noreferrer" onClick={() => track("ami_sang_profind", "me")}>{t("pf_open_mine")} <Icon name="external" size={14} /></a>
+        <a className="btn" href={profindAuthorUrl(status.authorId || "")} target="_blank" rel="noopener noreferrer" onClick={() => track("ami_sang_profind", "me")}>{t("pf_open_mine")} <Icon name="external" size={14} /></a>
       </div>
     );
 
