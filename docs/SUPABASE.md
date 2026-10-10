@@ -92,3 +92,6 @@ Anthropic không có đường truy vấn số dư tín dụng bằng khóa API,
 Thêm hạn mức theo tuần cho tài khoản chưa xác thực (từ ngày `tier_start`, mặc định 10/10/2026), hạn mức riêng cho tài khoản đã xác thực, khóa xem lại lịch sử và gợi ý chi tiết với hạng Cơ bản, và bộ lọc "dùng thường xuyên, chưa xác thực" cho quản trị viên. Chạy lại toàn bộ `supabase/schema.sql` (an toàn) hoặc chỉ tệp `supabase/migrations/20261004_tiers.sql`. **Chạy trước khi triển khai mã mới**, vì giao diện gọi các hàm mới (`admin_set_quota`, `admin_list_users` có thêm tham số).
 Trước `tier_start` mọi thứ giữ nguyên như cũ (1 lượt/ngày); đổi ngày hoặc số lượt trong Quản trị → Cài đặt → Hạng tài khoản.
 
+## Cập nhật: hệ sinh thái ISA và giới thiệu đồng nghiệp
+Thêm mã giới thiệu cá nhân, thưởng lượt cho người mời và thống kê giới thiệu trong Quản trị. Chạy lại toàn bộ `supabase/schema.sql` (an toàn) hoặc chỉ `supabase/migrations/20261010_ecosystem.sql`, **trước khi triển khai mã mới**. Chi tiết và việc cần làm ở các ứng dụng khác: `docs/ECOSYSTEM.md`.
+

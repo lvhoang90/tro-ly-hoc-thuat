@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useI18n } from "../i18n.tsx";
 import { Panel } from "./Panel.tsx";
+import { AuthorsPanel } from "./AuthorsPanel.tsx";
 import { Icon } from "./Icon.tsx";
 import { Bullets, Breakdown, Choice, PassageList, RecoAdvice, RecoJournals, RecoWorks, ScoreGauge } from "./Results.tsx";
 import { PASS_SCORE, type AnalysisResult } from "../../shared/types.ts";
@@ -14,14 +15,15 @@ export default function ResultView({ res, fileName, sel, toggle, onCiteSelected,
 }) {
   const { t, lang } = useI18n();
   const pass = res.score >= PASS_SCORE;
-  const keys = pass ? ["summary", "fit", "gap", "passages"] : ["summary", "fit", "gap", "advice", "works", "journals"];
-  const [open, setOpen] = useState<Record<string, boolean>>({ passages: true, advice: true, works: true, journals: true });
+  const hasAuthors = res.meta.authors.length > 0;
+  const keys = [...["summary", "fit", "gap"], ...(hasAuthors ? ["authors"] : []), ...(pass ? ["passages"] : ["advice", "works", "journals"])];
+  const [open, setOpen] = useState<Record<string, boolean>>({ passages: true, advice: true, works: true, journals: true, authors: true });
   const tog = (k: string) => setOpen((o) => ({ ...o, [k]: !o[k] }));
   const setAll = (v: boolean) => setOpen((o) => ({ ...o, ...Object.fromEntries(keys.map((k) => [k, v])) }));
   const allOpen = keys.every((k) => open[k]);
   const rec = res.recommendations;
   const strengths = res.strengths[lang], gaps = res.gaps[lang];
-  const roman = (k: string) => ["I", "II", "III", "IV", "V", "VI"][keys.indexOf(k)] + ".";
+  const roman = (k: string) => ["I", "II", "III", "IV", "V", "VI", "VII"][keys.indexOf(k)] + ".";
 
   return (
     <div className="stack gap">
@@ -52,6 +54,8 @@ export default function ResultView({ res, fileName, sel, toggle, onCiteSelected,
         preview={gaps.length ? clip(gaps[0], 110) : ""} badge={<span className="badge">{gaps.length}</span>}>
         {gaps.length ? <Bullets items={gaps} tone="amber" /> : <p className="muted">{t("reco_none")}</p>}
       </Panel>
+
+      {hasAuthors && <AuthorsPanel n={roman("authors")} authors={res.meta.authors} open={!!open.authors} onToggle={() => tog("authors")} />}
 
       {pass ? (
         <Panel n={roman("passages")} title={t("passages_h")} icon="quote" accent="emerald" open={!!open.passages} onToggle={() => tog("passages")}

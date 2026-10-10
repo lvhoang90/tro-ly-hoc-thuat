@@ -4,6 +4,7 @@ import { useApp } from "../ctx.tsx";
 import { supabase } from "../lib/supabase.ts";
 import { copyRich } from "../lib/clipboard.ts";
 import { APP, withUtm } from "../lib/config.ts";
+import { track } from "../lib/isa.ts";
 import { STYLES, formatCitation, isNumbered, toHtml, toPlain, type Citation, type StyleId } from "../../shared/citation.ts";
 import { CSL_FORMAT, formatCsl, loadCslIndex, type CslEntry } from "../lib/csl.ts";
 import type { Author, Lang, Passage, SourceMeta, SourceType } from "../../shared/types.ts";
@@ -132,6 +133,7 @@ export default function CiteStep({ meta: initial, passages, ctx, onBack, onAnoth
     const ok = await copyRich(plain, rich);
     if (!ok) { toast(t("copy_fail"), "err"); return; }
     setDone((n) => n + 1);
+    track("ami_sao_chep", String(what).slice(0, 20));
     celebrate(t("win_title", { what }), plain.length > 140 ? plain.slice(0, 140).trimEnd() + "…" : plain, t("win_note"));
     await rec();
   }

@@ -3,6 +3,8 @@ import { Ami } from "../mascot/Ami.tsx";
 import { useMascot } from "../mascot/ctx.tsx";
 import { useI18n } from "../i18n.tsx";
 import { supabase } from "../lib/supabase.ts";
+import { clearRef, getRef } from "../lib/ref.ts";
+import { track } from "../lib/isa.ts";
 import { Logo } from "../components/Chrome.tsx";
 import { APP } from "../lib/config.ts";
 import { Icon, type IconName } from "../components/Icon.tsx";
@@ -46,11 +48,13 @@ export default function Auth() {
         if (!agree) { setErr(t("err_agree")); return; }
         const { data, error } = await supabase.auth.signUp({
           email: email.trim(), password: pw,
-          options: { emailRedirectTo: redirect, data: { full_name: name.trim() } },
+          options: { emailRedirectTo: redirect, data: { full_name: name.trim(), ...(getRef() ? { ref: getRef() } : {}) } },
         });
         if (error) { setErr(msg(error.message)); return; }
         // Email đã tồn tại: Supabase trả về user không có identities (chống dò email).
         if (data.user && data.user.identities?.length === 0) { setErr(t("err_exists")); return; }
+        track("ami_dang_ky", getRef() ? "ref" : "");
+        clearRef();
         if (!data.session) setMode("sent");
       } else if (mode === "in") {
         const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password: pw });

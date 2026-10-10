@@ -10,6 +10,34 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.3.0",
+    date: "2026-10-10",
+    title: ["Biết ngay tác giả là ai, nối liền hệ sinh thái ISA", "Know who wrote it, and a connected ISA ecosystem"],
+    summary: [
+      "Ami cho biết tác giả của tài liệu có hồ sơ nhà khoa học trên ProFind hay không, giúp bạn có hồ sơ của chính mình chỉ với vài bấm và mời đồng nghiệp cùng dùng.",
+      "Ami now tells you whether a document's authors have a researcher profile on ProFind, helps you get your own profile in a few taps, and lets you invite colleagues.",
+    ],
+    sections: {
+      Added: [
+        ["Sau mỗi lần phân tích, Ami cho biết tác giả của tài liệu có hồ sơ trên ProFind hay không, kèm đơn vị, số công trình và số trích dẫn. Việc đối chiếu chạy ngay trên máy bạn, họ tên không bị gửi đi đâu.",
+         "After each analysis, Ami tells you whether the document's authors have a profile on ProFind, with their affiliation, number of works and citations. The matching runs on your device, so the names are not sent anywhere."],
+        ["Hồ sơ nhà khoa học của bạn trên ProFind: Ami gợi ý hồ sơ gần với bạn nhất; bấm \"Đúng là tôi\" để sang ProFind mà không phải nhập mã lại. Chỉ khi bạn bấm, thông tin mới được chuyển sang ProFind.",
+         "Your researcher profile on ProFind: Ami suggests the closest profiles; press \"That is me\" to go to ProFind without entering a code again. Your details are sent to ProFind only when you press."],
+        ["Trang Hồ sơ có thêm hành trình bốn bước trên hệ sinh thái ISA: EduFind, ProFind, Ami và Mây, cho thấy bạn đang ở đâu.",
+         "The Profile page now shows a four-step journey across the ISA ecosystem (EduFind, ProFind, Ami and Mary) so you can see where you are."],
+        ["Liên kết cá nhân để mời đồng nghiệp: khi họ đăng ký và phân tích xong lần đầu, bạn nhận thêm lượt phân tích.",
+         "A personal link to invite colleagues: when they sign up and finish a first analysis, you receive extra analyses."],
+      ],
+      Changed: [
+        ["Chân trang giới thiệu đủ bốn ứng dụng của hệ sinh thái ISA: EduFind, ProFind, Ami và Mây.",
+         "The footer now introduces all four apps of the ISA ecosystem: EduFind, ProFind, Ami and Mary."],
+        ["Trang Quyền riêng tư và hướng dẫn sử dụng được bổ sung cho các tính năng mới.",
+         "The Privacy page and the user guide now cover the new features."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.2.0",
     date: "2026-10-04",
     title: ["Hạng tài khoản rõ ràng, hành trình liền mạch hơn", "Clearer account tiers and a smoother journey"],

@@ -95,7 +95,7 @@ function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
               </>
             )}
             <h5>{t("adm_grants")}</h5>
-            {grants.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{grants.map((g) => <li key={g.id}><b>{g.amount > 0 ? "+" : ""}{g.amount}</b> <span className="muted small">{dt(g.created_at)}{g.note ? ` · ${g.note}` : ""}</span></li>)}</ul>}
+            {grants.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{grants.map((g) => <li key={g.id}><b>{g.amount > 0 ? "+" : ""}{g.amount}</b> <span className="muted small">{dt(g.created_at)}{g.note ? ` · ${g.note === "referral" ? t("ref_note") : g.note}` : ""}</span></li>)}</ul>}
             <h5>{t("adm_uses")}</h5>
             {uses.length === 0 ? <p className="muted small">{t("reco_none")}</p> : <ul className="mini-list">{uses.map((u) => <li key={u.id}><span className="muted small">{dt(u.created_at)}</span> · {u.source}{u.refunded ? ` · ${t("adm_refunded")}` : ""}</li>)}</ul>}
             <p className="muted small">{t("adm_privacy")}</p>
@@ -125,6 +125,8 @@ export default function Admin() {
   const [frequent, setFrequent] = useState(false);
   const [weekly, setWeekly] = useState("1");
   const [tierStart, setTierStart] = useState("2026-10-10");
+  const [refBonus, setRefBonus] = useState("1");
+  const [refCap, setRefCap] = useState("5");
   const [c, setC] = useState<Contact>({ email: "", phone: "", zalo: "", note_vi: "", note_en: "" });
 
   const loadUsers = useCallback(async () => {
@@ -145,6 +147,8 @@ export default function Admin() {
         if (get("usd_vnd") != null) setRate(String(get("usd_vnd")));
         if (get("basic_weekly_limit") != null) setWeekly(String(get("basic_weekly_limit")));
         if (typeof get("tier_start") === "string") setTierStart(get("tier_start") as string);
+        if (get("referral_bonus") != null) setRefBonus(String(get("referral_bonus")));
+        if (get("referral_cap") != null) setRefCap(String(get("referral_cap")));
         const ct = data?.find((x) => x.key === "contact")?.value as Contact | undefined; if (ct) setC({ ...c, ...ct });
       });
     }
@@ -179,7 +183,9 @@ export default function Admin() {
     const e3 = await supabase.rpc("admin_set_setting", { p_key: "usd_vnd", p_value: Math.max(1, parseInt(rate, 10) || 25500) });
     const e4 = await supabase.rpc("admin_set_setting", { p_key: "basic_weekly_limit", p_value: Math.max(0, Math.min(100, parseInt(weekly, 10) || 0)) });
     const e5 = await supabase.rpc("admin_set_setting", { p_key: "tier_start", p_value: tierStart.trim() });
-    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error ?? e4.error ?? e5.error;
+    const e6 = await supabase.rpc("admin_set_setting", { p_key: "referral_bonus", p_value: Math.max(0, Math.min(20, parseInt(refBonus, 10) || 0)) });
+    const e7 = await supabase.rpc("admin_set_setting", { p_key: "referral_cap", p_value: Math.max(0, Math.min(200, parseInt(refCap, 10) || 0)) });
+    const err = a.error ?? b.error ?? e1.error ?? e2.error ?? e3.error ?? e4.error ?? e5.error ?? e6.error ?? e7.error;
     if (err) toast(err.message, "err"); else { toast(t("saved")); void refresh(); }
   }
 
@@ -250,6 +256,10 @@ export default function Admin() {
           <label>{t("adm_basic_weekly")}<input inputMode="numeric" value={weekly} onChange={(e) => setWeekly(e.target.value)} /></label>
           <label>{t("adm_tier_start")}<input value={tierStart} onChange={(e) => setTierStart(e.target.value)} placeholder="2026-10-10" /></label>
           <p className="muted small wide">{t("adm_tier_hint")}</p>
+          <h3 className="wide">{t("adm_ref_h")}</h3>
+          <label>{t("adm_ref_bonus")}<input inputMode="numeric" value={refBonus} onChange={(e) => setRefBonus(e.target.value)} /></label>
+          <label>{t("adm_ref_cap")}<input inputMode="numeric" value={refCap} onChange={(e) => setRefCap(e.target.value)} /></label>
+          <p className="muted small wide">{t("adm_ref_hint")}</p>
           <h3 className="wide">{t("adm_files_h")}</h3>
           <label>{t("adm_mb_basic")}<input inputMode="numeric" value={mbBasic} onChange={(e) => setMbBasic(e.target.value)} /></label>
           <label>{t("adm_mb_approved")}<input inputMode="numeric" value={mbApproved} onChange={(e) => setMbApproved(e.target.value)} /></label>

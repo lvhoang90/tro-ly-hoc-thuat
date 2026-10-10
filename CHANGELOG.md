@@ -6,6 +6,22 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-10-10
+
+Ami now tells you whether a document's authors have a researcher profile on ProFind, helps you get your own profile in a few taps, and lets you invite colleagues.
+
+### Added
+
+- After each analysis, Ami tells you whether the document's authors have a profile on ProFind, with their affiliation, number of works and citations. The matching runs on your device, so the names are not sent anywhere.
+- Your researcher profile on ProFind: Ami suggests the closest profiles; press "That is me" to go to ProFind without entering a code again. Your details are sent to ProFind only when you press.
+- The Profile page now shows a four-step journey across the ISA ecosystem (EduFind, ProFind, Ami and Mary) so you can see where you are.
+- A personal link to invite colleagues: when they sign up and finish a first analysis, you receive extra analyses.
+
+### Changed
+
+- The footer now introduces all four apps of the ISA ecosystem: EduFind, ProFind, Ami and Mary.
+- The Privacy page and the user guide now cover the new features.
+
 ## [1.2.0] - 2026-10-04
 
 AI Academic Agent now has a Privacy page, verified accounts with a personal allowance, and a suggested next step once you have cited.

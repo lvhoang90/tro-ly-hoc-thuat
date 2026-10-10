@@ -8,9 +8,11 @@ import { Footer, Header, ScrollTop, Toasts, VisitChip, WhatsNew, type Route } fr
 import Auth from "./pages/Auth.tsx";
 import Workspace from "./pages/Workspace.tsx";
 import { captureHandoff, clearHandoff, getHandoff } from "./lib/handoff.ts";
+import { captureRef } from "./lib/ref.ts";
 import { APP, withUtm } from "./lib/config.ts";
 
 captureHandoff();
+captureRef();
 
 const Profile = lazy(() => import("./pages/Profile.tsx"));
 const History = lazy(() => import("./pages/History.tsx"));

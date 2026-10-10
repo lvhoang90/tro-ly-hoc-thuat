@@ -5,6 +5,7 @@ import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { APP } from "../lib/config.ts";
 import { Icon } from "./Icon.tsx";
+import { track } from "../lib/isa.ts";
 
 /** YYYY-MM-DD → DD/MM/YYYY */
 export const fmtDay = (d: string) => d.split("-").reverse().join("/");
@@ -18,7 +19,7 @@ export function ContactLinks({ verify = true }: { verify?: boolean }) {
   const body = encodeURIComponent(`${t(verify ? "contact_verify_body" : "contact_body")}\n\nEmail: ${profile?.email ?? ""}\n${profile?.full_name ?? ""}\n${profile?.affiliation ?? ""}\nORCID: ${profile?.orcid ?? ""}`);
   const zaloNum = (contact.zalo || contact.phone || "").replace(/\D/g, "");
   return (
-    <div className="contact-row">
+    <div className="contact-row" onClickCapture={(e) => { if ((e.target as HTMLElement).closest("a")) track(verify ? "ami_lien_he_xac_thuc" : "ami_lien_he_luot"); }}>
       {contact.email && <a className="btn" href={`mailto:${contact.email}?subject=${subject}&body=${body}`}><Icon name="mail" size={16} /> {contact.email}</a>}
       {contact.phone && <a className="btn" href={`tel:${contact.phone}`}><Icon name="phone" size={16} /> {contact.phone}</a>}
       {zaloNum && <a className="btn" href={`https://zalo.me/${zaloNum}`} target="_blank" rel="noopener noreferrer">Zalo {contact.zalo || contact.phone}</a>}

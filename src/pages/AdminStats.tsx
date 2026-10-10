@@ -16,6 +16,7 @@ interface Stats {
 interface Day { day: string; analyses: number; refunded: number; cost_usd: number; input_tokens: number; output_tokens: number; new_users: number; citations: number }
 interface Top { user_id: string; email: string; full_name: string; analyses: number; cost_usd: number; tokens: number }
 interface Hist { bucket: number; n: number }
+interface Refs { invited: number; converted: number; credits: number; referrers: number }
 interface Funnel { registered: number; analysed: number; returned: number; cited: number; verified: number }
 
 const RANGES = [7, 30, 90] as const;
@@ -32,19 +33,20 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
   const [top, setTop] = useState<Top[]>([]);
   const [hist, setHist] = useState<Hist[]>([]);
   const [fun, setFun] = useState<Funnel | null>(null);
+  const [refs, setRefs] = useState<Refs | null>(null);
   const [vs, setVs] = useState<VisitStats | null>(null);
   const [rate, setRate] = useState(25500);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [a, b, c, d, e, v, f] = await Promise.all([
+    const [a, b, c, d, e, v, f, g] = await Promise.all([
       supabase.rpc("admin_stats"), supabase.rpc("admin_timeseries", { p_days: range }), supabase.rpc("admin_top_users", { p_days: range, p_limit: 8 }),
-      supabase.rpc("admin_score_hist", { p_days: range }), supabase.from("app_settings").select("value").eq("key", "usd_vnd").maybeSingle(), visit(range), supabase.rpc("admin_funnel", { p_days: range }),
+      supabase.rpc("admin_score_hist", { p_days: range }), supabase.from("app_settings").select("value").eq("key", "usd_vnd").maybeSingle(), visit(range), supabase.rpc("admin_funnel", { p_days: range }), supabase.rpc("admin_referrals", { p_days: range }),
     ]);
     const err = a.error ?? b.error ?? c.error ?? d.error;
     if (err) toast(err.message, "err");
-    setStats(a.data as Stats); setDays((b.data ?? []) as Day[]); setTop((c.data ?? []) as Top[]); setHist((d.data ?? []) as Hist[]); setVs(v); setFun(((f.data as Funnel[] | null) ?? [])[0] ?? null);
+    setStats(a.data as Stats); setDays((b.data ?? []) as Day[]); setTop((c.data ?? []) as Top[]); setHist((d.data ?? []) as Hist[]); setVs(v); setFun(((f.data as Funnel[] | null) ?? [])[0] ?? null); setRefs(((g.data as Refs[] | null) ?? [])[0] ?? null);
     const r = Number(e.data?.value); if (r > 0) setRate(r);
     setLoading(false);
   }, [range, toast]);
@@ -102,6 +104,7 @@ export default function AdminStats({ budget }: { budget: BudgetState }) {
           <Kpi label={t("st_tokens")} value={`${nf.format(Math.round(tokIn / 1000))}k / ${nf.format(Math.round(tokOut / 1000))}k`} sub={t("st_tok_split")} />
           <Kpi label={t("st_users")} value={nf.format(stats.users)} sub={t("st_pending", { n: stats.pending_users })} tone={stats.pending_users > 0 ? "warn" : undefined} spark={D.map((r) => r.new_users)} color={COLORS.people} />
           <Kpi label={t("st_citations_total")} value={nf.format(stats.citations_total)} sub={t("st_exhausted", { n: stats.exhausted_today })} />
+          {refs && <Kpi label={t("st_ref_invited")} value={nf.format(refs.invited)} sub={`${t("st_ref_converted")}: ${nf.format(refs.converted)} · ${t("st_ref_credits")}: ${nf.format(refs.credits)}`} />}
           <Kpi label={t("visits_total")} value={vs?.enabled ? nf.format(vs.total ?? 0) : "—"} sub={vs?.enabled ? t("st_visits_today", { n: vs.today ?? 0 }) : t("visits_off")} spark={vDays.map((r) => r.n)} color={COLORS.people} />
         </div>
       )}
