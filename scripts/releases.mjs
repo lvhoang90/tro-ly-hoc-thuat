@@ -12,15 +12,17 @@ export const RELEASES = [
   {
     version: "1.4.0",
     date: "2026-10-10",
-    title: ["Phản biện học thuật ngay trong Ami", "Academic review, right inside Ami"],
+    title: ["Giáo sư phản biện ngay trong Ami", "The AI Professor, right inside Ami"],
     summary: [
-      "Tải một đề cương, luận văn, luận án hoặc bài báo, Ami soạn bản nháp phản biện theo mẫu của trường hoặc viện, kèm điểm đề xuất và bằng chứng trích nguyên văn.",
-      "Upload a proposal, thesis, dissertation or article and Ami drafts a review following your institution's template, with a proposed score and verbatim evidence.",
+      "Giáo sư phản biện là tính năng cao cấp: tải một đề cương, luận văn, luận án hoặc bài báo, Ami soạn bản nháp phản biện theo mẫu của trường hoặc viện, kèm điểm đề xuất và bằng chứng trích nguyên văn.",
+      "The AI Professor is a premium feature: upload a proposal, thesis, dissertation or article and Ami drafts a review following your institution's template, with a proposed score and verbatim evidence.",
     ],
     sections: {
       Added: [
-        ["Mục Phản biện mới dành cho tài khoản đã xác thực: nhận xét từng mục theo khung mẫu, điểm đề xuất thang 100, khuyến nghị thông qua hoặc chỉnh sửa, câu hỏi dành cho tác giả.",
-         "A new Review page for verified accounts: section-by-section comments following the template, a proposed score out of 100, an accept or revise recommendation, and questions for the author."],
+        ["Mục Giáo sư phản biện mới: nhận xét từng mục theo khung mẫu, điểm đề xuất thang 100, khuyến nghị thông qua hoặc chỉnh sửa, câu hỏi dành cho tác giả.",
+         "A new AI Professor page: section-by-section comments following the template, a proposed score out of 100, an accept or revise recommendation, and questions for the author."],
+        ["Dành cho nhà khoa học đã xác thực và được phê duyệt: bạn gửi đề nghị kèm lý do và minh chứng khoa học, quản trị viên duyệt rồi cấp số lượt dùng mỗi tuần.",
+         "For verified researchers who are approved: send a request with your reason and scientific evidence, and the administrator reviews it and grants a weekly quota."],
         ["Dùng mẫu có sẵn theo loại văn bản, hoặc tải mẫu nhận xét của trường/viện để Ami làm theo đúng từng mục.",
          "Use a built-in template for the document type, or upload your institution's review template so Ami follows it section by section."],
         ["Mỗi nhận xét kèm đoạn trích nguyên văn đã được đối chiếu với bản gốc; đoạn nào không khớp sẽ bị loại.",

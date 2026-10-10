@@ -4,7 +4,7 @@ import http from "node:http";
 import type { AddressInfo } from "node:net";
 
 // Máy chủ giả: Supabase (xác thực, RPC, bảng usage_log) và Anthropic (phát luồng SSE) để chạy thật api/review.ts.
-const db = { eligible: true, left: 2, log: { units_done: 0, refunded: false, user_id: "u1" }, rpcs: [] as { fn: string; args: Record<string, unknown> }[] };
+const db = { eligible: true, access: true, left: 2, log: { units_done: 0, refunded: false, user_id: "u1" }, rpcs: [] as { fn: string; args: Record<string, unknown> }[] };
 const ai = { calls: [] as { body: Record<string, unknown> }[], fail: false, stop: "end_turn", reply: (kind: string): unknown => ({ kind }) };
 
 const readBody = (q: http.IncomingMessage) => new Promise<string>((res) => { let b = ""; q.on("data", (d) => (b += d)); q.on("end", () => res(b)); });
@@ -29,7 +29,7 @@ const sbServer = http.createServer(async (q, r) => {
     const fn = url.split("/rpc/")[1].split("?")[0];
     const args = body ? JSON.parse(body) : {};
     db.rpcs.push({ fn, args });
-    if (fn === "review_quota_of") return j({ eligible: db.eligible, unlimited: false, limit: 2, used: 2 - db.left, left: db.left, next_reset: "2026-10-12" });
+    if (fn === "review_quota_of") return j({ eligible: db.eligible, has_access: db.access, unlimited: false, limit: 2, used: 2 - db.left, left: db.left, next_reset: "2026-10-12" });
     if (fn === "consume_review") return db.left > 0 ? j({ ok: true, log_id: 7, quota: { left: db.left - 1, limit: 2 } }) : j({ ok: false, reason: "quota_exhausted", quota: { left: 0 } });
     if (fn === "refund_review") { const ok = !db.log.refunded && db.log.units_done === 0; if (ok) db.log.refunded = true; return j(ok); }
     if (fn === "add_usage") { if (args.p_unit) db.log.units_done++; return j(db.log.units_done); }
@@ -61,7 +61,7 @@ before(async () => {
 after(() => { sbServer.close(); aiServer.close(); });
 
 const req = (body: unknown) => new Request("http://x/api/review", { method: "POST", headers: { authorization: "Bearer t" }, body: JSON.stringify(body) });
-const reset = () => { db.eligible = true; db.left = 2; db.log = { units_done: 0, refunded: false, user_id: "u1" }; db.rpcs.length = 0; ai.calls.length = 0; ai.fail = false; ai.stop = "end_turn"; };
+const reset = () => { db.eligible = true; db.access = true; db.left = 2; db.log = { units_done: 0, refunded: false, user_id: "u1" }; db.rpcs.length = 0; ai.calls.length = 0; ai.fail = false; ai.stop = "end_turn"; };
 const corpus = "[¶1] # Tiêu đề\n" + "[¶2] Nghiên cứu khảo sát 120 học sinh trung học phổ thông tại một trường. ".repeat(10);
 const tpl = { sections: [{ title: "Tính cấp thiết" }, { title: "Phương pháp" }, { title: "Kết luận", kind: "conclusion" }] };
 const meta = { docType: "thesis", role: "reviewer" };
@@ -81,6 +81,10 @@ test("tài khoản chưa xác thực bị từ chối; hết hạn mức báo 40
   let r = await POST(req({ op: "start" }));
   assert.equal(r.status, 403);
   assert.equal((await r.json()).error, "not_verified");
+  reset(); db.access = false;
+  r = await POST(req({ op: "start" }));
+  assert.equal(r.status, 403);
+  assert.equal((await r.json()).error, "review_locked");
   reset(); db.left = 0;
   r = await POST(req({ op: "start" }));
   assert.equal(r.status, 402);

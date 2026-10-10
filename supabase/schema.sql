@@ -688,7 +688,26 @@ grant execute on function public.admin_referrals(integer) to authenticated;
 -- Chỉ người dùng đã xác thực (và quản trị viên) dùng được. Hạn mức theo tuần (giờ Việt Nam), do quản trị viên đặt.
 alter table public.usage_log add column if not exists kind text not null default 'analyze' check (kind in ('analyze', 'review'));
 alter table public.usage_log add column if not exists units_done integer not null default 0;
-insert into public.app_settings(key, value) values ('review_weekly_limit', '2'::jsonb) on conflict (key) do nothing;
+alter table public.profiles add column if not exists review_limit integer check (review_limit is null or review_limit >= 0);
+-- Mặc định 0: tính năng cao cấp, chỉ mở cho người được quản trị viên phê duyệt (review_limit riêng từng người; null = theo mặc định chung).
+insert into public.app_settings(key, value) values ('review_weekly_limit', '0'::jsonb)
+  on conflict (key) do update set value = '0'::jsonb where public.app_settings.value = '2'::jsonb;
+
+create table if not exists public.review_requests (
+  id          bigint generated always as identity primary key,
+  user_id     uuid not null references public.profiles(id) on delete cascade,
+  reason      text not null,
+  evidence    text not null,
+  status      text not null default 'pending' check (status in ('pending', 'approved', 'rejected')),
+  admin_note  text not null default '',
+  granted     integer,
+  decided_by  uuid references public.profiles(id) on delete set null,
+  created_at  timestamptz not null default now(),
+  decided_at  timestamptz
+);
+create index if not exists review_requests_user_idx on public.review_requests(user_id, created_at desc);
+create unique index if not exists review_requests_one_pending on public.review_requests(user_id) where status = 'pending';
+alter table public.review_requests enable row level security;
 
 -- Hoàn lượt phân tích chỉ tìm trong các lượt phân tích (không nhầm với lượt phản biện).
 create or replace function public.refund_credit(p_user uuid, p_source text) returns void
@@ -717,12 +736,13 @@ declare
   ws date := public.vn_week_start(public.vn_today());
 begin
   select * into p from public.profiles where id = p_user;
-  if not found then return jsonb_build_object('eligible', false, 'limit', 0, 'used', 0, 'left', 0, 'unlimited', false); end if;
-  lim := coalesce((select (value #>> '{}')::int from public.app_settings where key = 'review_weekly_limit'), 2);
+  if not found then return jsonb_build_object('eligible', false, 'has_access', false, 'limit', 0, 'used', 0, 'left', 0, 'unlimited', false); end if;
+  lim := coalesce(p.review_limit, (select (value #>> '{}')::int from public.app_settings where key = 'review_weekly_limit'), 0);
   select count(*)::int into used from public.usage_log
     where user_id = p_user and kind = 'review' and not refunded and (created_at at time zone 'Asia/Ho_Chi_Minh')::date >= ws;
   return jsonb_build_object(
     'eligible', (p.approved or p.role = 'admin'),
+    'has_access', (p.role = 'admin' or (p.approved and lim > 0)),
     'unlimited', p.role = 'admin',
     'limit', lim, 'used', used, 'left', greatest(lim - used, 0),
     'next_reset', (ws + 7)::text);
@@ -744,6 +764,7 @@ begin
   if p.status <> 'active' then return jsonb_build_object('ok', false, 'reason', 'suspended'); end if;
   if not (p.approved or p.role = 'admin') then return jsonb_build_object('ok', false, 'reason', 'not_verified'); end if;
   q := public.review_quota_of(p_user);
+  if not (q ->> 'has_access')::boolean then return jsonb_build_object('ok', false, 'reason', 'no_access', 'quota', q); end if;
   if p.role <> 'admin' and (q ->> 'left')::int <= 0 then return jsonb_build_object('ok', false, 'reason', 'quota_exhausted', 'quota', q); end if;
   insert into public.usage_log(user_id, source, kind) values (p_user, case when p.role = 'admin' then 'admin' else 'free' end, 'review') returning id into lid;
   update public.profiles set last_seen = now() where id = p_user;
@@ -781,6 +802,63 @@ begin
   update public.usage_log set score = p_score where id = p_log and kind = 'review' returning user_id into uid;
   if uid is not null and p_score is not null then perform public.pay_referral(uid); end if;
 end $$;
+
+-- Người dùng đã xác thực gửi đề nghị cấp hạn mức kèm lý do và minh chứng khoa học; quản trị viên xét duyệt.
+create or replace function public.submit_review_request(p_reason text, p_evidence text) returns jsonb
+language plpgsql security definer set search_path = public as $$
+declare p public.profiles%rowtype; rid bigint;
+begin
+  select * into p from public.profiles where id = auth.uid();
+  if not found or p.status <> 'active' then raise exception 'forbidden' using errcode = '42501'; end if;
+  if not (p.approved or p.role = 'admin') then raise exception 'not_verified' using errcode = '42501'; end if;
+  if length(btrim(coalesce(p_reason, ''))) < 40 or length(btrim(coalesce(p_evidence, ''))) < 20 then raise exception 'too_short'; end if;
+  if exists (select 1 from public.review_requests where user_id = p.id and status = 'pending') then raise exception 'already_pending'; end if;
+  insert into public.review_requests(user_id, reason, evidence) values (p.id, left(btrim(p_reason), 3000), left(btrim(p_evidence), 3000)) returning id into rid;
+  return jsonb_build_object('id', rid, 'status', 'pending');
+end $$;
+grant execute on function public.submit_review_request(text, text) to authenticated;
+
+create or replace function public.my_review_request() returns jsonb
+language sql stable security definer set search_path = public as $$
+  select coalesce((select to_jsonb(r) - 'user_id' - 'decided_by' from public.review_requests r where r.user_id = auth.uid() order by r.id desc limit 1), 'null'::jsonb);
+$$;
+grant execute on function public.my_review_request() to authenticated;
+
+create or replace function public.admin_list_review_requests(p_status text default 'pending', p_limit int default 100)
+returns table (id bigint, user_id uuid, email text, full_name text, affiliation text, orcid text, lifetime_used integer, reason text, evidence text, status text, admin_note text, granted integer, created_at timestamptz, decided_at timestamptz, review_limit integer)
+language plpgsql stable security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  return query
+    select r.id, r.user_id, p.email, p.full_name, p.affiliation, p.orcid, p.lifetime_used, r.reason, r.evidence, r.status, r.admin_note, r.granted, r.created_at, r.decided_at, p.review_limit
+    from public.review_requests r join public.profiles p on p.id = r.user_id
+    where p_status = 'all' or r.status = p_status
+    order by r.created_at desc limit least(greatest(p_limit, 1), 500);
+end $$;
+grant execute on function public.admin_list_review_requests(text, int) to authenticated;
+
+create or replace function public.admin_decide_review(p_id bigint, p_approve boolean, p_limit integer default 2, p_note text default '') returns void
+language plpgsql security definer set search_path = public as $$
+declare r public.review_requests%rowtype;
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  select * into r from public.review_requests where id = p_id for update;
+  if not found or r.status <> 'pending' then raise exception 'not_pending'; end if;
+  update public.review_requests set status = case when p_approve then 'approved' else 'rejected' end,
+    admin_note = left(coalesce(p_note, ''), 1000), granted = case when p_approve then greatest(coalesce(p_limit, 2), 1) else null end,
+    decided_by = auth.uid(), decided_at = now() where id = p_id;
+  if p_approve then update public.profiles set review_limit = greatest(coalesce(p_limit, 2), 1) where id = r.user_id; end if;
+end $$;
+grant execute on function public.admin_decide_review(bigint, boolean, integer, text) to authenticated;
+
+-- Điều chỉnh hoặc thu hồi hạn mức của một người (0 = thu hồi; null = theo mặc định chung).
+create or replace function public.admin_set_review_limit(p_user uuid, p_limit integer) returns void
+language plpgsql security definer set search_path = public as $$
+begin
+  if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
+  update public.profiles set review_limit = p_limit where id = p_user;
+end $$;
+grant execute on function public.admin_set_review_limit(uuid, integer) to authenticated;
 
 revoke all on function public.review_quota_of(uuid) from public, anon, authenticated;
 revoke all on function public.consume_review(uuid) from public, anon, authenticated;

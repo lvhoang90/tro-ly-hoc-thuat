@@ -3,6 +3,7 @@ import { useI18n } from "../i18n.tsx";
 import { useApp } from "../ctx.tsx";
 import { supabase, type Contact, type Profile } from "../lib/supabase.ts";
 import { Icon } from "../components/Icon.tsx";
+import AdminReview from "../components/AdminReview.tsx";
 import AdminStats from "./AdminStats.tsx";
 import { BudgetBanner } from "../components/BudgetCard.tsx";
 import { useApiBudget } from "../lib/budget.ts";
@@ -109,7 +110,7 @@ function UserDetail({ id, onClose }: { id: string; onClose: () => void }) {
 export default function Admin() {
   const { t } = useI18n();
   const { toast, contact, profile, refresh } = useApp();
-  const [tab, setTab] = useState<"users" | "settings" | "stats">("users");
+  const [tab, setTab] = useState<"users" | "review" | "settings" | "stats">("users");
   const budget = useApiBudget();
   const [rows, setRows] = useState<UserRow[]>([]);
   const [total, setTotal] = useState(0);
@@ -196,7 +197,7 @@ export default function Admin() {
     <div className="page admin-wide">
       <h2>{t("admin_title")}</h2>
       <div className="seg wide" role="tablist">
-        {(["users", "settings", "stats"] as const).map((x) => <button key={x} role="tab" aria-selected={tab === x} className={tab === x ? "on" : ""} onClick={() => setTab(x)}>{t(`adm_${x}` as "adm_users")}</button>)}
+        {(["users", "review", "settings", "stats"] as const).map((x) => <button key={x} role="tab" aria-selected={tab === x} className={tab === x ? "on" : ""} onClick={() => setTab(x)}>{t(`adm_${x}` as "adm_users")}</button>)}
       </div>
 
       {tab !== "stats" && <BudgetBanner b={budget} onOpen={() => setTab("stats")} />}
@@ -283,6 +284,7 @@ export default function Admin() {
         </div>
       )}
 
+      {tab === "review" && <AdminReview />}
       {tab === "stats" && <AdminStats budget={budget} />}
     </div>
   );

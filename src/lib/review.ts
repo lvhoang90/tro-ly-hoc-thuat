@@ -8,7 +8,7 @@ import { corpusChars } from "../../shared/review/corpus.ts";
 import { sectionBatches, type Template } from "../../shared/review/template.ts";
 import { ApiFailure, call } from "./api.ts";
 
-export interface ReviewQuota { eligible: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string }
+export interface ReviewQuota { eligible: boolean; has_access: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string }
 export type Stage = { phase: "start" } | { phase: "sections"; done: number; total: number } | { phase: "overall" } | { phase: "finish" };
 
 const post = <T>(body: unknown) => call<T>("/api/review", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });

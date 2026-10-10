@@ -59,7 +59,7 @@ const aiError = (e: unknown) => {
 
 async function guardEligible(auth: AuthedUser) {
   const { data } = await auth.sb.rpc("review_quota_of", { p_user: auth.id });
-  return data as { eligible: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string } | null;
+  return data as { eligible: boolean; has_access: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string } | null;
 }
 
 interface Body {
@@ -77,6 +77,7 @@ export async function POST(request: Request): Promise<Response> {
   const q = await guardEligible(auth);
   if (!q) return fail("server_misconfigured", 500, "Không kiểm tra được hạn mức. Đã chạy supabase/migrations/20261011_review.sql chưa?");
   if (!q.eligible) return fail("not_verified", 403);
+  if (!q.has_access) return fail("review_locked", 403); // cần được quản trị viên phê duyệt hạn mức
 
   // 1) Tách khung mẫu của trường/viện (miễn phí, không trừ lượt).
   if (body.op === "template") {
@@ -95,7 +96,7 @@ export async function POST(request: Request): Promise<Response> {
   if (body.op === "start") {
     const { data: c, error } = await sb.rpc("consume_review", { p_user: id });
     if (error || !c) return fail("server_misconfigured", 500, "Không kiểm tra được hạn mức.");
-    if (!c.ok) return json({ error: c.reason === "suspended" ? "suspended" : c.reason === "not_verified" ? "not_verified" : "quota_exhausted", review: c.quota ?? q }, c.reason === "quota_exhausted" ? 402 : 403);
+    if (!c.ok) return json({ error: c.reason === "suspended" ? "suspended" : c.reason === "not_verified" ? "not_verified" : c.reason === "no_access" ? "review_locked" : "quota_exhausted", review: c.quota ?? q }, c.reason === "quota_exhausted" ? 402 : 403);
     return json({ token: makeToken(id, c.log_id as number), review: c.quota });
   }
 

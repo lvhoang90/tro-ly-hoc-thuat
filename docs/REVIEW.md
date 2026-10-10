@@ -1,6 +1,6 @@
-# Phản biện học thuật (Ami 1.4.0)
+# Giáo sư phản biện (Ami 1.4.0)
 
-Tích hợp từ ứng dụng "Trợ lý phản biện học thuật" (`lvhoang90/cham-diem-luan-van`) vào Ami: trang `#/review`, chỉ dành cho tài khoản đã xác thực và quản trị viên.
+Tích hợp từ ứng dụng "Trợ lý phản biện học thuật" (`lvhoang90/cham-diem-luan-van`) vào Ami: trang `#/review`, tính năng cao cấp: chỉ dành cho tài khoản đã xác thực **và được quản trị viên phê duyệt** (quản trị viên dùng không giới hạn).
 
 ## Luồng
 1. **Trình duyệt** đọc công trình (.docx qua mammoth, PDF có chữ qua pdf.js + dựng lại đoạn văn) thành các khối đánh số `[¶n]`, có số trang (`src/lib/review-read.ts`, `shared/review/layout.ts`). Tệp không rời máy.
@@ -14,8 +14,10 @@ Tích hợp từ ứng dụng "Trợ lý phản biện học thuật" (`lvhoang9
 
 Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/review.ts`: `maxDuration` 300 giây trong `vercel.json`).
 
-## Hạn mức và chi phí
-- Hạn mức riêng, tách khỏi lượt phân tích: `review_weekly_limit` (mặc định 2/tuần, đặt ở Quản trị → Cài đặt; 0 là tắt). Quản trị viên không giới hạn.
+## Phê duyệt, hạn mức và chi phí
+- Mặc định **0**: không ai dùng được cho đến khi được duyệt. Người dùng đã xác thực vào trang, gửi đề nghị (lý do ≥ 40 ký tự, minh chứng khoa học ≥ 20 ký tự; mỗi người một đề nghị chờ duyệt). Quản trị viên xét ở Quản trị → tab Giáo sư phản biện: phê duyệt kèm số lượt mỗi tuần (lưu ở `profiles.review_limit`), từ chối kèm ghi chú, hoặc thu hồi sau này. Người bị từ chối có thể bổ sung minh chứng và gửi lại.
+- `review_weekly_limit` (Cài đặt) là mức mặc định cho người chưa được duyệt riêng, thường để 0.
+- Hạn mức riêng, tách khỏi lượt phân tích; tính theo tuần giờ Việt Nam.
 - Ước tính khoảng 1–2 USD API mỗi lượt (văn bản dài; xem `usage_log.cost_usd`). Theo dõi ở tab Ngân sách.
 - Giới hạn văn bản: 900.000 ký tự (`shared/review/limits.ts`); dài hơn thì tách theo chương. Chế độ "đọc từng phần" của bản gốc không được đưa vào.
 

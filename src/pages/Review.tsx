@@ -12,6 +12,7 @@ import { DOC_TYPES, ROLES } from "../../shared/review/rubric.ts";
 import { builtinTemplate, usesDefaultRubric, type Template } from "../../shared/review/template.ts";
 import type { ReviewResult } from "../../shared/review/assemble.ts";
 import { VerifyCard, fmtDay } from "../components/Tier.tsx";
+import ReviewRequest from "../components/ReviewRequest.tsx";
 import { Icon } from "../components/Icon.tsx";
 import { track } from "../lib/isa.ts";
 import type { Key } from "../dict.ts";
@@ -119,6 +120,7 @@ export default function Review() {
   const { quota, toast } = useApp();
   const eligible = !!quota?.approved;
   const [rq, setRq] = useState<ReviewQuota | null>(null);
+  const [rqLoaded, setRqLoaded] = useState(false);
   const [docType, setDocType] = useState<keyof typeof DOC_TYPES>("thesis");
   const [role, setRole] = useState<keyof typeof ROLES>("reviewer");
   const [field, setField] = useState("");
@@ -137,10 +139,11 @@ export default function Review() {
   const workInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
 
-  const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => setRq((data as ReviewQuota | null) ?? null)); };
+  const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => { setRq((data as ReviewQuota | null) ?? null); setRqLoaded(true); }); };
   useEffect(() => { if (eligible) refreshQuota(); }, [eligible]);
   useEffect(() => { if (running) { const f = (e: BeforeUnloadEvent) => { e.preventDefault(); }; addEventListener("beforeunload", f); return () => removeEventListener("beforeunload", f); } }, [running]);
 
+  const access = eligible && rqLoaded && (!!rq?.has_access || !!rq?.unlimited);
   const tpl: Template = useCustom && custom ? custom.tpl : builtinTemplate(docType);
   const readErr = (e: unknown) => {
     const code = e instanceof ExtractFailure ? e.code : "corrupt";
@@ -174,7 +177,7 @@ export default function Review() {
     try {
       const { result, quota: q } = await runReview({ blocks: work.doc.blocks, fileName: work.name, meta: { docType, role, field: field.trim(), notes: notes.trim() }, template: tpl, onStage: setStage });
       const list = saveReview(result);
-      setSaved(list); setOpen(list[0].id); if (q) setRq(q); else refreshQuota();
+      setSaved(list); setOpen(list[0].id); if (q) setRq((prev) => ({ ...(prev as ReviewQuota), ...q })); else refreshQuota();
       setWork(null);
     } catch (e) {
       refreshQuota();
@@ -191,8 +194,8 @@ export default function Review() {
 
   return (
     <div className="page rv-page">
-      <div className="between"><h2>{t("rv_title")}</h2>
-        {eligible && rq && <span className="badge">{rq.unlimited ? t("rv_unlimited") : t("rv_left", { a: rq.left, b: rq.limit })}</span>}</div>
+      <div className="between"><h2>{t("rv_title")} <span className="badge premium">{t("rv_premium")}</span></h2>
+        {access && rq && <span className="badge">{rq.unlimited ? t("rv_unlimited") : t("rv_left", { a: rq.left, b: rq.limit })}</span>}</div>
       <p className="muted">{t("rv_intro")}</p>
 
       {!eligible && (
@@ -203,9 +206,12 @@ export default function Review() {
         </>
       )}
 
-      {eligible && shown && <Result r={shown.result} onClose={() => setOpen("")} />}
+      {eligible && !rqLoaded && <div className="center"><div className="spinner" /></div>}
+      {eligible && rqLoaded && !access && <ReviewRequest />}
 
-      {eligible && !shown && (
+      {access && shown && <Result r={shown.result} onClose={() => setOpen("")} />}
+
+      {access && !shown && (
         <>
           <div className="card stack">
             <h3>1. {t("rv_s1")}</h3>
@@ -253,7 +259,7 @@ export default function Review() {
         </>
       )}
 
-      {eligible && !shown && saved.length > 0 && (
+      {access && !shown && saved.length > 0 && (
         <div className="card stack">
           <div className="between"><h4>{t("rv_saved")}</h4><button className="btn sm" onClick={() => { if (confirm(t("rv_clear_confirm"))) { clearReviews(); setSaved([]); toast(t("rv_cleared")); } }}>{t("rv_clear")}</button></div>
           <p className="muted small">{t("rv_saved_note")}</p>
