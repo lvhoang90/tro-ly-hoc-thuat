@@ -699,7 +699,7 @@ const D = {
   visits_total: { vi: "lượt truy cập", en: "visits" },
   visits_today: { vi: "hôm nay", en: "today" },
   whatsnew_title: { vi: "Mới trong phiên bản {v}", en: "New in version {v}" },
-  whatsnew_body: { vi: "Giáo sư phản biện (tính năng cao cấp, cần được duyệt): Ami soạn bản nháp nhận xét, điểm đề xuất và bằng chứng trích nguyên văn cho luận văn, luận án, bài báo.", en: "The AI Professor (premium, needs approval): Ami drafts comments, a proposed score and verbatim evidence for theses, dissertations and articles." },
+  whatsnew_body: { vi: "Giao diện mới nhẹ nhàng, trang hướng dẫn có ảnh từng bước, và Giáo sư phản biện (tính năng cao cấp) nổi bật hơn.", en: "A fresher look, an illustrated step-by-step guide, and a more visible AI Professor (premium feature)." },
   whatsnew_link: { vi: "Xem ghi chú phát hành", en: "Read the release notes" },
   release_link: { vi: "Phiên bản {v} · Ghi chú phát hành", en: "Version {v} · Release notes" },
   rights: { vi: "Bản quyền đóng. Mọi quyền được bảo lưu.", en: "Proprietary software. All rights reserved." },

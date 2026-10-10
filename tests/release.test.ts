@@ -45,3 +45,12 @@ test("trang ghi chú phát hành nêu phiên bản mới nhất và liên kết 
   const sm = read("public/sitemap.xml");
   assert.match(sm, /\/ghi-chu-phat-hanh</); assert.match(sm, /\/en\/release-notes</);
 });
+
+test("số hiệu phiên bản đồng bộ ở mọi nơi và tên ứng dụng không gắn số phiên bản", () => {
+  const pkg = JSON.parse(read("package.json")).version as string;
+  assert.match(read("index.html"), new RegExp(`"softwareVersion": "${pkg.replace(/\./g, "\\.")}"`));
+  assert.match(read("src/lib/config.ts"), new RegExp(`release: \\{ version: "${pkg.replace(/\./g, "\\.")}"`));
+  for (const f of ["index.html", "README.md", "public/llms.txt", "public/huong-dan.html", "public/en/guide.html", "public/quyen-rieng-tu.html", "public/en/privacy.html", "public/ghi-chu-phat-hanh.html", "public/en/release-notes.html", "src/dict.ts", "src/lib/config.ts"])
+    assert.doesNotMatch(read(f), /AI Academic Agent 1\.0/, `${f} còn ghi "AI Academic Agent 1.0"`);
+  assert.doesNotMatch(read("src/lib/config.ts"), /version: "1\.0"/);
+});
