@@ -10,7 +10,7 @@ Tích hợp từ ứng dụng "Trợ lý phản biện học thuật" (`lvhoang9
    - `part` (`kind: sections | overall`): một lần gọi Claude. Mỗi lô tối đa 4 mục; phần tổng hợp (điểm theo thang, khuyết điểm, liêm chính, câu hỏi, kết luận) chạy sau cùng. Văn bản đứng đầu lời nhắc kèm `cache_control` để các lần gọi sau dùng bộ nhớ đệm. Chi phí cộng dồn vào `usage_log` (`add_usage`).
    - `finish`: ghi điểm, trả thưởng giới thiệu. `fail`: hoàn lượt nếu chưa có phần nào xong (`refund_review`).
 3. Trình duyệt điều phối các bước tuần tự (`src/lib/review.ts`), thử lại khi lỗi tạm thời, tự chia đôi lô nếu phản hồi bị cắt, rồi **ghép kết quả** (`shared/review/assemble.ts`): đối chiếu từng trích dẫn với bản gốc, tính điểm và khuyến nghị bằng mã, nêu mục thiếu.
-4. Kết quả lưu ở `localStorage` (tối đa 5 bản); xuất Word bằng `docx` (tải theo yêu cầu).
+4. Kết quả lưu ở `localStorage` (tối đa 30 bản); xuất Word bằng `docx` (tải theo yêu cầu).
 
 Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/review.ts`: `maxDuration` 300 giây trong `vercel.json`).
 
