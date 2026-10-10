@@ -44,7 +44,7 @@ V. HIỆU CHUẨN ĐIỂM (thang 100; áp dụng tỷ lệ tương ứng nếu m
 Điểm phải phân hóa và có cơ sở; tránh dồn quanh một mức an toàn. Khuyết điểm cốt lõi (không có câu hỏi/mục tiêu nghiên cứu rõ ràng; phương pháp không trả lời được câu hỏi; kết luận không được dữ liệu ủng hộ; mâu thuẫn số liệu nghiêm trọng) phải được phản ánh ở điểm và ghi vào fatal_defects với severity "fatal" nếu một mình nó khiến công trình không thể thông qua.
 Nếu chỉ nhận được một phần công trình, đánh giá phần đó, nêu rõ trong completeness và limitations, không trừ điểm vì phần chưa nộp mà không nói rõ.`;
 
-export interface ReviewMeta { docType: string; role: string; field?: string; notes?: string }
+export interface ReviewMeta { docType: string; role: string; field?: string; notes?: string; lang?: "vi" | "en" }
 
 const meta = (m: ReviewMeta) => `Loại văn bản: ${DOC_TYPES[m.docType as keyof typeof DOC_TYPES] ?? DOC_TYPES.other}
 Vai trò người sử dụng: ${ROLES[m.role as keyof typeof ROLES] ?? ROLES.other}

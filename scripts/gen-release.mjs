@@ -47,7 +47,7 @@ function page(t) {
   const o = t.lang === "vi" ? T.en : T.vi, url = SITE + t.path, ourl = SITE + o.path, I = t.i;
   const ld = { "@context": "https://schema.org", "@graph": [
     { "@type": "WebPage", "@id": url, url, name: t.title, description: t.desc, inLanguage: t.lang, dateModified: latest.date,
-      isPartOf: { "@type": "WebSite", name: "Trợ lý học thuật | AI Academic Agent 1.0", url: SITE + "/" },
+      isPartOf: { "@type": "WebSite", name: "Ami - Trợ lý học thuật | AI Academic Agent", url: SITE + "/" },
       about: { "@type": "SoftwareApplication", name: "Trợ lý học thuật | AI Academic Agent", softwareVersion: latest.version, applicationCategory: "EducationalApplication", operatingSystem: "Web" } },
     { "@type": "BreadcrumbList", itemListElement: [
       { "@type": "ListItem", position: 1, name: t.home, item: SITE + "/" },
@@ -98,14 +98,20 @@ apply(false)})();
 <meta name="theme-color" content="#0a0f1e">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:site_name" content="Ami - Trợ lý học thuật | AI Academic Agent">
 <meta property="og:title" content="${esc(t.title)}">
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">
 <meta property="og:image" content="${SITE}/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(t.title)}">
 <meta property="og:locale" content="${t.locale}">
 <meta property="og:locale:alternate" content="${o.locale}">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${esc(t.title)}">
+<meta name="twitter:description" content="${esc(t.desc)}">
+<meta name="twitter:image" content="${SITE}/og.png">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
 :root{--bg:#0a0f1e;--card:#121a34;--line:#2a3763;--text:#e6ecf8;--muted:#9aa8c4;--accent:#38bdf8;--on:#04101f}

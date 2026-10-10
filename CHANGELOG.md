@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-10-10
+
+Ami has a lighter, more modern look in the same style as EduFind and ProFind, and the guide now walks through every step with screenshots from the app.
+
+### Added
+
+- A new guide explains every step in detail, with screenshots and coloured frames marking what to press, in Vietnamese and English.
+- A dedicated section on the AI Professor: from sending a request and getting approved to uploading a work, reading the score and downloading the Word draft.
+
+### Changed
+
+- A new look: a light background, a navy menu bar and clearer type, matching the other apps of the ISA ecosystem.
+- The AI Professor (simulated committee) is easier to find: an introduction on the home page, a starred menu item and a banner on the Analyse page.
+- The app name is now "Ami - Trợ lý học thuật | AI Academic Agent" everywhere, and the version number is written the same way in every place.
+- The preview image shown when the link is shared has been redesigned.
+- Ami has been tidied up: both arms are now attached to the body instead of floating away from it.
+- AI Professor result labels (document type, recommendation, scoring scale, Word file) now show in English when you use the English interface.
+
 ## [1.4.0] - 2026-10-10
 
 The AI Professor is a premium feature: upload a proposal, thesis, dissertation or article and Ami drafts a review following your institution's template, with a proposed score and verbatim evidence.

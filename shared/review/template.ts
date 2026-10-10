@@ -1,4 +1,4 @@
-import { defaultRubric, DOC_TYPES } from "./rubric.ts";
+import { defaultRubric, labelsFor, type Lang } from "./rubric.ts";
 
 export type SectionKind = "narrative" | "scored" | "checklist" | "conclusion";
 export interface TemplateSection { id: string; number: string; title: string; level: number; kind: SectionKind; guidance: string; max_points: number }
@@ -41,17 +41,22 @@ export function normalizeTemplate(t: TemplateInput): Template {
 }
 
 /** Khung mẫu có sẵn: mỗi tiêu chí của thang điểm mặc định là một mục nhận xét, cuối cùng là kết luận và kiến nghị. */
-export function builtinTemplate(docType: string): Template {
-  const rubric = defaultRubric(docType);
+export function builtinTemplate(docType: string, lang: Lang = "vi"): Template {
+  const en = lang === "en";
+  const rubric = defaultRubric(docType, lang);
   const sections: Partial<TemplateSection>[] = rubric.map((c, i) => ({
     number: `${i + 1}.`, title: c.label, level: 1, kind: "narrative", guidance: c.description, max_points: 0,
   }));
-  sections.push({ number: `${rubric.length + 1}.`, title: "Kết luận và kiến nghị", level: 1, kind: "conclusion", guidance: "Kết luận chung, nhất quán với điểm đề xuất; nêu các chỉnh sửa bắt buộc.", max_points: 0 });
+  sections.push({
+    number: `${rubric.length + 1}.`, title: en ? "Conclusion and recommendations" : "Kết luận và kiến nghị", level: 1, kind: "conclusion", max_points: 0,
+    guidance: en ? "Overall conclusion consistent with the proposed score; state the required revisions." : "Kết luận chung, nhất quán với điểm đề xuất; nêu các chỉnh sửa bắt buộc.",
+  });
+  const typeLabel = labelsFor(lang).docType(docType);
   return normalizeTemplate({
-    template_title: `Phiếu nhận xét ${(DOC_TYPES[docType as keyof typeof DOC_TYPES] ?? DOC_TYPES.other).toLowerCase()}`,
-    language: "vi",
-    purpose: "Nhận xét, phản biện và đề xuất điểm.",
-    info_fields: [{ label: "Tên đề tài/công trình", fill_from_document: true }, { label: "Tác giả", fill_from_document: true }],
+    template_title: en ? `Review form: ${typeLabel.toLowerCase()}` : `Phiếu nhận xét ${typeLabel.toLowerCase()}`,
+    language: lang,
+    purpose: en ? "Review, critique and propose a score." : "Nhận xét, phản biện và đề xuất điểm.",
+    info_fields: en ? [{ label: "Title of the work", fill_from_document: true }, { label: "Author", fill_from_document: true }] : [{ label: "Tên đề tài/công trình", fill_from_document: true }, { label: "Tác giả", fill_from_document: true }],
     sections, scale_total: 0, scoring_notes: "",
   });
 }

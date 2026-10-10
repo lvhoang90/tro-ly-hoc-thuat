@@ -10,6 +10,38 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.5.0",
+    date: "2026-10-10",
+    title: ["Giao diện mới, hướng dẫn có hình, Giáo sư phản biện nổi bật", "A fresh look, an illustrated guide, and a more visible AI Professor"],
+    summary: [
+      "Ami có giao diện nhẹ nhàng, hiện đại và cùng phong cách với EduFind, ProFind; trang hướng dẫn trình bày từng bước kèm ảnh chụp từ ứng dụng.",
+      "Ami has a lighter, more modern look in the same style as EduFind and ProFind, and the guide now walks through every step with screenshots from the app.",
+    ],
+    sections: {
+      Added: [
+        ["Trang hướng dẫn mới trình bày chi tiết từng bước, có ảnh minh họa và khung màu đánh dấu chỗ cần bấm, bằng tiếng Việt và tiếng Anh.",
+         "A new guide explains every step in detail, with screenshots and coloured frames marking what to press, in Vietnamese and English."],
+        ["Phần riêng hướng dẫn Giáo sư phản biện: từ gửi đề nghị, được duyệt, tải công trình đến đọc điểm và tải bản nháp Word.",
+         "A dedicated section on the AI Professor: from sending a request and getting approved to uploading a work, reading the score and downloading the Word draft."],
+      ],
+      Changed: [
+        ["Giao diện mới: nền sáng nhẹ, thanh menu xanh navy, chữ rõ hơn, đồng bộ với các ứng dụng khác của hệ sinh thái ISA.",
+         "A new look: a light background, a navy menu bar and clearer type, matching the other apps of the ISA ecosystem."],
+        ["Giáo sư phản biện (giả lập hội đồng) nổi bật hơn: có phần giới thiệu trên trang chủ, mục riêng có dấu sao trên thanh menu và biểu ngữ ở trang Phân tích.",
+         "The AI Professor (simulated committee) is easier to find: an introduction on the home page, a starred menu item and a banner on the Analyse page."],
+        ["Tên ứng dụng thống nhất là \"Ami - Trợ lý học thuật | AI Academic Agent\"; số phiên bản chỉ ghi một kiểu ở mọi nơi.",
+         "The app name is now \"Ami - Trợ lý học thuật | AI Academic Agent\" everywhere, and the version number is written the same way in every place."],
+        ["Ảnh xem trước khi chia sẻ liên kết được thiết kế lại.",
+         "The preview image shown when the link is shared has been redesigned."],
+        ["Bé Ami được chỉnh lại cho chỉn chu hơn: hai tay gắn liền vào thân thay vì rời ra.",
+         "Ami has been tidied up: both arms are now attached to the body instead of floating away from it."],
+        ["Nhãn kết quả của Giáo sư phản biện (loại văn bản, khuyến nghị, thang điểm, bản Word) hiển thị đúng tiếng Anh khi bạn dùng giao diện tiếng Anh.",
+         "AI Professor result labels (document type, recommendation, scoring scale, Word file) now show in English when you use the English interface."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.4.0",
     date: "2026-10-10",
     title: ["Giáo sư phản biện ngay trong Ami", "The AI Professor, right inside Ami"],

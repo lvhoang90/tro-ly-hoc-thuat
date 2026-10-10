@@ -63,7 +63,7 @@ async function guardEligible(auth: AuthedUser) {
 }
 
 interface Body {
-  op?: string; token?: string; text?: string; meta?: { docType?: string; role?: string; field?: string; notes?: string };
+  op?: string; token?: string; text?: string; meta?: { docType?: string; role?: string; field?: string; notes?: string; lang?: string };
   template?: unknown; ids?: unknown; corpus?: string; kind?: string; digest?: string; score?: unknown;
 }
 
@@ -121,10 +121,10 @@ export async function POST(request: Request): Promise<Response> {
     const corpus = s(body.corpus);
     if (corpus.length < 400) return fail("no_text", 422);
     if (corpus.length > MAX_REVIEW_CHARS) return fail("too_long", 413);
-    const m = { docType: s(body.meta?.docType) || "other", role: s(body.meta?.role) || "reviewer", field: s(body.meta?.field).slice(0, 200), notes: s(body.meta?.notes).slice(0, 1500) };
+    const m = { docType: s(body.meta?.docType) || "other", role: s(body.meta?.role) || "reviewer", lang: body.meta?.lang === "en" ? "en" as const : "vi" as const, field: s(body.meta?.field).slice(0, 200), notes: s(body.meta?.notes).slice(0, 1500) };
     let template;
     try { template = normalizeTemplate(body.template as never); } catch { return fail("bad_request", 400, "Khung mẫu không hợp lệ."); }
-    const rubric = usesDefaultRubric(template) ? defaultRubric(m.docType) : null;
+    const rubric = usesDefaultRubric(template) ? defaultRubric(m.docType, m.lang) : null;
     const doc: Anthropic.TextBlockParam = { type: "text", text: documentBlock(corpus), cache_control: { type: "ephemeral" } };
     const track = (u: Usage | undefined, unit: boolean) =>
       u ? sb.rpc("add_usage", { p_log: log, p_model: MODEL, p_in: (u.input_tokens ?? 0) + (u.cache_creation_input_tokens ?? 0) + (u.cache_read_input_tokens ?? 0), p_out: u.output_tokens ?? 0, p_cost: costUsdCached(MODEL, u), p_unit: unit }) : Promise.resolve();

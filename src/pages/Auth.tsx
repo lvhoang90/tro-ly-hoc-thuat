@@ -79,23 +79,23 @@ export default function Auth() {
     ["target", t("f1_t"), t("f1_d")], ["quote", t("f2_t"), t("f2_d")], ["book", t("f3_t"), t("f3_d")], ["shield", t("f4_t"), t("f4_d")],
   ];
 
+  const steps: [IconName, string, string][] = [
+    ["lines", t("flow1"), t("flow1d")], ["upload", t("flow2"), t("flow2d")], ["chart", t("flow3"), t("flow3d")], ["quote", t("flow4"), t("flow4d")],
+  ];
+  const spot = (["spot_b1", "spot_b2", "spot_b3", "spot_b4"] as const).map((k) => t(k));
+
   return (
     <div className="landing">
-      <section className="hero">
-        <Ami variant="hero" />
-        <div className="eyebrow">{t("hero_eyebrow")}</div>
-        <h1>{APP.name[lang]}<span className="grad"> | {lang === "vi" ? APP.name.en : APP.name.vi} {APP.version}</span></h1>
-        <p className="lead">{t("hero_lead")}</p>
-        <ol className="flow">
-          {([1, 2, 3, 4] as const).map((n) => (
-            <li key={n}><span className="n">{n}</span><div><b>{t(`flow${n}` as "flow1")}</b><small>{t(`flow${n}d` as "flow1d")}</small></div></li>
-          ))}
-        </ol>
-        <div className="features">
-          {features.map(([i, h, d]) => <div key={h} className="feat"><span className="ico"><Icon name={i} size={22} /></span><b>{h}</b><p>{d}</p></div>)}
+      <section className="l-hero">
+        <div className="l-copy">
+          <Ami variant="hero" />
+          <h1><b>{APP.short}</b> - {APP.name.vi} <span className="grad">| {APP.name.en}</span></h1>
+          <p className="lead">{t("hero_lead")}</p>
+          <div className="l-cta">
+            <a className="btn light" href={lang === "vi" ? "/huong-dan" : "/en/guide"}><Icon name="book" size={16} /> {t("hero_cta_guide")}</a>
+            <a className="btn ghost-light" href={`${lang === "vi" ? "/huong-dan" : "/en/guide"}#giao-su`}><Icon name="star" size={16} /> {t("hero_cta_prof")}</a>
+          </div>
         </div>
-      </section>
-
       <section className="auth-card card">
         <div className="auth-head"><Logo size={40} /><h2>{mode === "up" ? t("signup") : mode === "reset" ? t("reset") : mode === "sent" ? t("check_email") : t("signin")}</h2></div>
 
@@ -142,6 +142,40 @@ export default function Auth() {
             {mode === "up" && <p className="muted small">{t("free_note")}</p>}
           </form>
         )}
+      </section>
+    </section>
+
+      <section className="l-how">
+        <h2>{t("how_h")}</h2>
+        <ol className="l-steps">
+          {steps.map(([i, h, d], k) => <li key={h}><span className="l-n">{k + 1}</span><span className="l-ico"><Icon name={i} size={22} /></span><b>{h}</b><small>{d}</small></li>)}
+        </ol>
+        <div className="features">
+          {features.map(([i, h, d]) => <div key={h} className="feat"><span className="ico"><Icon name={i} size={22} /></span><b>{h}</b><p>{d}</p></div>)}
+        </div>
+      </section>
+
+      <section className="l-spot" id="giao-su">
+        <div className="l-spot-copy">
+          <span className="prem-badge"><Icon name="star" size={14} /> {t("spot_badge")}</span>
+          <h2>{t("spot_h")}</h2>
+          <p className="l-spot-sub">{t("spot_sub")}</p>
+          <p>{t("spot_d")}</p>
+          <ul className="l-spot-list">{spot.map((x) => <li key={x}><Icon name="checkCircle" size={18} /> {x}</li>)}</ul>
+          <p className="l-gate"><Icon name="shield" size={16} /> {t("spot_gate")}</p>
+          <p className="muted small">{t("spot_disc")}</p>
+          <a className="btn gold" href={`${lang === "vi" ? "/huong-dan" : "/en/guide"}#giao-su`}>{t("spot_cta")} <Icon name="right" size={16} /></a>
+        </div>
+        <figure className="l-spot-art" aria-label={t("spot_art")}>
+          <div className="mock">
+            <div className="mock-head"><b>{t("spot_m_title")}</b><small>{t("spot_m_ex")}</small></div>
+            <div className="mock-score"><div className="mock-ring"><b>72</b><small>/100</small></div><div><b>{t("spot_m_dec")}</b><small>{t("spot_m_dec_d")}</small></div></div>
+            <div className="mock-rows">
+              {(["spot_m_s1", "spot_m_s2", "spot_m_s3"] as const).map((k, n) => <div key={k}><span>{t(k)}</span><i><u style={{ width: `${[85, 70, 55][n]}%` }} /></i><em>{[17, 14, 11][n]}</em></div>)}
+            </div>
+            <blockquote><Icon name="checkCircle" size={14} /> {t("spot_m_q")}</blockquote>
+          </div>
+        </figure>
       </section>
     </div>
   );

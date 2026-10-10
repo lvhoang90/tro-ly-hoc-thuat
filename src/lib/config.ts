@@ -5,10 +5,12 @@ export const goApp = (app: "edufind" | "profind" | "may", to = "") => `https://i
 /** Đổi một địa chỉ EduFind cụ thể (trang lĩnh vực, tạp chí) thành liên kết qua cổng, giữ nguyên đường dẫn đích. */
 export const goEdufind = (url: string) => { try { const u = new URL(url); return /(^|\.)isavn\.edu\.vn$/.test(u.hostname) ? goApp("edufind", u.pathname + u.search) : url; } catch { return url; } };
 export const APP = {
+  /** Tên ứng dụng: "Ami - Trợ lý học thuật | AI Academic Agent". Không gắn số phiên bản vào tên; số phiên bản chỉ lấy từ `release.version`. */
+  short: "Ami",
   name: { vi: "Trợ lý học thuật", en: "AI Academic Agent" },
-  version: "1.0",
-  /** Phiên bản phát hành (Semantic Versioning), khớp package.json và CHANGELOG.md; tests/release.test.ts kiểm tra. */
-  release: { version: "1.4.0", date: "2026-10-10", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
+  fullName: "Ami - Trợ lý học thuật | AI Academic Agent",
+  /** Số hiệu phiên bản duy nhất của ứng dụng (Semantic Versioning), khớp package.json, CHANGELOG.md, index.html; tests/release.test.ts kiểm tra. */
+  release: { version: "1.5.0", date: "2026-10-10", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
   year: 2026,
   siteUrl: (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, "") || (typeof location !== "undefined" ? location.origin : ""),
   author: {

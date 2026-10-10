@@ -1,24 +1,38 @@
-<!doctype html><meta charset=utf-8><style>*{box-sizing:border-box;margin:0}body{font-family:'DejaVu Sans','Segoe UI',Arial,sans-serif;color:#e8ecf8;background:#080c18}
-.grad{background:linear-gradient(90deg,#38bdf8,#8b7cf6);-webkit-background-clip:text;background-clip:text;color:transparent}
-.bub{position:absolute;background:#fff;color:#0b1020;font-weight:800;border-radius:22px;box-shadow:0 14px 36px rgba(0,0,0,.4);border:4px solid #38bdf8}
-.bub::after{content:"";position:absolute;width:22px;height:22px;background:#fff;border:4px solid #38bdf8;border-width:0 0 4px 4px;transform:rotate(45deg)}
-.halo{position:absolute;border-radius:50%;background:radial-gradient(closest-side,#38bdf855,#7c5cf033 62%,transparent)}
-.ami{position:absolute;display:block;filter:drop-shadow(0 24px 30px rgba(0,0,0,.45))}
-
-body{width:1200px;height:630px;position:relative;overflow:hidden;background:radial-gradient(900px 520px at 15% 0%,#16224a,#0b1226 55%,#080c18)}
-.logo{position:absolute;left:80px;top:56px;width:76px;height:76px}.logo svg{width:100%;height:100%}
-.k{position:absolute;left:176px;top:78px;font-size:20px;letter-spacing:.18em;font-weight:700;color:#38bdf8}
-h1{position:absolute;left:80px;top:176px;font-size:70px;line-height:1.1;font-weight:700;white-space:nowrap}
-h2{position:absolute;left:80px;top:268px;font-size:42px;font-weight:700}
-.d{position:absolute;left:80px;top:350px;width:640px;font-size:26px;line-height:1.45;color:#b4bedb}.d b{color:#fff}
-.eco{position:absolute;left:80px;bottom:48px;display:flex;gap:12px;font-size:19px}
-.eco span{padding:8px 16px;border:1px solid #2b3a66;border-radius:99px;background:#101a38;color:#cdd6f0}.eco span.on{background:linear-gradient(90deg,#1e6fa8,#5b46c9);border-color:transparent;color:#fff;font-weight:700}
-.url{position:absolute;left:80px;bottom:112px;font-size:26px;color:#38bdf8;font-weight:700}</style>
-<div class=halo style="left:735px;top:110px;width:470px;height:520px"></div>
-<img class=ami src="ami/ami-wave.png" style="left:790px;top:118px;width:384px;height:480px">
-<div class=bub style="left:772px;top:30px;width:392px;padding:12px 16px;font-size:25px;line-height:1.25;text-align:center">Chào bạn, mình là <span style="color:#1e6fa8">Ami</span>!<style>.bub::after{left:200px;bottom:-15px;transform:rotate(-45deg)}</style></div>
-<div class=logo><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#38bdf8"/><stop offset="1" stop-color="#7c5cf0"/></linearGradient></defs><rect x="1" y="1" width="46" height="46" rx="12" fill="url(#g)"/><path d="M5.5 40.5L24 6L42.5 40.5M9.57 32.91L38.43 32.91" fill="none" stroke="#fff" stroke-opacity="0.45" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M11.79 40.5L24 17.73L36.21 40.5M14.48 35.49L33.52 35.49" fill="none" stroke="#fff" stroke-opacity="0.75" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/><path fill-rule="evenodd" fill="#fff" d="M17.71 40.5L24 28.77L30.29 40.5ZM21.86 40.5L24 33.7L26.14 40.5Z"/></svg></div><div class=k>VIỆT / ENGLISH · FOR RESEARCHERS</div>
-<h1>Trợ lý học thuật</h1><h2 class=grad>AI Academic Agent 1.0</h2>
-<p class=d><b>Ami</b> đọc tài liệu, chấm mức độ phù hợp và trích dẫn theo chuẩn quốc tế cùng bạn.</p>
-<div class=url>aaa.isavietnam.app</div>
-<div class=eco><span class=on>Trợ lý học thuật</span><span>EduFind</span><span>Trợ lý văn thư</span></div>
+<!doctype html><meta charset=utf-8>
+<style>
+@font-face{font-family:'Inter';font-weight:400 700;src:url(../public/fonts/inter-latin.woff2) format('woff2'),url(../public/fonts/inter-vietnamese.woff2) format('woff2')}
+@font-face{font-family:'Inter';font-weight:400 700;src:url(../public/fonts/inter-vietnamese.woff2) format('woff2');unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+031B,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:'SG';font-weight:400 700;src:url(../public/fonts/space-grotesk-vietnamese.woff2) format('woff2');unicode-range:U+0102-0103,U+0110-0111,U+0128-0129,U+0168-0169,U+01A0-01A1,U+01AF-01B0,U+0300-0301,U+0303-0304,U+0308-0309,U+0323,U+0329,U+031B,U+1EA0-1EF9,U+20AB}
+@font-face{font-family:'SG';font-weight:400 700;src:url(../public/fonts/space-grotesk-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2122}
+*{box-sizing:border-box;margin:0}
+body{width:1200px;height:630px;overflow:hidden;position:relative;font-family:'Inter',sans-serif;color:#fff;
+ background:radial-gradient(700px 420px at 88% -10%,rgba(124,92,240,.45),transparent 62%),radial-gradient(600px 360px at 0% 110%,rgba(56,189,248,.25),transparent 60%),linear-gradient(135deg,#0b2a40,#103f63 58%,#1d3a7a)}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:44px 44px;mask-image:linear-gradient(180deg,transparent,#000 40%,transparent)}
+.logo{position:absolute;left:72px;top:60px;width:70px;height:70px}
+.eco{position:absolute;left:160px;top:74px;font:600 22px 'Inter';letter-spacing:.14em;color:#9ec3dc;text-transform:uppercase}
+h1{position:absolute;left:72px;top:150px;font:700 150px/1 'SG';letter-spacing:-.03em;background:linear-gradient(135deg,#7dd3fc,#c4b5fd);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{position:absolute;left:76px;top:316px;font:600 38px/1.2 'SG';color:#e6f1f9}
+.sub i{font-style:normal;color:#9fc7e3}
+.tag{position:absolute;left:76px;top:402px;font:500 27px/1.45 'Inter';color:#bcd7ea;width:640px}
+.chips{position:absolute;left:76px;top:530px;display:flex;gap:14px}
+.chips span{padding:10px 20px;border-radius:999px;border:1.5px solid rgba(255,255,255,.28);background:rgba(255,255,255,.08);font:600 21px 'Inter'}
+.chips .g{background:#fde047;color:#3b2f00;border-color:#fde047}
+.robot{position:absolute;right:-30px;top:10px;height:560px}
+.card{position:absolute;right:40px;bottom:40px;width:270px;padding:16px 18px;border-radius:20px;background:#fff;color:#0f2a3d;box-shadow:0 30px 60px -20px rgba(0,0,0,.6);transform:rotate(-2deg)}
+.card b{font:700 20px 'SG'}.card small{display:block;color:#51677a;font-size:15px}
+.ring{display:flex;gap:14px;align-items:center;margin-top:10px}
+.ring div{width:70px;height:70px;border-radius:50%;border:6px solid #d99a14;display:grid;place-content:center;text-align:center;font:700 26px/1 'SG'}
+.ring div small{font-size:12px}
+.bar{height:9px;border-radius:9px;background:#d9e2ea;margin-top:8px;overflow:hidden}.bar u{display:block;height:100%;background:linear-gradient(90deg,#17688f,#6d28d9)}
+.badge{position:absolute;right:300px;bottom:290px;padding:8px 16px;border-radius:999px;background:#fde047;color:#3b2f00;font:700 18px 'Inter';letter-spacing:.05em;text-transform:uppercase;transform:rotate(-2deg)}
+</style>
+<div class="grid"></div>
+<img class="logo" src="../public/favicon.svg"><div class="eco">ISA · Hệ sinh thái cho người làm khoa học</div>
+<h1>Ami</h1>
+<div class="sub">Trợ lý học thuật <i>| AI Academic Agent</i></div>
+<div class="tag">Đọc tài liệu, chấm mức độ phù hợp, trích dẫn chuẩn quốc tế và giả lập hội đồng phản biện.</div>
+<div class="chips"><span>Chấm 0–100</span><span>APA · Harvard · IEEE</span><span class="g">★ Giáo sư phản biện</span></div>
+<img class="robot" src="ami/ami-wave.png">
+<div class="card"><b>Bản nhận xét đề cương</b><small>Ví dụ minh họa</small>
+ <div class="ring"><div>72<small>/100</small></div><span><b style="font-size:17px">Thông qua có điều kiện</b><small>Chỉnh sửa theo góp ý</small></span></div>
+ <div class="bar"><u style="width:85%"></u></div><div class="bar"><u style="width:70%"></u></div><div class="bar"><u style="width:55%"></u></div></div>
