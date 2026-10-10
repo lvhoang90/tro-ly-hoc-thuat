@@ -8,7 +8,7 @@ import { readReviewDoc, type ReadDoc } from "../lib/review-read.ts";
 import { analyzeTemplate, clearReviews, loadSaved, removeReview, runReview, saveReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
 import { blockLine, numberBlocks } from "../../shared/review/corpus.ts";
 import { MAX_REVIEW_CHARS } from "../../shared/review/limits.ts";
-import { DOC_TYPES, ROLES } from "../../shared/review/rubric.ts";
+import { DOC_TYPES, ROLES, labelsFor } from "../../shared/review/rubric.ts";
 import { builtinTemplate, usesDefaultRubric, type Template } from "../../shared/review/template.ts";
 import type { ReviewResult } from "../../shared/review/assemble.ts";
 import { VerifyCard, fmtDay } from "../components/Tier.tsx";
@@ -24,10 +24,12 @@ const stagePct = (s: Stage | null) => (!s ? 0 : s.phase === "start" ? 4 : s.phas
 const plainTemplateText = (doc: ReadDoc) => numberBlocks(doc.blocks).map((b) => blockLine(b).replace(/^\[¶\d+\] /, "")).join("\n");
 
 function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const L = labelsFor(lang);
   const { toast } = useApp();
   const [busy, setBusy] = useState(false);
-  const d = r.decision;
+  const dt = L.decision(r.decision.key);
+  const d = { ...r.decision, ...dt };
   const sev = d.severity === "ok" ? "ok" : d.severity === "danger" ? "err" : "warn";
   const ev = (list: { quote: string; paragraph?: number; page?: number }[]) => list.length > 0 && (
     <ul className="rv-ev">{list.map((e, i) => <li key={i}>“{e.quote}” <small className="muted">(¶{e.paragraph}{e.page ? `, ${t("rv_page")} ${e.page}` : ""})</small></li>)}</ul>
@@ -37,7 +39,7 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
     try {
       const { buildDocx, exportFileName } = await import("../lib/review-docx.ts");
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(await buildDocx(r)); a.download = exportFileName(r);
+      a.href = URL.createObjectURL(await buildDocx(r, lang)); a.download = exportFileName(r, lang);
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) { console.error(e); toast(t("rv_export_fail"), "err"); } finally { setBusy(false); }
   };
@@ -45,8 +47,8 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
     <div className="stack rv-result">
       <div className="card stack">
         <div className="between">
-          <div><h3>{r.profile.title && r.profile.title !== "Không xác định" ? r.profile.title : r.file.name}</h3>
-            <p className="muted small">{r.meta.docTypeLabel} · {r.file.name} · {t("rv_words", { n: r.file.words.toLocaleString() })}{r.file.pages ? ` · ${t("rv_pages", { n: r.file.pages })}` : ""}</p></div>
+          <div><h3>{r.profile.title && r.profile.title !== "Không xác định" && r.profile.title !== "Unknown" ? r.profile.title : r.file.name}</h3>
+            <p className="muted small">{L.docType(r.meta.docType)} · {r.file.name} · {t("rv_words", { n: r.file.words.toLocaleString() })}{r.file.pages ? ` · ${t("rv_pages", { n: r.file.pages })}` : ""}</p></div>
           {onClose && <button className="btn sm" onClick={onClose}>{t("rv_close")}</button>}
         </div>
         <div className="rv-score">
@@ -56,7 +58,7 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
             <span className="muted">{d.advice}</span>
             {d.belowPass && r.score.sumMax > 0 && <span className="warn small"><Icon name="info" size={14} /> {t("rv_below_pass")}</span>}
             {d.floorApplied && <span className="muted small">{t("rv_floor")}</span>}
-            {d.mismatch && <span className="muted small">{t("rv_mismatch", { m: d.mismatch.modelLabel ?? d.mismatch.model })}</span>}
+            {d.mismatch && <span className="muted small">{t("rv_mismatch", { m: L.decision(d.mismatch.model).short })}</span>}
           </div>
         </div>
         <div className="row wrap">
@@ -144,7 +146,7 @@ export default function Review() {
   useEffect(() => { if (running) { const f = (e: BeforeUnloadEvent) => { e.preventDefault(); }; addEventListener("beforeunload", f); return () => removeEventListener("beforeunload", f); } }, [running]);
 
   const access = eligible && rqLoaded && (!!rq?.has_access || !!rq?.unlimited);
-  const tpl: Template = useCustom && custom ? custom.tpl : builtinTemplate(docType);
+  const tpl: Template = useCustom && custom ? custom.tpl : builtinTemplate(docType, lang);
   const readErr = (e: unknown) => {
     const code = e instanceof ExtractFailure ? e.code : "corrupt";
     setErr(code === "size" ? t("err_file_size", { mb: 15 }) : code === "type" ? t("rv_err_type") : t(`err_file_${code}` as Key, { mb: 15, n: 0 }));
@@ -175,7 +177,7 @@ export default function Review() {
     setErr(""); setRunning(true); setStage({ phase: "start" }); setOpen("");
     track("ami_phan_bien", docType);
     try {
-      const { result, quota: q } = await runReview({ blocks: work.doc.blocks, fileName: work.name, meta: { docType, role, field: field.trim(), notes: notes.trim() }, template: tpl, onStage: setStage });
+      const { result, quota: q } = await runReview({ blocks: work.doc.blocks, fileName: work.name, meta: { docType, role, field: field.trim(), notes: notes.trim(), lang }, template: tpl, onStage: setStage });
       const list = saveReview(result);
       setSaved(list); setOpen(list[0].id); if (q) setRq((prev) => ({ ...(prev as ReviewQuota), ...q })); else refreshQuota();
       setWork(null);
@@ -216,8 +218,8 @@ export default function Review() {
           <div className="card stack">
             <h3>1. {t("rv_s1")}</h3>
             <div className="grid2">
-              <label>{t("rv_doctype")}<select value={docType} onChange={(e) => setDocType(e.target.value as keyof typeof DOC_TYPES)} disabled={running}>{Object.entries(DOC_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
-              <label>{t("rv_role")}<select value={role} onChange={(e) => setRole(e.target.value as keyof typeof ROLES)} disabled={running}>{Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}</select></label>
+              <label>{t("rv_doctype")}<select value={docType} onChange={(e) => setDocType(e.target.value as keyof typeof DOC_TYPES)} disabled={running}>{Object.keys(DOC_TYPES).map((k) => <option key={k} value={k}>{labelsFor(lang).docType(k)}</option>)}</select></label>
+              <label>{t("rv_role")}<select value={role} onChange={(e) => setRole(e.target.value as keyof typeof ROLES)} disabled={running}>{Object.keys(ROLES).map((k) => <option key={k} value={k}>{labelsFor(lang).role(k)}</option>)}</select></label>
             </div>
             <label>{t("rv_field")}<input value={field} onChange={(e) => setField(e.target.value)} maxLength={200} placeholder={t("rv_field_ph")} disabled={running} /></label>
             <label>{t("rv_notes")}<textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} maxLength={1500} placeholder={t("rv_notes_ph")} disabled={running} /></label>

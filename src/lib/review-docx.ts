@@ -1,6 +1,6 @@
 // Xuất bản nhận xét ra Word (.docx) ngay trong trình duyệt; tải theo yêu cầu để không làm nặng trang chính. Chuyển từ ứng dụng "Trợ lý phản biện học thuật".
 import type { ReviewResult } from "../../shared/review/assemble.ts";
-import type { Evidence } from "../../shared/review/rubric.ts";
+import { labelsFor, type Evidence } from "../../shared/review/rubric.ts";
 import {
   Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType,
   AlignmentType, BorderStyle, Footer, PageNumber,
@@ -33,20 +33,20 @@ const cell = (text: unknown, w: number, o: O = {}) => new TableCell({
   children: [new Paragraph({ children: [run(text, { bold: o.bold || o.head, size: 24 })], alignment: o.right ? AlignmentType.RIGHT : AlignmentType.LEFT })],
 });
 
-const PRIORITY: Record<string, string> = { bat_buoc: 'Bắt buộc', nen_lam: 'Nên thực hiện', goi_y: 'Gợi ý' };
-const refOf = (e: Evidence) => `${e.paragraph ? `đoạn ¶${e.paragraph}` : ''}${e.page ? `, trang ${e.page}` : ''}`.replace(/, $/, '');
+type Tr = (vi: string, en: string) => string;
+const refOf = (e: Evidence, L: Tr) => `${e.paragraph ? `${L('đoạn', 'paragraph')} ¶${e.paragraph}` : ''}${e.page ? `, ${L('trang', 'page')} ${e.page}` : ''}`.replace(/, $/, '');
 
-function evidenceBlock(evs?: Evidence[]) {
+function evidenceBlock(L: Tr, evs?: Evidence[]) {
   if (!evs?.length) return [];
-  const out: Paragraph[] = [P('Căn cứ trong văn bản:', { bold: true, after: 40 })];
-  for (const e of evs) out.push(P(`“${s(e.quote)}” (${refOf(e) || 'vị trí không xác định'})`, { italics: true, size: 24, indent: 360, after: 60 }));
+  const out: Paragraph[] = [P(L('Căn cứ trong văn bản:', 'Evidence in the text:'), { bold: true, after: 40 })];
+  for (const e of evs) out.push(P(`“${s(e.quote)}” (${refOf(e, L) || L('vị trí không xác định', 'location unknown')})`, { italics: true, size: 24, indent: 360, after: 60 }));
   return out;
 }
 
-/** Tên tệp nhận xét theo công trình: "Nhan-xet - <tên tệp gốc>.docx". */
-export function exportFileName(r: ReviewResult) {
-  const base = String(r?.file?.name || 'cong-trinh').replace(/\.(docx|pdf)$/i, '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || 'cong-trinh';
-  return `Nhan-xet - ${base}.docx`;
+/** Tên tệp nhận xét theo công trình: "Nhan-xet - <tên tệp gốc>.docx" (tiếng Anh: "Review - …"). */
+export function exportFileName(r: ReviewResult, lang: 'vi' | 'en' = 'vi') {
+  const base = String(r?.file?.name || 'cong-trinh').replace(/\.(docx|pdf)$/i, '').replace(/[\\/:*?"<>|\u0000-\u001f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 120) || (lang === 'en' ? 'work' : 'cong-trinh');
+  return `${lang === 'en' ? 'Review' : 'Nhan-xet'} - ${base}.docx`;
 }
 export function uniqueName(name: string, used: Set<string>) {
   let n = name, i = 2;
@@ -55,15 +55,18 @@ export function uniqueName(name: string, used: Set<string>) {
   return n;
 }
 
-export async function buildDocx(r: ReviewResult): Promise<Blob> {
+export async function buildDocx(r: ReviewResult, lang: 'vi' | 'en' = 'vi'): Promise<Blob> {
+  const L: Tr = (vi, en) => (lang === 'en' ? en : vi);
+  const PRIORITY: Record<string, string> = { bat_buoc: L('Bắt buộc', 'Required'), nen_lam: L('Nên thực hiện', 'Recommended'), goi_y: L('Gợi ý', 'Suggestion') };
+  const dec = labelsFor(lang).decision(r.decision.key);
   const body: (Paragraph | Table)[] = [];
   const t = r.template;
-  body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [run(s(t.title || 'PHIẾU NHẬN XÉT').toUpperCase(), { bold: true, size: 30 })] }));
-  body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [run('Bản nháp do hệ thống hỗ trợ soạn thảo — người nhận xét thẩm định, chỉnh sửa và chịu trách nhiệm về nội dung cuối cùng', { italics: true, size: 22 })] }));
+  body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 60 }, children: [run(s(t.title || L('PHIẾU NHẬN XÉT', 'REVIEW FORM')).toUpperCase(), { bold: true, size: 30 })] }));
+  body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 200 }, children: [run(L('Bản nháp do hệ thống hỗ trợ soạn thảo — người nhận xét thẩm định, chỉnh sửa và chịu trách nhiệm về nội dung cuối cùng', 'A draft prepared with system assistance. The reviewer verifies, edits and remains responsible for the final text.'), { italics: true, size: 22 })] }));
 
   // Mỗi bản nhận xét nêu rõ công trình nào để không nhầm giữa nhiều tác giả.
   const wk = r.file?.name;
-  if (wk) body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 160 }, children: [run(`Công trình: ${s(r.profile?.title && r.profile.title !== 'Không xác định' ? r.profile.title + ' — ' : '')}tệp “${s(wk)}”`, { size: 22 })] }));
+  if (wk) body.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 160 }, children: [run(`${L('Công trình', 'Work')}: ${s(r.profile?.title && r.profile.title !== 'Không xác định' && r.profile.title !== 'Unknown' ? r.profile.title + ' — ' : '')}${L('tệp', 'file')} “${s(wk)}”`, { size: 22 })] }));
   const info = (r.info || []).filter((x) => x.label);
   if (info.length) {
     body.push(new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: info.map((x) => new TableRow({ children: [cell(x.label, 35, { bold: true }), cell(x.value, 65)] })) }));
@@ -72,64 +75,64 @@ export async function buildDocx(r: ReviewResult): Promise<Blob> {
 
   for (const sec of r.sections || []) {
     body.push(H(`${s(sec.number)} ${s(sec.title)}`.trim(), Math.min(3, Math.max(1, sec.level || 1))));
-    if (sec.insufficient_basis) body.push(P('Lưu ý: văn bản được nộp chưa đủ cơ sở để đánh giá đầy đủ mục này.', { italics: true }));
+    if (sec.insufficient_basis) body.push(P(L('Lưu ý: văn bản được nộp chưa đủ cơ sở để đánh giá đầy đủ mục này.', 'Note: the submitted text is not enough to assess this section fully.'), { italics: true }));
     for (const para of paras(sec.content)) body.push(P(para));
-    if (sec.max_points > 0) body.push(label('Điểm đề xuất: ', `${s(sec.points)}/${s(sec.max_points)}${sec.point_rationale ? ` — ${s(sec.point_rationale)}` : ''}`));
-    if (sec.strengths?.length) { body.push(P('Ưu điểm:', { bold: true, after: 40 })); sec.strengths.forEach((x: string) => body.push(bullet(x))); }
-    if (sec.weaknesses?.length) { body.push(P('Hạn chế:', { bold: true, after: 40 })); sec.weaknesses.forEach((x: string) => body.push(bullet(x))); }
-    if (sec.revisions?.length) { body.push(P('Yêu cầu/đề nghị chỉnh sửa:', { bold: true, after: 40 })); sec.revisions.forEach((x) => body.push(bullet(`[${PRIORITY[x.priority] || 'Gợi ý'}] ${s(x.action)}`))); }
-    body.push(...evidenceBlock(sec.evidence));
+    if (sec.max_points > 0) body.push(label(L('Điểm đề xuất: ', 'Proposed score: '), `${s(sec.points)}/${s(sec.max_points)}${sec.point_rationale ? ` — ${s(sec.point_rationale)}` : ''}`));
+    if (sec.strengths?.length) { body.push(P(L('Ưu điểm:', 'Strengths:'), { bold: true, after: 40 })); sec.strengths.forEach((x: string) => body.push(bullet(x))); }
+    if (sec.weaknesses?.length) { body.push(P(L('Hạn chế:', 'Weaknesses:'), { bold: true, after: 40 })); sec.weaknesses.forEach((x: string) => body.push(bullet(x))); }
+    if (sec.revisions?.length) { body.push(P(L('Yêu cầu/đề nghị chỉnh sửa:', 'Requested revisions:'), { bold: true, after: 40 })); sec.revisions.forEach((x) => body.push(bullet(`[${PRIORITY[x.priority] || L('Gợi ý', 'Suggestion')}] ${s(x.action)}`))); }
+    body.push(...evidenceBlock(L, sec.evidence));
   }
 
   // Phần bổ sung của hệ thống: điểm và khuyến nghị.
   const sc = r.score;
   const d = r.decision;
-  body.push(H('ĐỀ XUẤT ĐIỂM VÀ KHUYẾN NGHỊ', 1));
+  body.push(H(L('ĐỀ XUẤT ĐIỂM VÀ KHUYẾN NGHỊ', 'PROPOSED SCORE AND RECOMMENDATION'), 1));
   if (sc.rows.length) {
     body.push(new Table({
       width: { size: 100, type: WidthType.PERCENTAGE },
       rows: [
-        new TableRow({ children: [cell('Tiêu chí', 60, { head: true }), cell('Điểm tối đa', 20, { head: true, right: true }), cell('Điểm đề xuất', 20, { head: true, right: true })] }),
+        new TableRow({ children: [cell(L('Tiêu chí', 'Criterion'), 60, { head: true }), cell(L('Điểm tối đa', 'Max'), 20, { head: true, right: true }), cell(L('Điểm đề xuất', 'Proposed'), 20, { head: true, right: true })] }),
         ...sc.rows.map((x) => new TableRow({ children: [cell(x.label, 60), cell(String(x.max), 20, { right: true }), cell(String(x.points), 20, { right: true })] })),
-        new TableRow({ children: [cell('Tổng', 60, { bold: true }), cell(String(sc.sumMax), 20, { bold: true, right: true }), cell(String(sc.sum), 20, { bold: true, right: true })] }),
+        new TableRow({ children: [cell(L('Tổng', 'Total'), 60, { bold: true }), cell(String(sc.sumMax), 20, { bold: true, right: true }), cell(String(sc.sum), 20, { bold: true, right: true })] }),
       ],
     }));
     body.push(P('', { after: 80 }));
   }
-  body.push(label('Điểm đề xuất (thang 100): ', `${s(sc.score100)}`));
-  body.push(label('Khuyến nghị: ', s(d.label)));
-  body.push(P(s(d.advice)));
-  if (d.belowPass) body.push(P('CẢNH BÁO: điểm đề xuất thấp hơn ngưỡng thông qua (60/100). Đề nghị người hướng dẫn, giáo sư hướng dẫn hoặc người phản biện cân nhắc kỹ khuyến nghị nêu trên trước khi thông qua.', { bold: true }));
-  if (d.floorApplied) body.push(P('Lưu ý: khuyến nghị được hạ mức do có khuyết điểm nghiêm trọng, dù điểm số cao hơn.', { italics: true }));
-  if (d.mismatch) body.push(P(`Lưu ý: nhận định văn bản của mô hình (${s(d.mismatch.modelLabel)}) khác với mức theo ngưỡng điểm; người nhận xét cần cân nhắc.`, { italics: true }));
+  body.push(label(L('Điểm đề xuất (thang 100): ', 'Proposed score (out of 100): '), `${s(sc.score100)}`));
+  body.push(label(L('Khuyến nghị: ', 'Recommendation: '), s(dec.label)));
+  body.push(P(s(dec.advice)));
+  if (d.belowPass) body.push(P(L('CẢNH BÁO: điểm đề xuất thấp hơn ngưỡng thông qua (60/100). Đề nghị người hướng dẫn, giáo sư hướng dẫn hoặc người phản biện cân nhắc kỹ khuyến nghị nêu trên trước khi thông qua.', 'WARNING: the proposed score is below the pass mark (60/100). The supervisor or reviewer should weigh the recommendation above carefully before approving.'), { bold: true }));
+  if (d.floorApplied) body.push(P(L('Lưu ý: khuyến nghị được hạ mức do có khuyết điểm nghiêm trọng, dù điểm số cao hơn.', 'Note: the recommendation was lowered because of a fatal defect, despite the higher score.'), { italics: true }));
+  if (d.mismatch) body.push(P(L(`Lưu ý: nhận định văn bản của mô hình (${s(labelsFor(lang).decision(d.mismatch.model).short)}) khác với mức theo ngưỡng điểm; người nhận xét cần cân nhắc.`, `Note: the model's own verdict (${s(labelsFor(lang).decision(d.mismatch.model).short)}) differs from the score-based level; the reviewer should weigh it.`), { italics: true }));
 
   const ov = r.overall;
   if (ov.summary || ov.conclusion) {
-    body.push(H('Nhận xét tổng quát và kết luận', 2));
+    body.push(H(L('Nhận xét tổng quát và kết luận', 'Overall assessment and conclusion'), 2));
     for (const para of paras(ov.summary)) body.push(P(para));
     for (const para of paras(ov.conclusion)) body.push(P(para));
   }
   if (r.fatalDefects?.length) {
-    body.push(H('Khuyết điểm nghiêm trọng', 2));
-    for (const f of r.fatalDefects) { body.push(bullet(`${f.severity === 'fatal' ? '[Rất nghiêm trọng] ' : '[Nghiêm trọng] '}${s(f.description)}`)); body.push(...evidenceBlock(f.evidence)); }
+    body.push(H(L('Khuyết điểm nghiêm trọng', 'Serious defects'), 2));
+    for (const f of r.fatalDefects) { body.push(bullet(`${f.severity === 'fatal' ? L('[Rất nghiêm trọng] ', '[Fatal] ') : L('[Nghiêm trọng] ', '[Serious] ')}${s(f.description)}`)); body.push(...evidenceBlock(L, f.evidence)); }
   }
   if (r.integrityNotes?.length) {
-    body.push(H('Dấu hiệu cần kiểm tra về liêm chính học thuật', 2));
-    body.push(P('Các nội dung dưới đây chỉ là dấu hiệu cần kiểm tra, không phải kết luận về vi phạm.', { italics: true }));
-    for (const n of r.integrityNotes) { body.push(bullet(s(n.concern))); if (n.suggested_check) body.push(P(`Đề nghị kiểm tra: ${s(n.suggested_check)}`, { indent: 360, after: 60 })); body.push(...evidenceBlock(n.evidence)); }
+    body.push(H(L('Dấu hiệu cần kiểm tra về liêm chính học thuật', 'Academic integrity flags to check'), 2));
+    body.push(P(L('Các nội dung dưới đây chỉ là dấu hiệu cần kiểm tra, không phải kết luận về vi phạm.', 'The items below are only flags to check, not findings of misconduct.'), { italics: true }));
+    for (const n of r.integrityNotes) { body.push(bullet(s(n.concern))); if (n.suggested_check) body.push(P(`${L('Đề nghị kiểm tra', 'Suggested check')}: ${s(n.suggested_check)}`, { indent: 360, after: 60 })); body.push(...evidenceBlock(L, n.evidence)); }
   }
   if (r.questions?.length) {
-    body.push(H('Câu hỏi đề nghị tác giả giải trình', 2));
+    body.push(H(L('Câu hỏi đề nghị tác giả giải trình', 'Questions for the author'), 2));
     r.questions.forEach((q, i) => body.push(P(`${i + 1}. ${s(q)}`, { indent: 240 })));
   }
   if (r.limitations?.length) {
-    body.push(H('Giới hạn của bản nhận xét tự động', 2));
+    body.push(H(L('Giới hạn của bản nhận xét tự động', 'Limits of this automated draft'), 2));
     r.limitations.forEach((x: string) => body.push(bullet(x)));
   }
-  body.push(P(`Đã đối chiếu ${r.verification?.kept ?? 0} đoạn trích với bản gốc (loại ${r.verification?.dropped ?? 0} đoạn không khớp). Hệ thống không kiểm tra trùng lặp (đạo văn) và không xác minh sự tồn tại của tài liệu tham khảo; người nhận xét cần thực hiện các việc này bằng công cụ chuyên dụng.`, { italics: true, size: 22 }));
+  body.push(P(L(`Đã đối chiếu ${r.verification?.kept ?? 0} đoạn trích với bản gốc (loại ${r.verification?.dropped ?? 0} đoạn không khớp). Hệ thống không kiểm tra trùng lặp (đạo văn) và không xác minh sự tồn tại của tài liệu tham khảo; người nhận xét cần thực hiện các việc này bằng công cụ chuyên dụng.`, `${r.verification?.kept ?? 0} quotes were checked against the original (${r.verification?.dropped ?? 0} non-matching quotes removed). The system does not check plagiarism and does not verify that references exist; the reviewer must do both with dedicated tools.`), { italics: true, size: 22 }));
 
   const doc = new Document({
-    creator: 'Người nhận xét', title: s(t.title || 'Phiếu nhận xét'),
+    creator: L('Người nhận xét', 'Reviewer'), title: s(t.title || L('Phiếu nhận xét', 'Review form')),
     styles: { default: { document: { run: { font: FONT, size: SIZE } } } },
     sections: [{
       properties: { page: { margin: { top: 1134, bottom: 1134, left: 1701, right: 1134 } } },

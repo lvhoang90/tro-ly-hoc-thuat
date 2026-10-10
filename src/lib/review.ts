@@ -73,8 +73,8 @@ export async function runReview(p: { blocks: RawBlock[]; fileName: string; meta:
       if (e instanceof ApiFailure && ["review_token", "unauthorized", "suspended"].includes(e.info.error)) throw e;
     }
     const result = assemble({ sections: rawSections as never[], overall, template: p.template, blocks, meta: p.meta, fileName: p.fileName, model });
-    if (failedIds.length) result.warnings.unshift(`Một số mục không xử lý được (${failedIds.length}); cần người phản biện tự nhận xét.`);
-    if (!overall) result.warnings.unshift("Phần tổng hợp (điểm, khuyết điểm, câu hỏi) chưa xử lý được; cần người phản biện tự hoàn thiện.");
+    if (failedIds.length) result.warnings.unshift(p.meta.lang === "en" ? `Some sections could not be processed (${failedIds.length}); the reviewer must comment on them.` : `Một số mục không xử lý được (${failedIds.length}); cần người phản biện tự nhận xét.`);
+    if (!overall) result.warnings.unshift(p.meta.lang === "en" ? "The overall part (score, defects, questions) could not be processed; the reviewer must complete it." : "Phần tổng hợp (điểm, khuyết điểm, câu hỏi) chưa xử lý được; cần người phản biện tự hoàn thiện.");
     stage({ phase: "finish" });
     const fin = await post<{ review: ReviewQuota }>({ op: "finish", token, score: result.score.sumMax ? result.score.score100 : null }).catch(() => null);
     return { result, quota: fin?.review ?? null };

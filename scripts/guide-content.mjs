@@ -87,7 +87,7 @@ export const CONTENT = {
     proSub: "A simulated committee: review proposals, theses and dissertations",
     proBadge: "Premium feature",
     proLead: "The AI Professor plays a demanding but fair reviewer. You upload a work and your institution's review template; Ami drafts section-by-section comments, a proposed score out of 100, an accept or revise recommendation and questions for the author; every evidence quote is checked by machine against the original.",
-    proWho: ["For verified researchers approved by the administrator. Each review reads the full work, so it uses far more resources than a normal analysis.", "This is a drafting aid: Ami does not replace a real committee, does not check plagiarism and does not verify that references exist. The reviewer verifies, edits and stays responsible for the final text. Review labels such as document type and recommendation are currently shown in Vietnamese."],
+    proWho: ["For verified researchers approved by the administrator. Each review reads the full work, so it uses far more resources than a normal analysis.", "This is a drafting aid: Ami does not replace a real committee, does not check plagiarism and does not verify that references exist. The reviewer verifies, edits and stays responsible for the final text."],
     proStepsH: "From request to review",
     proSteps: [
       ["Find the AI Professor", "It has a star icon in the menu; the Analyse page also shows an introduction banner.", "p0-menu", "The AI Professor item in the menu"],

@@ -131,3 +131,22 @@ test("lược đồ và lời nhắc: lô mục, tổng hợp theo thang mặc �
   assert.ok(SECTIONS_SCHEMA);
   assert.match(documentBlock("abc"), /^<tai_lieu>\nabc\n<\/tai_lieu>$/);
 });
+
+test("nhãn kết quả theo ngôn ngữ: loại văn bản, vai trò, khuyến nghị, thang điểm, mẫu có sẵn, cảnh báo", async () => {
+  const { labelsFor, defaultRubric, DOC_TYPES, DECISIONS } = await import("../shared/review/rubric.ts");
+  const en = labelsFor("en"), vi = labelsFor("vi");
+  assert.equal(en.docType("thesis"), "Master's thesis"); assert.equal(vi.docType("thesis"), "Luận văn thạc sĩ");
+  assert.equal(en.role("reviewer"), "Reviewer"); assert.equal(en.docType("lạ"), "Other scientific work");
+  for (const k of Object.keys(DECISIONS)) { assert.ok(en.decision(k).label && en.decision(k).advice, k); assert.notEqual(en.decision(k).short, vi.decision(k).short); }
+  assert.match(en.decision("unscored").label, /Not scored/);
+  for (const t of Object.keys(DOC_TYPES)) {
+    const v = defaultRubric(t, "vi"), e = defaultRubric(t, "en");
+    assert.deepEqual(e.map((c) => [c.id, c.max]), v.map((c) => [c.id, c.max]));
+    assert.ok(e.every((c) => /^[A-Za-z]/.test(c.label)) && e.reduce((s, c) => s + c.max, 0) === 100, t);
+  }
+  const tpl = builtinTemplate("proposal", "en");
+  assert.equal(tpl.language, "en"); assert.match(tpl.template_title, /Review form: research proposal/); assert.equal(tpl.sections.at(-1)?.title, "Conclusion and recommendations");
+  const r = assemble({ sections: [], overall: {}, template: tpl, blocks, meta: { docType: "proposal", role: "reviewer", lang: "en" }, fileName: "x", model: "m" });
+  assert.equal(r.meta.docTypeLabel, "Research proposal");
+  assert.ok(r.warnings.every((w) => /^(Section|Criterion|The total)/.test(w)), r.warnings.join("|"));
+});
