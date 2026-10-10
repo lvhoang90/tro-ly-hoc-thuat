@@ -7,6 +7,7 @@ export type Row = [string, string, string[], number, number, number, string, num
 export interface Idx { built?: string; i: Record<string, [string, string]>; d: Record<string, string[]>; a: Row[] }
 
 export const PROFIND_ORIGIN = "https://profind.isavn.edu.vn";
+export const GO_ORIGIN = "https://isavn.edu.vn";
 export const PROFIND_INDEX_URL = `${PROFIND_ORIGIN}/data/suggest.json`;
 
 export const fold = (s: string) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/gi, "d").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
@@ -102,6 +103,5 @@ export function suggest(idx: Idx, user: { name: string; email: string; org: stri
 export const mainPick = (c: Cand[]) => (c[0] && c[0].score >= 70 && (!c[1] || c[0].score - c[1].score >= 15) ? c[0].id : null);
 export const pct = (c: Cand) => (c.score >= 100 ? 100 : Math.min(99, c.score));
 
-/** Liên kết tới hồ sơ tác giả trên ProFind (đường dẫn dạng #, nên không đi qua cổng /go được); kèm nguồn để ProFind đo. */
-export const profindAuthorUrl = (id: string, campaign = "author") =>
-  `${PROFIND_ORIGIN}/?utm_source=ami&utm_medium=ecosystem&utm_campaign=${campaign}#/tac-gia/${encodeURIComponent(id)}`;
+/** Liên kết tới hồ sơ tác giả trên ProFind qua cổng isavn.edu.vn/go (cổng chuyển phần `hash` thành `#/tac-gia/<id>` và ghi nhận lượt bấm). Nhãn nguồn của từng chỗ đặt liên kết do `track` ghi. */
+export const profindAuthorUrl = (id: string) => `${GO_ORIGIN}/go/profind?from=ami&hash=${encodeURIComponent(`/tac-gia/${id}`)}`;

@@ -46,5 +46,5 @@ test("gợi ý hồ sơ của người dùng: ORCID trùng là 100%, tên + tên
 });
 
 test("liên kết ProFind mang nguồn Ami và mã tác giả đã mã hóa", () => {
-  assert.equal(profindAuthorUrl("A123", "reco"), "https://profind.isavn.edu.vn/?utm_source=ami&utm_medium=ecosystem&utm_campaign=reco#/tac-gia/A123");
+  assert.equal(profindAuthorUrl("A123"), "https://isavn.edu.vn/go/profind?from=ami&hash=%2Ftac-gia%2FA123");
 });
