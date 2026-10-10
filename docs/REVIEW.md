@@ -27,7 +27,7 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 - **Bước tách mẫu** ghi một dòng `usage_log` riêng (`kind = 'review_template'`) kèm chi phí và giới hạn 10 lần mỗi giờ cho mỗi người (`log_template`); quản trị viên không giới hạn.
 - **Thưởng giới thiệu** chỉ trả khi lượt đã có ít nhất một phần AI xử lý xong (`finish_review`).
 - **Thử lại**: chỉ với lỗi tạm thời (`shared/review/retry.ts`). Bị cắt giữa chừng thì chia đôi lô ngay; AI từ chối (`ai_refused`) và chạm trần không thử lại.
-- Bảng điều khiển chỉ đếm lượt phân tích thường (`kind = 'analyze'`); chi phí và token tính đủ mọi loại.
+- Bảng điều khiển chỉ đếm lượt phân tích thường (`kind = 'analyze'`); chi phí và token tính đủ mọi loại. "Chi phí trung bình / lượt" chỉ tính phân tích thường; chi phí Giáo sư phản biện (kể cả tách mẫu) hiện ở thẻ riêng "Giáo sư phản biện: chi phí" trong Quản trị → Thống kê, kèm số lượt và chi phí trung bình mỗi lượt.
 
 ## Thời gian và mức suy nghĩ
 - Mã lượt sống 3 giờ (công trình dài cần nhiều bước tuần tự).

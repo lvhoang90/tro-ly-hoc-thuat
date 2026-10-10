@@ -492,6 +492,10 @@ begin
     'cost_today', (select coalesce(sum(cost_usd), 0) from public.usage_log where (created_at at time zone 'Asia/Ho_Chi_Minh')::date = public.vn_today()),
     'cost_30d', (select coalesce(sum(cost_usd), 0) from public.usage_log where created_at > now() - interval '30 days'),
     'cost_refunded', (select coalesce(sum(cost_usd), 0) from public.usage_log where refunded),
+    'review_cost_total', (select coalesce(sum(cost_usd), 0) from public.usage_log where kind in ('review', 'review_template')),
+    'review_cost_30d', (select coalesce(sum(cost_usd), 0) from public.usage_log where kind in ('review', 'review_template') and created_at > now() - interval '30 days'),
+    'reviews_30d', (select count(*) from public.usage_log where kind = 'review' and not refunded and created_at > now() - interval '30 days'),
+    'reviews_total', (select count(*) from public.usage_log where kind = 'review' and not refunded),
     'tokens_in', (select coalesce(sum(input_tokens), 0) from public.usage_log),
     'tokens_out', (select coalesce(sum(output_tokens), 0) from public.usage_log)
   ) into r;
@@ -499,8 +503,9 @@ begin
 end $$;
 
 -- Chuỗi thời gian theo ngày (giờ Việt Nam) cho biểu đồ quản trị.
+drop function if exists public.admin_timeseries(integer);
 create or replace function public.admin_timeseries(p_days integer default 30)
-returns table (day date, analyses integer, refunded integer, cost_usd numeric, input_tokens bigint, output_tokens bigint, new_users integer, citations integer)
+returns table (day date, analyses integer, refunded integer, cost_usd numeric, input_tokens bigint, output_tokens bigint, new_users integer, citations integer, review_cost_usd numeric, reviews integer)
 language plpgsql stable security definer set search_path = public as $$
 begin
   if not public.is_admin() then raise exception 'forbidden' using errcode = '42501'; end if;
@@ -512,7 +517,9 @@ begin
       coalesce((select sum(l.input_tokens) from public.usage_log l where (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::bigint,
       coalesce((select sum(l.output_tokens) from public.usage_log l where (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::bigint,
       coalesce((select count(*) from public.profiles p where (p.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int,
-      coalesce((select count(*) from public.citations c where (c.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int
+      coalesce((select count(*) from public.citations c where (c.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int,
+      coalesce((select sum(l.cost_usd) from public.usage_log l where l.kind in ('review', 'review_template') and (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0),
+      coalesce((select count(*) from public.usage_log l where l.kind = 'review' and not l.refunded and (l.created_at at time zone 'Asia/Ho_Chi_Minh')::date = g::date), 0)::int
     from generate_series(public.vn_today() - (least(greatest(p_days, 1), 365) - 1), public.vn_today(), interval '1 day') g
     order by 1;
 end $$;
