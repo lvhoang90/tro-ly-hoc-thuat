@@ -1,0 +1,27 @@
+# Tạo gói triển khai cho hosting cPanel (tải ở mục Artifacts của lần chạy). Chạy tay: Actions → cPanel bundle → Run workflow.
+name: cPanel bundle
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "Địa chỉ web sẽ chạy (vd https://aaa.isavietnam.app hoặc địa chỉ tạm)"
+        required: true
+permissions:
+  contents: read
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run pack:cpanel
+        env:
+          VITE_SITE_URL: ${{ github.event.inputs.site_url }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ami-cpanel
+          path: ami-cpanel.zip
+          retention-days: 7
