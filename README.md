@@ -20,6 +20,10 @@ Dung lượng tệp: **15 MB** cho người dùng đã được quản trị vi�
 Hạn mức theo **hạng tài khoản**. *Cơ bản* (chưa xác thực): đến hết 09/10/2026 là 1 lượt/ngày, từ **10/10/2026** là **1 lượt/tuần** (tuần bắt đầu thứ Hai, giờ Việt Nam; ngày áp dụng và số lượt chỉnh trong Quản trị → Cài đặt), lịch sử trích dẫn chỉ xem lại khi đã xác thực (dữ liệu vẫn được lưu) và gợi ý tài liệu chỉ hiện số lượng. *Đã xác thực*: hạn mức riêng từng người do tác giả đặt (mặc định 1 lượt/ngày), đầy đủ tính năng. Hết lượt thì hiện lời mời xác thực kèm email/SĐT/Zalo của tác giả. Quản trị viên cấp thêm lượt, đặt hạn mức riêng và lọc người dùng thường xuyên chưa xác thực trong trang Quản trị. **Master** (role admin) không giới hạn. Lượt bị hoàn lại nếu AI lỗi hoặc tài liệu ngôn ngữ khác.
 Không lưu tài liệu; chỉ lưu hồ sơ, hạn mức và **lịch sử trích dẫn đã sao chép**.
 
+## Chạy trên hosting dùng chung
+
+Ngoài Vercel + Supabase, ứng dụng chạy được như một máy chủ Node + SQLite duy nhất (`server/`, build với `VITE_BACKEND=local`) trên hosting cPanel. Xem `docs/CPANEL.md` (triển khai, di chuyển dữ liệu và tài khoản, chuyển DNS, quay lại).
+
 ## Phát hành
 
 Dự án theo [Semantic Versioning](https://semver.org/lang/vi/) (MAJOR.MINOR.PATCH) và [Keep a Changelog](https://keepachangelog.com/vi/1.1.0/). Lịch sử có ở `CHANGELOG.md` (tiếng Anh), trên web tại `/ghi-chu-phat-hanh` và `/en/release-notes`, và ở trang [Releases](https://github.com/lvhoang90/tro-ly-hoc-thuat/releases) của GitHub. Nguồn duy nhất là `scripts/releases.mjs`. Ghi chú phát hành chỉ nêu điều người dùng cuối cảm nhận được, không đưa chi tiết kỹ thuật hay việc nội bộ (xem `CLAUDE.md`).
