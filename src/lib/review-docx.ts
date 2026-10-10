@@ -142,3 +142,12 @@ export async function buildDocx(r: ReviewResult, lang: 'vi' | 'en' = 'vi'): Prom
   });
   return Packer.toBlob(doc);
 }
+
+/** Gói nhiều bản nhận xét thành một tệp .zip: mỗi công trình một tệp .docx riêng (tên theo tệp gốc, không trùng). */
+export async function buildZip(results: ReviewResult[], lang: 'vi' | 'en' = 'vi'): Promise<Blob> {
+  const { default: JSZip } = await import('jszip');
+  const zip = new JSZip();
+  const used = new Set<string>();
+  for (const r of results) zip.file(uniqueName(exportFileName(r, lang), used), await buildDocx(r, lang));
+  return zip.generateAsync({ type: 'blob', compression: 'DEFLATE' });
+}

@@ -5,9 +5,11 @@ import { supabase } from "../lib/supabase.ts";
 import { ApiFailure } from "../lib/api.ts";
 import { ExtractFailure } from "../lib/extract.ts";
 import { readReviewDoc, type ReadDoc } from "../lib/review-read.ts";
-import { analyzeTemplate, clearReviews, loadSaved, removeReview, runReview, saveReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
+import { analyzeTemplate, clearReviews, loadSaved, persistSaved, removeReview, replaceReview, runReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
+import { runBatch, type ItemStatus, type WorkItem } from "../lib/review-batch.ts";
 import { blockLine, numberBlocks } from "../../shared/review/corpus.ts";
-import { MAX_REVIEW_CHARS } from "../../shared/review/limits.ts";
+import { MAX_BATCH_WORKS, MAX_REVIEW_CHARS, MAX_SAVED_REVIEWS } from "../../shared/review/limits.ts";
+import { linesToList, listToLines, setRowPoints } from "../../shared/review/edit.ts";
 import { DOC_TYPES, ROLES, labelsFor } from "../../shared/review/rubric.ts";
 import { builtinTemplate, usesDefaultRubric, type Template } from "../../shared/review/template.ts";
 import type { ReviewResult } from "../../shared/review/assemble.ts";
@@ -23,11 +25,18 @@ const stagePct = (s: Stage | null) => (!s ? 0 : s.phase === "start" ? 4 : s.phas
 
 const plainTemplateText = (doc: ReadDoc) => numberBlocks(doc.blocks).map((b) => blockLine(b).replace(/^\[¶\d+\] /, "")).join("\n");
 
-function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
+const rowsFor = (text: string) => Math.min(14, Math.max(3, text.split("\n").length + Math.ceil(text.length / 110)));
+function Area({ value, onChange, label, min }: { value: string; onChange: (v: string) => void; label: string; min?: number }) {
+  return <textarea className="rv-edit" rows={Math.max(min ?? 3, rowsFor(value))} value={value} onChange={(e) => onChange(e.target.value)} aria-label={label} />;
+}
+
+function Result({ r, onClose, onChange }: { r: ReviewResult; onClose?: () => void; onChange?: (r: ReviewResult) => void }) {
   const { t, lang } = useI18n();
   const L = labelsFor(lang);
   const { toast } = useApp();
   const [busy, setBusy] = useState(false);
+  const edit = !!onChange;
+  const set = (fn: (x: ReviewResult) => ReviewResult) => onChange?.(fn(r));
   const dt = L.decision(r.decision.key);
   const d = { ...r.decision, ...dt };
   const sev = d.severity === "ok" ? "ok" : d.severity === "danger" ? "err" : "warn";
@@ -43,6 +52,7 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
       document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
     } catch (e) { console.error(e); toast(t("rv_export_fail"), "err"); } finally { setBusy(false); }
   };
+  const paras = (text: string) => text.split(/\n+/).filter(Boolean).map((p, i) => <p key={i}>{p}</p>);
   return (
     <div className="stack rv-result">
       <div className="card stack">
@@ -65,38 +75,64 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
           <button className="btn primary" onClick={download} disabled={busy}><Icon name="file" size={16} /> {busy ? "…" : t("rv_download")}</button>
         </div>
         <p className="muted small">{t("rv_draft_note")}</p>
+        {edit && <p className="muted small">{t("rv_edit_hint")}</p>}
         {r.warnings.length > 0 && <div className="box warnbox"><b>{t("rv_warnings")}</b><ul>{r.warnings.map((w, i) => <li key={i}>{w}</li>)}</ul></div>}
       </div>
+
+      {edit && r.info.length > 0 && (
+        <div className="card stack">
+          <h4>{t("rv_info")}</h4>
+          {r.info.map((x, i) => (
+            <label key={i}>{x.label}<input value={x.value} onChange={(e) => set((q) => ({ ...q, info: q.info.map((y, j) => (j === i ? { ...y, value: e.target.value } : y)) }))} /></label>
+          ))}
+        </div>
+      )}
 
       {r.score.rows.length > 0 && (
         <div className="card stack">
           <h4>{t("rv_table")}</h4>
           <table className="tbl rv-tbl"><thead><tr><th>{t("rv_criterion")}</th><th>{t("rv_max")}</th><th>{t("rv_points")}</th></tr></thead>
-            <tbody>{r.score.rows.map((x, i) => <tr key={i}><td>{x.label}{x.rationale && <small className="muted"><br />{x.rationale}</small>}</td><td>{x.max}</td><td><b>{x.points}</b></td></tr>)}
+            <tbody>{r.score.rows.map((x, i) => (
+              <tr key={i}><td>{x.label}{x.rationale && <small className="muted"><br />{x.rationale}</small>}</td><td>{x.max}</td>
+                <td>{edit
+                  ? <input className="rv-pts" type="number" min={0} max={x.max} step={0.5} value={x.points} aria-label={`${t("rv_points")}: ${x.label ?? ""}`} onChange={(e) => set((q) => setRowPoints(q, i, Number(e.target.value)))} />
+                  : <b>{x.points}</b>}</td></tr>
+            ))}
               <tr><td><b>{t("rv_total")}</b></td><td><b>{r.score.sumMax}</b></td><td><b>{r.score.sum}</b></td></tr></tbody></table>
         </div>
       )}
 
-      {(r.overall.summary || r.overall.conclusion) && (
+      {(edit || r.overall.summary || r.overall.conclusion) && (
         <div className="card stack">
           <h4>{t("rv_overall")}</h4>
-          {r.overall.summary.split(/\n+/).filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
-          {r.overall.conclusion.split(/\n+/).filter(Boolean).map((p, i) => <p key={`c${i}`}>{p}</p>)}
+          {edit ? (
+            <>
+              <Area label={t("rv_overall")} value={r.overall.summary} onChange={(v) => set((q) => ({ ...q, overall: { ...q.overall, summary: v } }))} min={4} />
+              <h5>{t("rv_conclusion")}</h5>
+              <Area label={t("rv_conclusion")} value={r.overall.conclusion} onChange={(v) => set((q) => ({ ...q, overall: { ...q.overall, conclusion: v } }))} min={3} />
+            </>
+          ) : <>{paras(r.overall.summary)}{paras(r.overall.conclusion)}</>}
         </div>
       )}
 
       <div className="card stack">
         <h4>{t("rv_sections")}</h4>
-        {r.sections.map((s) => (
-          <details key={s.id} className="rv-sec" open={s.level === 1 && r.sections.length <= 8}>
-            <summary><b>{s.number} {s.title}</b>{s.max_points > 0 && <span className="badge">{s.points}/{s.max_points}</span>}{s.missing && <span className="badge warn">{t("rv_missing")}</span>}{s.insufficient_basis && !s.missing && <span className="badge">{t("rv_insufficient")}</span>}</summary>
-            {s.content.split(/\n+/).filter(Boolean).map((p, i) => <p key={i}>{p}</p>)}
-            {s.strengths.length > 0 && <><h5>{t("rv_strengths")}</h5><ul>{s.strengths.map((x, i) => <li key={i}>{x}</li>)}</ul></>}
-            {s.weaknesses.length > 0 && <><h5>{t("rv_weaknesses")}</h5><ul>{s.weaknesses.map((x, i) => <li key={i}>{x}</li>)}</ul></>}
-            {s.revisions.length > 0 && <><h5>{t("rv_revisions")}</h5><ul>{s.revisions.map((x, i) => <li key={i}><span className={`badge ${x.priority === "bat_buoc" ? "warn" : ""}`}>{t(`rv_pr_${x.priority}` as Key)}</span> {x.action}</li>)}</ul></>}
-            {s.evidence.length > 0 && <><h5>{t("rv_evidence")}</h5>{ev(s.evidence)}</>}
-          </details>
-        ))}
+        {r.sections.map((s, si) => {
+          const upd = (patch: Partial<typeof s>) => set((q) => ({ ...q, sections: q.sections.map((x, j) => (j === si ? { ...x, ...patch } : x)) }));
+          return (
+            <details key={s.id} className="rv-sec" open={s.level === 1 && r.sections.length <= 8}>
+              <summary><b>{s.number} {s.title}</b>{s.max_points > 0 && <span className="badge">{s.points}/{s.max_points}</span>}{s.missing && <span className="badge warn">{t("rv_missing")}</span>}{s.insufficient_basis && !s.missing && <span className="badge">{t("rv_insufficient")}</span>}</summary>
+              {edit ? <Area label={`${s.title}`} value={s.content} onChange={(v) => upd({ content: v })} min={4} /> : paras(s.content)}
+              {(edit || s.strengths.length > 0) && <><h5>{t("rv_strengths")}</h5>{edit ? <Area label={t("rv_strengths")} value={listToLines(s.strengths)} onChange={(v) => upd({ strengths: linesToList(v) })} /> : <ul>{s.strengths.map((x, i) => <li key={i}>{x}</li>)}</ul>}</>}
+              {(edit || s.weaknesses.length > 0) && <><h5>{t("rv_weaknesses")}</h5>{edit ? <Area label={t("rv_weaknesses")} value={listToLines(s.weaknesses)} onChange={(v) => upd({ weaknesses: linesToList(v) })} /> : <ul>{s.weaknesses.map((x, i) => <li key={i}>{x}</li>)}</ul>}</>}
+              {s.revisions.length > 0 && <><h5>{t("rv_revisions")}</h5><ul className={edit ? "rv-revs" : ""}>{s.revisions.map((x, i) => (
+                <li key={i}><span className={`badge ${x.priority === "bat_buoc" ? "warn" : ""}`}>{t(`rv_pr_${x.priority}` as Key)}</span>{" "}
+                  {edit ? <input className="rv-edit" value={x.action} aria-label={t("rv_revisions")} onChange={(e) => upd({ revisions: s.revisions.map((y, j) => (j === i ? { ...y, action: e.target.value } : y)) })} /> : x.action}</li>
+              ))}</ul></>}
+              {s.evidence.length > 0 && <><h5>{t("rv_evidence")}</h5>{ev(s.evidence)}</>}
+            </details>
+          );
+        })}
       </div>
 
       {r.fatalDefects.length > 0 && (
@@ -117,6 +153,14 @@ function Result({ r, onClose }: { r: ReviewResult; onClose?: () => void }) {
   );
 }
 
+const saveBlobAs = (blob: Blob, name: string) => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+};
+const STATUS_KEY: Record<ItemStatus, Key> = { reading: "rv_st_reading", ready: "rv_st_ready", read_error: "rv_st_read_error", queued: "rv_st_queued", running: "rv_st_running", done: "rv_st_done", failed: "rv_st_failed", skipped: "rv_st_skipped", stopped: "rv_st_stopped" };
+const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
 export default function Review() {
   const { t, lang } = useI18n();
   const { quota, toast } = useApp();
@@ -130,35 +174,67 @@ export default function Review() {
   const [custom, setCustom] = useState<{ name: string; tpl: Template } | null>(null);
   const [useCustom, setUseCustom] = useState(false);
   const [tplBusy, setTplBusy] = useState(false);
-  const [work, setWork] = useState<{ name: string; doc: ReadDoc } | null>(null);
-  const [reading, setReading] = useState<{ done: number; total: number } | null>(null);
-  const [stage, setStage] = useState<Stage | null>(null);
+  const [items, setItems] = useState<WorkItem[]>([]);
+  const [reading, setReading] = useState(false);
   const [running, setRunning] = useState(false);
+  const [runIds, setRunIds] = useState<string[]>([]);
+  const [stopping, setStopping] = useState(false);
+  const [zipBusy, setZipBusy] = useState(false);
   const [err, setErr] = useState("");
   const [saved, setSaved] = useState<SavedReview[]>(loadSaved);
   const [open, setOpen] = useState<string>("");
   const [drag, setDrag] = useState(false);
   const workInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
+  const stopRef = useRef(false);
+  const savedRef = useRef<SavedReview[]>(saved);
+  const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  savedRef.current = saved;
 
   const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => { setRq((data as ReviewQuota | null) ?? null); setRqLoaded(true); }); };
   useEffect(() => { if (eligible) refreshQuota(); }, [eligible]);
   useEffect(() => { if (running) { const f = (e: BeforeUnloadEvent) => { e.preventDefault(); }; addEventListener("beforeunload", f); return () => removeEventListener("beforeunload", f); } }, [running]);
+  // Sửa trên màn hình: ghi xuống trình duyệt sau khi ngừng gõ, và ghi nốt khi rời trang.
+  useEffect(() => () => { if (persistTimer.current) { clearTimeout(persistTimer.current); persistSaved(savedRef.current); } }, []);
 
   const access = eligible && rqLoaded && (!!rq?.has_access || !!rq?.unlimited);
   const tpl: Template = useCustom && custom ? custom.tpl : builtinTemplate(docType, lang);
-  const readErr = (e: unknown) => {
+  const readErrText = (e: unknown) => {
     const code = e instanceof ExtractFailure ? e.code : "corrupt";
-    setErr(code === "size" ? t("err_file_size", { mb: 15 }) : code === "type" ? t("rv_err_type") : t(`err_file_${code}` as Key, { mb: 15, n: 0 }));
+    return code === "size" ? t("err_file_size", { mb: 15 }) : code === "type" ? t("rv_err_type") : t(`err_file_${code}` as Key, { mb: 15, n: 0 });
   };
-  const pickWork = async (f?: File) => {
-    if (!f) return;
-    setErr(""); setWork(null); setReading({ done: 0, total: 1 });
-    try {
-      const doc = await readReviewDoc(f, (done, total) => setReading({ done, total }));
-      if (doc.chars > MAX_REVIEW_CHARS) { setErr(t("rv_too_long", { n: Math.round(MAX_REVIEW_CHARS / 1000).toLocaleString() })); return; }
-      setWork({ name: f.name, doc });
-    } catch (e) { readErr(e); } finally { setReading(null); }
+  const failText = (e: unknown): { code: string; message: string } => {
+    if (e instanceof ApiFailure) {
+      const k = e.info.error;
+      const message = k === "quota_exhausted" ? t("rv_quota_out", { date: fmtDay(rq?.next_reset ?? "") })
+        : k === "ai_failed" && e.info.message ? `${e.info.message} ${t("rv_refunded")}`
+        : t(`err_${k}` as Key) + (k === "ai_failed" || k === "truncated" ? ` ${t("rv_refunded")}` : "");
+      return { code: k, message };
+    }
+    return { code: "network", message: t("err_network") };
+  };
+  const patchItem = (id: string, patch: Partial<WorkItem>) => setItems((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x)));
+
+  const addFiles = async (files: File[]) => {
+    if (!files.length || running) return;
+    setErr("");
+    const fresh = files.filter((f) => !items.some((x) => x.name === f.name && x.size === f.size));
+    const room = Math.max(0, MAX_BATCH_WORKS - items.length);
+    if (fresh.length > room) setErr(t("rv_batch_max", { n: MAX_BATCH_WORKS }));
+    const take = fresh.slice(0, room);
+    const added: WorkItem[] = take.map((f) => ({ id: newId(), name: f.name, size: f.size, status: "reading" as const }));
+    if (!added.length) return;
+    setItems((prev) => [...prev, ...added]);
+    setReading(true);
+    // Đọc tuần tự từng tệp ngay trên máy; tệp lỗi chỉ báo ở dòng của nó.
+    for (let i = 0; i < take.length; i++) {
+      try {
+        const doc = await readReviewDoc(take[i]);
+        if (doc.chars > MAX_REVIEW_CHARS) patchItem(added[i].id, { status: "read_error", error: t("rv_too_long", { n: Math.round(MAX_REVIEW_CHARS / 1000).toLocaleString() }) });
+        else patchItem(added[i].id, { status: "ready", blocks: doc.blocks, words: doc.words, pages: doc.pages });
+      } catch (e) { patchItem(added[i].id, { status: "read_error", error: readErrText(e) }); }
+    }
+    setReading(false);
   };
   const pickTemplate = async (f?: File) => {
     if (!f) return;
@@ -168,31 +244,69 @@ export default function Review() {
       const text = plainTemplateText(doc);
       setCustom({ name: f.name, tpl: await analyzeTemplate(text) }); setUseCustom(true);
     } catch (e) {
-      if (e instanceof ApiFailure) setErr(e.info.message || t(`err_${e.info.error}` as Key)); else readErr(e);
+      if (e instanceof ApiFailure) setErr(e.info.message || t(`err_${e.info.error}` as Key)); else setErr(readErrText(e));
     } finally { setTplBusy(false); }
   };
 
-  const start = async () => {
-    if (!work || running) return;
-    setErr(""); setRunning(true); setStage({ phase: "start" }); setOpen("");
-    track("ami_phan_bien", docType);
-    try {
-      const { result, quota: q } = await runReview({ blocks: work.doc.blocks, fileName: work.name, meta: { docType, role, field: field.trim(), notes: notes.trim(), lang }, template: tpl, onStage: setStage });
-      const list = saveReview(result);
-      setSaved(list); setOpen(list[0].id); if (q) setRq((prev) => ({ ...(prev as ReviewQuota), ...q })); else refreshQuota();
-      setWork(null);
-    } catch (e) {
-      refreshQuota();
-      if (e instanceof ApiFailure) {
-        const k = e.info.error;
-        setErr(k === "quota_exhausted" ? t("rv_quota_out", { date: fmtDay(rq?.next_reset ?? "") }) : k === "ai_failed" && e.info.message ? `${e.info.message} ${t("rv_refunded")}` : t(`err_${k}` as Key) + (k === "ai_failed" || k === "truncated" ? ` ${t("rv_refunded")}` : ""));
-      } else setErr(t("err_network"));
-    } finally { setRunning(false); setStage(null); }
+  const addSaved = (result: ReviewResult) => {
+    const item: SavedReview = { id: newId(), at: new Date().toISOString(), result };
+    const next = persistSaved([item, ...savedRef.current]);
+    savedRef.current = next; setSaved(next);
+    return item.id;
+  };
+  const onEdit = (id: string, r: ReviewResult) => {
+    const next = replaceReview(savedRef.current, id, r);
+    savedRef.current = next; setSaved(next);
+    if (persistTimer.current) clearTimeout(persistTimer.current);
+    persistTimer.current = setTimeout(() => { persistSaved(savedRef.current); persistTimer.current = null; }, 700);
+  };
+
+  /** Chạy tuần tự các công trình: mỗi công trình một lượt phản biện và một bản nhận xét riêng. */
+  const runItems = async (list: WorkItem[]) => {
+    if (!list.length || running) return;
+    setErr(""); setRunning(true); setStopping(false); stopRef.current = false; setOpen(""); setRunIds(list.map((x) => x.id));
+    const meta = { docType, role, field: field.trim(), notes: notes.trim(), lang };
+    const tplNow = tpl;
+    const sum = await runBatch(list.map((x) => ({ ...x })), {
+      run: async (it, onStage) => {
+        track("ami_phan_bien", docType);
+        const { result, quota: q } = await runReview({ blocks: it.blocks ?? [], fileName: it.name, meta, template: tplNow, onStage: onStage as (s: Stage) => void });
+        const savedId = addSaved(result);
+        if (q) setRq((prev) => ({ ...(prev as ReviewQuota), ...q })); else refreshQuota();
+        return { savedId };
+      },
+      onChange: (it) => patchItem(it.id, it),
+      shouldStop: () => stopRef.current,
+      classify: failText,
+    });
+    refreshQuota();
+    setRunning(false); setStopping(false);
+    if (sum.stoppedBecause) setErr(items.find((x) => x.status === "skipped")?.error ?? "");
+    if (sum.done + sum.failed > 1) toast(t("rv_batch_done", { a: sum.done, b: sum.done + sum.failed }));
+  };
+
+  const downloadOne = async (r: ReviewResult) => {
+    try { const { buildDocx, exportFileName } = await import("../lib/review-docx.ts"); saveBlobAs(await buildDocx(r, lang), exportFileName(r, lang)); }
+    catch (e) { console.error(e); toast(t("rv_export_fail"), "err"); }
+  };
+  const downloadZip = async (list: SavedReview[]) => {
+    if (!list.length) return;
+    setZipBusy(true);
+    try { const { buildZip } = await import("../lib/review-docx.ts"); saveBlobAs(await buildZip(list.map((x) => x.result), lang), lang === "en" ? "Reviews.zip" : "Cac-ban-nhan-xet.zip"); }
+    catch (e) { console.error(e); toast(t("rv_export_fail"), "err"); } finally { setZipBusy(false); }
   };
 
   if (!quota) return <div className="center"><div className="spinner" /></div>;
   const left = rq ? (rq.unlimited ? Infinity : rq.left) : 1;
   const shown = saved.find((x) => x.id === open);
+  const ready = items.filter((x) => x.status === "ready");
+  const over = Number.isFinite(left) && ready.length > left;
+  const doneItems = items.filter((x) => x.status === "done" && saved.some((s) => s.id === x.savedId));
+  const finished = items.filter((x) => x.status === "done" || x.status === "failed" || x.status === "skipped" || x.status === "stopped");
+  const inRun = items.filter((x) => runIds.includes(x.id));
+  const doneCount = inRun.filter((x) => ["done", "failed", "skipped", "stopped"].includes(x.status)).length;
+  const runningItem = items.find((x) => x.status === "running");
+  const batchZip = doneItems.map((x) => saved.find((s) => s.id === x.savedId)).filter((x): x is SavedReview => !!x);
 
   return (
     <div className="page rv-page">
@@ -211,7 +325,7 @@ export default function Review() {
       {eligible && !rqLoaded && <div className="center"><div className="spinner" /></div>}
       {eligible && rqLoaded && !access && <ReviewRequest />}
 
-      {access && shown && <Result r={shown.result} onClose={() => setOpen("")} />}
+      {access && shown && <Result key={shown.id} r={shown.result} onClose={() => setOpen("")} onChange={(r) => onEdit(shown.id, r)} />}
 
       {access && !shown && (
         <>
@@ -240,22 +354,60 @@ export default function Review() {
 
           <div className="card stack">
             <h3>3. {t("rv_s3")}</h3>
-            <div className={`drop ${drag ? "drag" : ""} ${work ? "has" : ""}`} role="button" tabIndex={0}
+            <p className="muted small">{t("rv_batch_hint")}</p>
+            <div className={`drop ${drag ? "drag" : ""} ${items.length ? "has" : ""}`} role="button" tabIndex={0}
               onClick={() => !running && workInput.current?.click()} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && !running && workInput.current?.click()}
-              onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); if (!running) void pickWork(e.dataTransfer.files?.[0]); }}>
-              <input ref={workInput} type="file" hidden accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(e) => { void pickWork(e.target.files?.[0]); e.target.value = ""; }} />
-              {reading ? <div><b>{t("reading")}</b><div className="bar"><div style={{ width: `${Math.max(5, (reading.done / Math.max(reading.total, 1)) * 100)}%` }} /></div></div>
-                : work ? <div><b><Icon name="file" size={16} /> {work.name}</b><div className="muted small">{t("rv_words", { n: work.doc.words.toLocaleString() })}{work.doc.pages ? ` · ${t("rv_pages", { n: work.doc.pages })}` : ""} · {t("chars", { n: work.doc.chars.toLocaleString() })}</div><div className="small">{t("replace_file")}</div></div>
-                  : <div><b>{t("drop_here")}</b><div className="muted small">PDF · DOCX</div></div>}
+              onDragOver={(e) => { e.preventDefault(); setDrag(true); }} onDragLeave={() => setDrag(false)} onDrop={(e) => { e.preventDefault(); setDrag(false); if (!running) void addFiles(Array.from(e.dataTransfer.files ?? [])); }}>
+              <input ref={workInput} type="file" hidden multiple accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onChange={(e) => { void addFiles(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
+              <div><b>{reading ? t("reading") : t("rv_drop_multi")}</b><div className="muted small">PDF · DOCX · {t("rv_batch_max", { n: MAX_BATCH_WORKS })}</div></div>
             </div>
+
+            {items.length > 0 && (
+              <ol className="rv-items">
+                {items.map((it) => {
+                  const sv = it.savedId ? saved.find((x) => x.id === it.savedId) : undefined;
+                  const dr = sv ? labelsFor(lang).decision(sv.result.decision.key) : null;
+                  const sevCls = sv ? (sv.result.decision.severity === "ok" ? "ok" : sv.result.decision.severity === "danger" ? "err" : "warn") : "";
+                  return (
+                    <li key={it.id} className={`rv-item st-${it.status}`}>
+                      <div className="rv-item-head">
+                        <b><Icon name="file" size={15} /> {it.name}</b>
+                        <span className={`badge st-${it.status}`}>{t(STATUS_KEY[it.status])}</span>
+                        {it.words != null && <span className="muted small">{t("rv_words", { n: it.words.toLocaleString() })}{it.pages ? ` · ${t("rv_pages", { n: it.pages })}` : ""}</span>}
+                        {!running && ["ready", "read_error", "failed", "skipped", "stopped", "done"].includes(it.status) && <button className="btn sm ghost" aria-label={t("rv_remove_file")} onClick={() => setItems((prev) => prev.filter((x) => x.id !== it.id))}>×</button>}
+                      </div>
+                      {it.status === "running" && <div className="rv-item-run"><span className="small">{stageText((it.stage as Stage) ?? { phase: "start" }, t)}</span><div className="bar"><div style={{ width: `${stagePct((it.stage as Stage) ?? { phase: "start" })}%` }} /></div></div>}
+                      {it.error && (it.status === "read_error" || it.status === "failed" || it.status === "skipped") && <div className="rv-item-err small" role="alert">{it.error}</div>}
+                      {sv && dr && (
+                        <div className="rv-item-res">
+                          <span className={`rv-pill ${sevCls}`}>{sv.result.score.sumMax ? `${sv.result.score.score100}/100` : "—"} · {dr.short}{sv.result.decision.belowPass && sv.result.score.sumMax > 0 ? " ⚠" : ""}</span>
+                          <button className="btn sm" onClick={() => setOpen(sv.id)}>{t("rv_open")}</button>
+                          <button className="btn sm" onClick={() => void downloadOne(sv.result)}>{t("rv_download_one")}</button>
+                        </div>
+                      )}
+                      {it.status === "failed" && it.blocks && !running && <button className="btn sm" disabled={left === 0} onClick={() => void runItems([it])}>{t("rv_retry")}</button>}
+                    </li>
+                  );
+                })}
+              </ol>
+            )}
+
             <p className="muted small privacy"><Icon name="shield" size={15} /> {t("rv_privacy")} <a href={lang === "vi" ? "/quyen-rieng-tu" : "/en/privacy"} target="_blank" rel="noopener">{t("privacy_link")}</a></p>
             {err && <div className="err box" role="alert">{err}</div>}
+            {over && <div className="warnbox box" role="alert">{t("rv_batch_over", { a: ready.length, b: Number.isFinite(left) ? left : 0 })}</div>}
             {running && (
-              <div className="busy" aria-live="polite"><div className="spinner" /><div style={{ flex: 1 }}><b>{stageText(stage, t)}</b><div className="bar"><div style={{ width: `${stagePct(stage)}%` }} /></div><div className="muted small">{t("rv_busy_note")}</div></div></div>
+              <div className="busy" aria-live="polite"><div className="spinner" /><div style={{ flex: 1 }}>
+                <b>{t("rv_batch_progress", { a: Math.min(doneCount + 1, inRun.length), b: inRun.length, name: runningItem?.name ?? "" })}</b>
+                <div className="muted small">{stopping ? t("rv_batch_stopping") : t("rv_busy_note")}</div></div>
+                <button className="btn sm" onClick={() => { stopRef.current = true; setStopping(true); }} disabled={stopping}>{t("rv_batch_stop")}</button></div>
             )}
             <div className="between">
               <span className="muted small">{left === 0 ? t("rv_quota_out", { date: fmtDay(rq?.next_reset ?? "") }) : t("rv_will_use")}</span>
-              <button className="btn primary" disabled={!work || running || left === 0 || !!reading} onClick={start}>{running ? "…" : t("rv_start")}</button>
+              <span className="row wrap">
+                {batchZip.length > 1 && <button className="btn" onClick={() => void downloadZip(batchZip)} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip")}</button>}
+                {finished.length > 0 && !running && <button className="btn" onClick={() => setItems([])}>{t("rv_batch_new")}</button>}
+                <button className="btn primary" disabled={ready.length === 0 || running || left === 0 || over || reading} onClick={() => void runItems(ready)}>{running ? "…" : ready.length > 1 ? t("rv_batch_start", { n: ready.length }) : t("rv_start")}</button>
+              </span>
             </div>
           </div>
         </>
@@ -263,12 +415,15 @@ export default function Review() {
 
       {access && !shown && saved.length > 0 && (
         <div className="card stack">
-          <div className="between"><h4>{t("rv_saved")}</h4><button className="btn sm" onClick={() => { if (confirm(t("rv_clear_confirm"))) { clearReviews(); setSaved([]); toast(t("rv_cleared")); } }}>{t("rv_clear")}</button></div>
-          <p className="muted small">{t("rv_saved_note")}</p>
+          <div className="between"><h4>{t("rv_saved")}</h4>
+            <span className="row wrap">
+              {saved.length > 1 && <button className="btn sm" onClick={() => void downloadZip(saved)} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip")}</button>}
+              <button className="btn sm" onClick={() => { if (confirm(t("rv_clear_confirm"))) { clearReviews(); setSaved([]); savedRef.current = []; toast(t("rv_cleared")); } }}>{t("rv_clear")}</button></span></div>
+          <p className="muted small">{t("rv_saved_note", { n: MAX_SAVED_REVIEWS })}</p>
           <ul className="rv-saved">{saved.map((x) => (
             <li key={x.id}><button className="btn sm" onClick={() => setOpen(x.id)}>{x.result.file.name}</button>
               <span className="muted small">{new Date(x.at).toLocaleString(lang === "vi" ? "vi-VN" : "en-GB")} · {x.result.score.sumMax ? `${x.result.score.score100}/100` : "—"}</span>
-              <button className="btn sm ghost" aria-label={t("rv_remove")} onClick={() => setSaved(removeReview(x.id))}>×</button></li>
+              <button className="btn sm ghost" aria-label={t("rv_remove")} onClick={() => { const next = removeReview(x.id); savedRef.current = next; setSaved(next); }}>×</button></li>
           ))}</ul>
         </div>
       )}

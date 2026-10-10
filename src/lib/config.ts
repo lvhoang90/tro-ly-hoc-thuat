@@ -10,7 +10,7 @@ export const APP = {
   name: { vi: "Trợ lý học thuật", en: "AI Academic Agent" },
   fullName: "Ami - Trợ lý học thuật | AI Academic Agent",
   /** Số hiệu phiên bản duy nhất của ứng dụng (Semantic Versioning), khớp package.json, CHANGELOG.md, index.html; tests/release.test.ts kiểm tra. */
-  release: { version: "1.5.0", date: "2026-10-10", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
+  release: { version: "1.6.0", date: "2026-10-10", notes: { vi: "/ghi-chu-phat-hanh", en: "/en/release-notes" } },
   year: 2026,
   siteUrl: (import.meta.env.VITE_SITE_URL as string | undefined)?.replace(/\/$/, "") || (typeof location !== "undefined" ? location.origin : ""),
   author: {
