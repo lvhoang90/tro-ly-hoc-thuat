@@ -12,7 +12,7 @@ export interface Profile {
   id: string; email: string; full_name: string; title: string; affiliation: string; department: string; position: string;
   country: string; orcid: string; research_fields: string[]; keywords: string[]; bio: string; website: string;
   scholar_url: string; scopus_id: string; phone: string; role: "user" | "admin"; status: "active" | "suspended"; approved: boolean;
-  bonus_credits: number; lifetime_used: number; created_at: string;
+  bonus_credits: number; lifetime_used: number; created_at: string; ref_code?: string; referred_by?: string | null;
 }
 
 export interface Contact { email: string; phone: string; zalo: string; note_vi: string; note_en: string }

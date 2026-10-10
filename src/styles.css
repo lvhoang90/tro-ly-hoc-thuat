@@ -378,7 +378,8 @@ h2 { font-family: var(--serif); font-weight: 650; }
 .orcid-dot, .zalo-dot { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 4px; font-size: .62rem; font-weight: 800; flex: none; } .orcid-dot { background: #a6ce39; color: #1b2a00; } .zalo-dot { background: #0068ff; color: #fff; }
 .sf-muted { margin: 0 0 .4rem; font-size: .84rem; color: #7f8aa3; line-height: 1.55; }
 .sf-eco { max-width: 1080px; margin: 0 auto; padding: 0 1.25rem 1.4rem; }
-.sf-eco ol { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: .7rem; }
+.sf-eco ol { list-style: none; margin: .6rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .7rem; }
+@media (max-width: 1000px) { .sf-eco ol { grid-template-columns: 1fr 1fr; } }
 .sf-eco a { display: grid; gap: 2px; height: 100%; padding: .7rem .9rem; border: 1px solid rgba(148, 163, 184, .22); border-radius: 12px; text-decoration: none; color: #aab4c8; }
 .sf-eco a:hover { border-color: #38bdf8; } .sf-eco .self a { border-color: #38bdf8; background: rgba(56, 189, 248, .08); }
 .sf-eco small { color: #7dd3fc; font-weight: 700; font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; } .sf-eco b { color: #eef2fb; font-size: .95rem; } .sf-eco span { font-size: .8rem; line-height: 1.4; }
@@ -606,3 +607,21 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 /* Thẻ chào khi chuyển từ EduFind kèm tên tạp chí */
 .handoff { margin: 0 auto 1rem; max-width: 960px; border-left: 4px solid var(--accent); }
 .handoff .row { display: flex; gap: .6rem; flex-wrap: wrap; margin-top: .4rem; }
+
+/* Hệ sinh thái ISA: hành trình, hồ sơ ProFind, tác giả */
+.isa-journey { list-style: none; padding: 0; margin: .5rem 0 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: .6rem; }
+.isa-journey li > a, .isa-journey li > div { display: grid; gap: .15rem; justify-items: start; height: 100%; padding: .7rem .8rem; border: 1px solid var(--line); border-radius: var(--r); background: var(--card-solid); color: var(--text); text-decoration: none; }
+.isa-journey li > a:hover { border-color: var(--accent); }
+.isa-journey li.here > div { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent); }
+.isa-journey small { color: var(--muted); font-size: .8rem; line-height: 1.35; }
+.jr-ico { color: var(--accent); }
+.jr-chip { margin-top: .25rem; font-size: .72rem; font-weight: 700; padding: .1rem .5rem; border-radius: 999px; background: color-mix(in srgb, var(--muted) 18%, transparent); color: var(--text); }
+.jr-chip.ok { background: color-mix(in srgb, var(--good) 22%, transparent); color: var(--good); }
+.jr-chip.mid { background: color-mix(in srgb, var(--warn) 22%, transparent); color: var(--warn); }
+.jr-chip.now { background: color-mix(in srgb, var(--accent) 22%, transparent); color: var(--accent); }
+@media (max-width: 640px) { .isa-journey { grid-template-columns: 1fr 1fr; } }
+.pf-cand { border: 1px solid var(--line); border-radius: var(--r); padding: .75rem .9rem; display: grid; gap: .3rem; background: var(--card-solid); }
+.pf-cand.main { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent); }
+.pf-cand .tag.no { background: color-mix(in srgb, var(--muted) 18%, transparent); } .pf-cand .tag.ok { background: color-mix(in srgb, var(--good) 20%, transparent); } .pf-cand .tag.mid { background: color-mix(in srgb, var(--warn) 20%, transparent); }
+.pf-author { display: grid; gap: .2rem; margin-bottom: .5rem; }
+.pf-author .works { margin-top: .2rem; }

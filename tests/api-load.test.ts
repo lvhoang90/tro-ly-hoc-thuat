@@ -6,7 +6,7 @@ process.env.SUPABASE_URL = "http://localhost:1";
 process.env.SUPABASE_SERVICE_ROLE_KEY = "test";
 process.env.ANTHROPIC_API_KEY = "test";
 
-for (const name of ["analyze", "extract-doc", "visit"]) {
+for (const name of ["analyze", "extract-doc", "visit", "eco"]) {
   test(`api/${name} nạp được`, async () => {
     const mod = await import(`../api/${name}.ts`);
     assert.ok(mod.default || mod.POST || mod.GET, "phải export handler");

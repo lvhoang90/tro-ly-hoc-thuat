@@ -6,7 +6,8 @@ import { useApp } from "../ctx.tsx";
 import { analyze, ApiFailure } from "../lib/api.ts";
 import { ExtractFailure, extractText, OCR_MAX_PAGES, type Progress } from "../lib/extract.ts";
 import { detectLang } from "../../shared/lang.ts";
-import { MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MAX_TEXT_CHARS_BASIC, MIN_ABSTRACT_WORDS, type AnalysisResult } from "../../shared/types.ts";
+import { MAX_ABSTRACT_CHARS, MAX_TEXT_CHARS, MAX_TEXT_CHARS_BASIC, MIN_ABSTRACT_WORDS, PASS_SCORE, type AnalysisResult } from "../../shared/types.ts";
+import { track } from "../lib/isa.ts";
 import { QuotaBar, remaining } from "../components/Quota.tsx";
 import { ContactAdmin } from "../components/Chrome.tsx";
 import { TierAnnounce } from "../components/Tier.tsx";
@@ -116,6 +117,7 @@ export default function Workspace() {
     setErr(""); setBusy(true); setPhase(0); setNeedContact(false);
     try {
       const r = await analyze({ abstract, text, fileName: file.name, profile: profileContext() });
+      track("ami_phan_tich", r.score >= PASS_SCORE ? "dat" : "chua_dat");
       setRes(r); setSel(new Set(r.passages.filter((p) => p.priority === "high").map((p) => p.id)));
       if (r.quota) setQuota(r.quota);
       setStep(3);

@@ -10,7 +10,7 @@ async function token(): Promise<string> {
   return data.session?.access_token ?? "";
 }
 
-async function call<T>(path: string, init: RequestInit): Promise<T> {
+export async function call<T>(path: string, init: RequestInit): Promise<T> {
   const r = await fetch(path, { ...init, headers: { ...init.headers, authorization: `Bearer ${await token()}` } });
   // Máy chủ sập hoặc hết thời gian chờ thì trả trang lỗi không phải JSON: báo riêng, không nói sai là đã hoàn lượt.
   const body = await r.json().catch(() => ({ error: "server_error", message: String(r.status) }));

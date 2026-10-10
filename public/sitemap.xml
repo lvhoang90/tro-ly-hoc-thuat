@@ -2,13 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://aaa.isavietnam.app/</loc>
-    <lastmod>2026-10-04</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/huong-dan</loc>
-    <lastmod>2026-10-04</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/huong-dan"/>
@@ -17,7 +17,7 @@
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/en/guide</loc>
-    <lastmod>2026-10-04</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/huong-dan"/>
@@ -26,7 +26,7 @@
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/ghi-chu-phat-hanh</loc>
-    <lastmod>2026-10-04</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh"/>
@@ -35,7 +35,7 @@
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/en/release-notes</loc>
-    <lastmod>2026-10-04</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/ghi-chu-phat-hanh"/>
@@ -44,7 +44,7 @@
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/quyen-rieng-tu</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>
@@ -53,7 +53,7 @@
   </url>
   <url>
     <loc>https://aaa.isavietnam.app/en/privacy</loc>
-    <lastmod>2026-10-03</lastmod>
+    <lastmod>2026-10-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
     <xhtml:link rel="alternate" hreflang="vi" href="https://aaa.isavietnam.app/quyen-rieng-tu"/>

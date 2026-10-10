@@ -5,6 +5,7 @@ import { supabase, type Profile } from "../lib/supabase.ts";
 import { importOrcid, normalizeOrcid, validOrcid } from "../lib/orcid.ts";
 import { QuotaBar } from "../components/Quota.tsx";
 import { TierCard } from "../components/Tier.tsx";
+import { InviteCard, IsaJourney, ProfindCard, useProfindStatus } from "../components/EcoCards.tsx";
 
 const TITLES = ["", "CN.", "ThS.", "NCS.", "TS.", "PGS.TS.", "GS.TS.", "BS.", "Mr.", "Ms.", "Dr.", "Assoc. Prof.", "Prof."];
 const COUNTRIES: [string, string, string][] = [
@@ -40,6 +41,7 @@ export default function ProfilePage() {
   const [f, setF] = useState<Profile | null>(profile);
   const [busy, setBusy] = useState(false);
   const [imp, setImp] = useState(false);
+  const pfStatus = useProfindStatus();
   useEffect(() => { setF(profile); }, [profile]);
   if (!f) return <div className="card">…</div>;
   const set = <K extends keyof Profile>(k: K, v: Profile[K]) => setF({ ...f, [k]: v });
@@ -95,6 +97,9 @@ export default function ProfilePage() {
 
       <QuotaBar />
       <TierCard />
+      <IsaJourney status={pfStatus} />
+      <ProfindCard status={pfStatus} />
+      <InviteCard />
       {quota && <p className="muted small">{t("usage_life", { n: quota.lifetime_used })} · {quota.approved ? t("limit_approved", { mb: quota.max_file_mb }) : t("limit_basic", { mb: quota.max_file_mb })}</p>}
 
       <div className="card form-grid">

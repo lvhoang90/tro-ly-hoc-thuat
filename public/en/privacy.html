@@ -81,6 +81,10 @@ footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 <tr><td>Researcher profile (email, name, affiliation, ORCID...)</td><td>Saved to your account.</td><td>Yes. Editable; the email is used for sign-in and contact</td></tr>
 <tr><td>Usage log (time, model, tokens, cost, score)</td><td>Kept to compute quota and cost.</td><td>Yes. Contains no document content</td></tr>
 <tr><td>Visits</td><td>Counted anonymously per day and country.</td><td>No IP address stored</td></tr>
+<tr><td>Journey measurement across the ISA ecosystem</td><td>The shared ISA counter (isavn.edu.vn) receives the page being viewed, the traffic source, the device type and short action names (signed up, analysed, copied). No cookies, Do Not Track respected; a random visitor ID is kept in your browser and holds no name or email. No document content.</td><td>No IP address stored</td></tr>
+<tr><td>Authors' names in a document (matching ProFind profiles)</td><td>Matched on your device against the public index downloaded from ProFind. The names never leave your device.</td><td>Not stored</td></tr>
+<tr><td>Connecting to ProFind (only when you press)</td><td>The app server sends your verified email, name, phone, job, affiliation and the chosen profile to ProFind in a one-time signed code. No documents, citations or history are sent.</td><td>ProFind stores it under ProFind's own rules</td></tr>
+<tr><td>Colleague invitation link</td><td>The inviter's code and whether the invited person has finished a first analysis.</td><td>Yes, only to count bonus analyses</td></tr>
 </tbody>
 </table></div>
 <h2>Third parties</h2>
@@ -89,6 +93,8 @@ footer{padding-top:2rem;padding-bottom:2rem;color:var(--muted);font-size:.88rem}
 <li><b>Vercel:</b> Runs the app and its server.</li>
 <li><b>Supabase:</b> Sign-in and the database that holds the records in the table above.</li>
 <li><b>OpenAlex:</b> Only when the score is below 60: a few AI-generated search keywords.</li>
+<li><b>ISA Institute (isavn.edu.vn):</b> The ecosystem's shared visit counter and the redirect gateway between apps (anonymous clicks to EduFind, ProFind and Mary).</li>
+<li><b>ProFind:</b> ProFind's public index is downloaded to your browser to match author names; a ProFind account is created or linked only when you press &quot;That is me&quot;.</li>
 <li><b>Google Sheets:</b> The administrator's operations report (if enabled): email, name, topic title, usage figures. No document content, abstracts or quotes.</li>
 </ul>
 <h2>Who can see stored data</h2>
