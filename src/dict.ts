@@ -69,7 +69,6 @@ const D = {
   setup_body: { vi: "Đặt hai biến môi trường sau (xem README), rồi chạy lại ứng dụng:", en: "Set these two environment variables (see README), then restart the app:" },
 
   // ----- Trang chào / đăng nhập -----
-  hero_eyebrow: { vi: "Dành cho nhà nghiên cứu · Song ngữ Việt/Anh", en: "For researchers · Vietnamese/English" },
   hero_lead: {
     vi: "Tải một tài liệu, nhập abstract hoặc đề cương của bạn. Hệ thống đọc, chấm mức độ phù hợp trên thang 100, đánh dấu các đoạn đáng trích dẫn theo thứ tự ưu tiên và tạo trích dẫn đúng chuẩn quốc tế.",
     en: "Upload a document and paste your abstract or proposal. The system reads it, scores its fit out of 100, highlights the passages worth citing in priority order and produces citations in international styles.",
@@ -831,6 +830,33 @@ const D = {
   adm_rq_revoke: { vi: "Thu hồi", en: "Revoke" },
   adm_rq_granted: { vi: "Đang được cấp {n} lượt/tuần", en: "Currently granted {n}/week" },
   adm_rq_stats: { vi: "{n} lượt đã dùng trong hệ thống", en: "{n} analyses used so far" },
+  hero_cta_guide: { vi: "Xem hướng dẫn chi tiết", en: "Read the step-by-step guide" },
+  hero_cta_prof: { vi: "Khám phá Giáo sư phản biện", en: "Meet the AI Professor" },
+  how_h: { vi: "Ami làm việc như thế nào", en: "How Ami works" },
+  spot_badge: { vi: "Tính năng cao cấp", en: "Premium feature" },
+  spot_h: { vi: "Giáo sư phản biện", en: "AI Professor review" },
+  spot_sub: { vi: "Giả lập hội đồng: đánh giá đề cương, luận văn, luận án", en: "Simulated committee: review proposals, theses and dissertations" },
+  spot_d: { vi: "Tải công trình và mẫu nhận xét của trường hoặc viện. Ami đóng vai người phản biện khắt khe nhưng công tâm, soạn bản nháp để bạn thẩm định và hoàn thiện.", en: "Upload a work and your institution's review template. Ami plays a demanding but fair reviewer and drafts a review for you to verify and finish." },
+  spot_b1: { vi: "Nhận xét từng mục đúng theo mẫu của trường hoặc viện", en: "Comments on every section, following your institution's template" },
+  spot_b2: { vi: "Điểm đề xuất thang 100 kèm khuyến nghị thông qua hoặc chỉnh sửa", en: "A proposed score out of 100 with an accept or revise recommendation" },
+  spot_b3: { vi: "Mỗi nhận xét có trích nguyên văn, được máy đối chiếu với bản gốc", en: "Every comment carries a verbatim quote checked by machine against the original" },
+  spot_b4: { vi: "Câu hỏi chất vấn tác giả, dấu hiệu cần kiểm tra, xuất ra Word", en: "Questions for the author, flags to check, export to Word" },
+  spot_gate: { vi: "Dành cho nhà khoa học đã xác thực và được quản trị viên phê duyệt: gửi đề nghị kèm lý do và minh chứng khoa học.", en: "For verified researchers approved by the administrator: send a request with your reason and scientific evidence." },
+  spot_disc: { vi: "Bản nháp hỗ trợ, không thay thế hội đồng thật; không kiểm tra đạo văn.", en: "A drafting aid that does not replace a real committee; it does not check plagiarism." },
+  spot_cta: { vi: "Xem hướng dẫn Giáo sư phản biện", en: "Read the AI Professor guide" },
+  spot_art: { vi: "Minh họa bản nhận xét của Giáo sư phản biện", en: "Illustration of an AI Professor review" },
+  spot_m_title: { vi: "Bản nhận xét đề cương", en: "Proposal review" },
+  spot_m_ex: { vi: "Ví dụ minh họa", en: "Illustration" },
+  spot_m_dec: { vi: "Thông qua có điều kiện", en: "Accept with conditions" },
+  spot_m_dec_d: { vi: "Chỉnh sửa theo góp ý trước khi thông qua", en: "Revise as advised before approval" },
+  spot_m_s1: { vi: "Tính cấp thiết", en: "Rationale" },
+  spot_m_s2: { vi: "Phương pháp", en: "Method" },
+  spot_m_s3: { vi: "Tính khả thi", en: "Feasibility" },
+  spot_m_q: { vi: "“Kết quả cho thấy 85% học sinh sử dụng công cụ hằng tuần…”", en: "“Results show 85% of students use the tool weekly…”" },
+  promo_h: { vi: "Giáo sư phản biện", en: "AI Professor review" },
+  promo_d: { vi: "Giả lập hội đồng: nhận xét, chấm điểm đề cương, luận văn, luận án theo mẫu của trường/viện.", en: "Simulated committee: comments and scores for proposals, theses and dissertations, following your institution's template." },
+  promo_gate: { vi: "Tính năng cao cấp, cần được phê duyệt.", en: "Premium feature, needs approval." },
+  promo_cta: { vi: "Khám phá", en: "Explore" },
 } as const satisfies Record<string, { vi: string; en: string }>;
 
 export type Key = keyof typeof D;

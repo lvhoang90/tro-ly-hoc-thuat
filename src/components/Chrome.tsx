@@ -59,14 +59,14 @@ export function Header({ route, go }: { route: Route; go: (r: Route) => void }) 
       <a className="brand" href="#/" onClick={() => go("work")}>
         <Logo />
         <span className="brand-text">
-          <b>{APP.name[lang]}</b>
-          <small>{lang === "vi" ? APP.name.en : APP.name.vi} {APP.version}</small>
+          <b>{APP.short}</b>
+          <small>{APP.name.vi} | {APP.name.en}</small>
         </span>
       </a>
       {session && (
         <nav className="nav" aria-label="Main">
           {items.map(([r, label]) => (
-            <a key={r} href={`#/${r === "work" ? "" : r}`} className={route === r ? "on" : ""} onClick={() => go(r)}>{label}</a>
+            <a key={r} href={`#/${r === "work" ? "" : r}`} className={`${route === r ? "on" : ""} ${r === "review" ? "prem" : ""}`} onClick={() => go(r)}>{r === "review" && <Icon name="star" size={14} />}{label}</a>
           ))}
         </nav>
       )}
@@ -108,8 +108,8 @@ export function ShareButtons({ compact = false }: { compact?: boolean }) {
   const { toast } = useApp();
   const url = APP.siteUrl || location.origin;
   const text = lang === "vi"
-    ? `${APP.name.vi} ${APP.version}: đọc tài liệu, tóm tắt và trích dẫn theo chuẩn khoa học`
-    : `${APP.name.en} ${APP.version}: read, summarise and cite sources to scholarly standards`;
+    ? `${APP.fullName}: đọc tài liệu, tóm tắt và trích dẫn theo chuẩn khoa học`
+    : `${APP.fullName}: read, summarise and cite sources to scholarly standards`;
   const u = encodeURIComponent(url), tx = encodeURIComponent(text);
   const links: [string, string, string][] = [
     ["Facebook", `https://www.facebook.com/sharer/sharer.php?u=${u}`, "f"],
@@ -229,7 +229,7 @@ export function Footer() {
     <footer className="site-footer">
       <div className="sf-inner">
         <section className="sf-brand">
-          <div className="sf-logo"><Logo size={36} /><div><b>{APP.name[lang]} {APP.version}</b><span>{lang === "vi" ? APP.name.en : APP.name.vi}</span></div></div>
+          <div className="sf-logo"><Logo size={36} /><div><b>{APP.short}</b><span>{APP.name.vi} | {APP.name.en}</span></div></div>
           <p>{t("foot_about")}</p>
           <p><a className="sf-guide" href={lang === "vi" ? "/huong-dan" : "/en/guide"}>{t("foot_guide")}</a> · <a className="sf-guide" href={lang === "vi" ? "/quyen-rieng-tu" : "/en/privacy"}>{t("foot_privacy")}</a></p>
         </section>

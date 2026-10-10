@@ -101,7 +101,7 @@ for (const t of Object.values(T)) {
 <meta name="theme-color" content="#0a0f1e">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:site_name" content="Ami - Trợ lý học thuật | AI Academic Agent">
 <meta property="og:title" content="${esc(t.title)}">
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">

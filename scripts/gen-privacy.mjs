@@ -144,7 +144,7 @@ const T = {
 function page(t) {
   const o = t.lang === "vi" ? T.en : T.vi, url = SITE + t.path, ourl = SITE + o.path;
   const ld = { "@context": "https://schema.org", "@graph": [
-    { "@type": "WebPage", "@id": url, url, name: t.title, description: t.desc, inLanguage: t.lang, dateModified: DATE, isPartOf: { "@type": "WebSite", name: "Trợ lý học thuật | AI Academic Agent 1.0", url: SITE + "/" } },
+    { "@type": "WebPage", "@id": url, url, name: t.title, description: t.desc, inLanguage: t.lang, dateModified: DATE, isPartOf: { "@type": "WebSite", name: "Ami - Trợ lý học thuật | AI Academic Agent", url: SITE + "/" } },
     { "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: t.home, item: SITE + "/" }, { "@type": "ListItem", position: 2, name: t.crumb, item: url }] } ] };
   const f = Object.fromEntries(t.flow.map((s) => [s.k, s]));
   const card = (s, cls) => `<li class="fc ${s.k} ${cls}"><span class="tag">${esc(t.tags[s.k])}</span><b><i>${s.n}</i> ${esc(s.h)}</b><span>${esc(s.d)}</span></li>`;
@@ -164,7 +164,7 @@ function page(t) {
 <meta name="theme-color" content="#0a0f1e">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:site_name" content="Ami - Trợ lý học thuật | AI Academic Agent">
 <meta property="og:title" content="${esc(t.title)}">
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">

@@ -47,7 +47,7 @@ function page(t) {
   const o = t.lang === "vi" ? T.en : T.vi, url = SITE + t.path, ourl = SITE + o.path, I = t.i;
   const ld = { "@context": "https://schema.org", "@graph": [
     { "@type": "WebPage", "@id": url, url, name: t.title, description: t.desc, inLanguage: t.lang, dateModified: latest.date,
-      isPartOf: { "@type": "WebSite", name: "Trợ lý học thuật | AI Academic Agent 1.0", url: SITE + "/" },
+      isPartOf: { "@type": "WebSite", name: "Ami - Trợ lý học thuật | AI Academic Agent", url: SITE + "/" },
       about: { "@type": "SoftwareApplication", name: "Trợ lý học thuật | AI Academic Agent", softwareVersion: latest.version, applicationCategory: "EducationalApplication", operatingSystem: "Web" } },
     { "@type": "BreadcrumbList", itemListElement: [
       { "@type": "ListItem", position: 1, name: t.home, item: SITE + "/" },
@@ -98,7 +98,7 @@ apply(false)})();
 <meta name="theme-color" content="#0a0f1e">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <meta property="og:type" content="article">
-<meta property="og:site_name" content="Trợ lý học thuật | AI Academic Agent 1.0">
+<meta property="og:site_name" content="Ami - Trợ lý học thuật | AI Academic Agent">
 <meta property="og:title" content="${esc(t.title)}">
 <meta property="og:description" content="${esc(t.desc)}">
 <meta property="og:url" content="${url}">

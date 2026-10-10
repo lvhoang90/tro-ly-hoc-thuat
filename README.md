@@ -1,4 +1,4 @@
-# Trợ lý học thuật | AI Academic Agent 1.0
+# Ami - Trợ lý học thuật | AI Academic Agent
 
 Ứng dụng web song ngữ Việt/Anh giúp nhà nghiên cứu **đọc tài liệu, chấm mức độ phù hợp, tóm tắt, chọn đoạn đáng trích dẫn và sao chép trích dẫn đúng chuẩn quốc tế**.
 Bản quyền đóng, mọi quyền được bảo lưu (xem `LICENSE`). Tác giả: Lương Việt Hoàng (ISA Vietnam).
@@ -32,7 +32,6 @@ Quy trình phát hành phiên bản `X.Y.Z`:
 4. Tạo thẻ và GitHub Release: gắn thẻ có chú thích rồi đẩy lên (`git tag -a vX.Y.Z -m "AI Academic Agent X.Y.Z" && git push origin vX.Y.Z`), hoặc vào **Actions → Release → Run workflow** (nhập `version`, tùy chọn `target` là commit đích; workflow tự tạo thẻ). Workflow `.github/workflows/release.yml` kiểm tra mục tương ứng trong `CHANGELOG.md`, chạy typecheck, kiểm thử và build (với phiên bản mới nhất), rồi tạo GitHub Release với nội dung lấy từ `CHANGELOG.md`.
 5. Ứng dụng tự báo trên web: số phiên bản và liên kết ghi chú ở chân trang, thông báo "Mới trong phiên bản X.Y.Z" một lần cho mỗi người dùng (lưu `tl-seen-release` trong trình duyệt).
 
-Số phiên bản "1.0" trong tên ứng dụng ("AI Academic Agent 1.0") là tên thương hiệu, không đổi theo bản phát hành.
 
 ## Kiến trúc
 

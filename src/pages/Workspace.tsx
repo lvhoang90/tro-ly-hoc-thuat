@@ -149,6 +149,13 @@ export default function Workspace() {
     <div className="page">
       <div className="between"><h2>{t("work_title")}</h2><QuotaBar /></div>
       {stepper}
+      {step === 1 && (
+        <a className="promo" href="#/review">
+          <span className="promo-ico"><Icon name="star" size={22} /></span>
+          <span className="promo-txt"><b>{t("promo_h")} <em className="prem-badge">{t("spot_badge")}</em></b><small>{t("promo_d")} {t("promo_gate")}</small></span>
+          <span className="promo-go">{t("promo_cta")} <Icon name="right" size={16} /></span>
+        </a>
+      )}
       {step === 1 && <TierAnnounce />}
 
       {step === 1 && (
