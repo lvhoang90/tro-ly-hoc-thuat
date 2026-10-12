@@ -37,7 +37,7 @@ def load(name):
     with wave.open(f"{vo_dir}/{name}.wav") as w:
         assert w.getframerate() == SR
         return np.frombuffer(w.readframes(w.getnframes()), dtype=np.int16).astype(np.float64) / 32768
-starts = {"hook": .5, "gs": 6.2, "quote": 13.7, "batch": 19.7, "zip": 29.7, "edit": 36.7, "pro": 44.7, "end": 52.8}
+starts = {"hook": .5, "gs": 6.2, "quote": 13.7, "batch": 19.7, "zip": 29.7, "edit": 36.7, "pro": 44.7, "end": 52.7}
 vo = np.zeros(N); mask = np.zeros(N)
 for k, t0 in starts.items():
     x = load(k); put(vo, x, t0, 1.0); i = int(t0 * SR); mask[i : i + len(x)] = 1
@@ -50,7 +50,7 @@ chords = [(261.63, [261.63, 329.63, 392.0, 493.88]), (220.0, [220.0, 261.63, 329
 for b in range(int(DUR / (beat * 4)) + 1):
     t0 = b * beat * 4; root, notes = chords[b % 4]
     for f in notes: put(music, tone(f, beat * 4 + 0.3, (1, .35, .12), 0.25, 0.6), t0, 0.07)
-    if t0 >= 3.0:
+    if t0 >= 4.0:
         for s in range(8):
             f = notes[(s * 3) % 4] * (2 if s % 2 else 1); put(music, tone(f * 2, beat * .9, (1, .3, .1), 0.003, 0.25), t0 + s * beat / 2, 0.11)
         put(music, tone(root / 2, beat * 1.8, (1, .5), 0.01, 0.4), t0, 0.26); put(music, tone(root / 2, beat * 1.8, (1, .5), 0.01, 0.4), t0 + beat * 2, 0.22)
@@ -65,7 +65,7 @@ music *= (1 - 0.62 * duck)
 # ---------- hiệu ứng khớp cảnh ----------
 sfx = np.zeros(N)
 for i in range(30): put(sfx, boom(.12), 0.3 + i * 0.045, 0.1); put(sfx, pop(200 + (i % 5) * 30, .1), 0.3 + i * 0.045 + .2, 0.05)   # giấy rơi
-put(sfx, riser(.9, 300, 2800), 2.4, 0.55); put(sfx, boom(1.0), 3.3, 0.9); put(sfx, sparkle(1.3), 3.35, 0.9); put(sfx, pop(420, .3), 3.4, 0.5)
+put(sfx, riser(.9, 300, 2800), 3.5, 0.55); put(sfx, boom(1.0), 4.4, 0.9); put(sfx, sparkle(1.3), 4.45, 0.9); put(sfx, pop(420, .3), 4.5, 0.5)
 for t0 in (6.0, 13.5, 19.5, 29.5, 36.5, 44.5): put(sfx, whoosh(.45, 300, 2800), t0 - 0.1, 0.55)
 put(sfx, riser(.7, 300, 3200), 51.8, 0.6); put(sfx, boom(1.2), 52.5, 1.0); put(sfx, whoosh(.6, 600, 5000), 52.2, 0.5)
 for f in (523.25, 659.25, 783.99, 1046.5): put(sfx, tone(f, 3.2, (1, .4, .15), 0.01, 1.2), 52.5, 0.16)
@@ -84,13 +84,13 @@ put(sfx, boom(.5), 33.75, 0.9); put(sfx, ding(1046, .9), 33.8, 0.7); put(sfx, di
 put(sfx, pop(560, .2), 36.8, 0.5)
 for t0 in (38.3, 39.6): put(sfx, click(), t0, 0.9); put(sfx, tone(520, .15, (1, .3), .003, .1), t0 + .05, 0.4)
 put(sfx, whoosh(.5, 500, 2500), 38.35, 0.3); put(sfx, whoosh(.5, 500, 2500), 39.65, 0.3); put(sfx, ding(1318, .8), 41.8, 0.7); put(sfx, pop(700, .2), 41.8, 0.5)
-for t0 in (45.7, 46.5, 47.3): put(sfx, ding(1568, .5), t0, 0.5)
-put(sfx, whoosh(.5, 300, 2800), 48.8, 0.5); put(sfx, pop(520, .2), 49.0, 0.5); put(sfx, whoosh(1.0, 300, 3500), 49.5, 0.55); put(sfx, ding(1318, 1.0), 50.6, 0.7); put(sfx, sparkle(1.0), 50.65, 0.6)
+for t0 in (45.5, 46.2, 46.9): put(sfx, ding(1568, .5), t0, 0.5)
+put(sfx, whoosh(.5, 300, 2800), 48.0, 0.5); put(sfx, pop(520, .2), 48.2, 0.5); put(sfx, whoosh(1.0, 300, 3500), 48.7, 0.55); put(sfx, ding(1318, 1.0), 49.9, 0.7); put(sfx, sparkle(1.0), 49.95, 0.6)
 put(sfx, pop(520, .2), 54.0, 0.5); put(sfx, pop(780, .2), 55.0, 0.5)
 sfx = sfx / (np.max(np.abs(sfx)) + 1e-9) * 0.8
 
 mix = vo * 1.0 + music * 0.8 + sfx * 0.55
-mix *= np.minimum(1, (DUR - tt(DUR)) / 1.2)
+mix *= np.minimum(1, (DUR - tt(DUR)) / 0.8)
 mix = np.tanh(mix * 1.1) / np.tanh(1.1) * 0.93
 pcm = (np.clip(mix, -1, 1) * 32767).astype(np.int16)
 with wave.open(out, "wb") as w:
