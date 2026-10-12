@@ -13,7 +13,7 @@
 | 29,5–36,5 | **Tệp lỗi không ảnh hưởng tệp khác** (hoàn lượt), tải gói .zip | "Tệp nào lỗi, báo rõ, hoàn lại lượt, tệp khác vẫn chạy. Rồi tải tất cả trong một gói zip!" |
 | 36,5–44,5 | **Sửa tại chỗ**: đổi điểm, tổng điểm và khuyến nghị tự tính lại, tải Word bản đã sửa | "Chưa ưng ý? Sửa ngay trên màn hình! Chỉnh điểm từng mục, tổng điểm và khuyến nghị tự tính lại!" |
 | 44,5–52,5 | **Giao diện mới, hướng dẫn có hình; ProFind → Ami** nhớ tên tạp chí | "Giao diện mới, hướng dẫn có hình từng bước. Và từ ProFind bấm sang Ami, tên tạp chí đi theo luôn!" |
-| 52,5–60 | **Kết**: địa chỉ, mã QR, lưu ý | "Dành cho tài khoản đã xác thực. Là bản nháp hỗ trợ, quyết định cuối cùng vẫn là của thầy cô. Thử ngay nhé!" |
+| 52,5–60 | **Kết**: địa chỉ, mã QR, lưu ý | "Dành cho tài khoản đã xác thực. Là bản nháp hỗ trợ, quyết định cuối là của thầy cô. Thử ngay nhé!" |
 
 Số liệu trong clip (điểm, tên người, tên tệp) là dữ liệu minh họa; ảnh giao diện chụp từ bản thật với máy chủ AI giả.
 
