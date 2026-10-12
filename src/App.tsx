@@ -7,7 +7,7 @@ import Background from "./components/Background.tsx";
 import { Footer, Header, ScrollTop, Toasts, VisitChip, WhatsNew, type Route } from "./components/Chrome.tsx";
 import Auth from "./pages/Auth.tsx";
 import Workspace from "./pages/Workspace.tsx";
-import { captureHandoff, clearHandoff, getHandoff } from "./lib/handoff.ts";
+import { captureHandoff, clearHandoff, getHandoff, getHandoffSource } from "./lib/handoff.ts";
 import { captureRef } from "./lib/ref.ts";
 import { APP, withUtm } from "./lib/config.ts";
 
@@ -65,10 +65,10 @@ export default function App() {
         <Header route={route} go={setRoute} />
         {handoff && session && ready && route === "work" && (
           <div className="card handoff" role="status">
-            <b>{t("handoff_title")}: {handoff}</b>
+            <b>{t(getHandoffSource() === "profind" ? "handoff_title_profind" : "handoff_title")}: {handoff}</b>
             <p className="muted small">{t("handoff_body")}</p>
             <div className="row">
-              <a className="btn" href={withUtm(`${APP.author.edufind}#q=${encodeURIComponent(handoff)}`, "handoff")} target="_blank" rel="noopener noreferrer">{t("handoff_view")}</a>
+              <a className="btn" href={withUtm(`${APP.author.edufind}#q=${encodeURIComponent(handoff)}`, "handoff")} target="_blank" rel="noopener noreferrer">{t(getHandoffSource() === "profind" ? "handoff_view_profind" : "handoff_view")}</a>
               <button type="button" className="btn" onClick={() => { clearHandoff(); setHandoff(""); }}>{t("handoff_dismiss")}</button>
             </div>
           </div>

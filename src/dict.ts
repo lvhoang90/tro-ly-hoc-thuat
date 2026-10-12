@@ -263,6 +263,8 @@ const D = {
   handoff_title: { vi: "Bạn vừa lưu một tạp chí trên EduFind", en: "You just saved a journal on EduFind" },
   handoff_body: { vi: "Đang chuẩn bị bài cho tạp chí này? Tải tài liệu hoặc nhập đề tài lên, Ami sẽ giúp bạn đọc, chọn đoạn đáng trích và gợi ý nơi đăng phù hợp.", en: "Preparing a paper for this journal? Upload a source or enter a topic, and Ami will help you read, pick passages worth citing and suggest suitable venues." },
   handoff_view: { vi: "Xem tạp chí trên EduFind", en: "View on EduFind" },
+  handoff_title_profind: { vi: "Bạn vừa chọn một tạp chí gợi ý trên ProFind", en: "You just picked a suggested journal on ProFind" },
+  handoff_view_profind: { vi: "Tra tạp chí trên EduFind", en: "Look up the journal on EduFind" },
   handoff_dismiss: { vi: "Đã hiểu", en: "Got it" },
   bkhcn_badge: { vi: "QĐ 2244/2026", en: "Decision 2244/2026" },
   bkhcn_tip: { vi: "Có trong Danh mục tạp chí đạt tiêu chuẩn khoa học Việt Nam năm 2026 của Bộ Khoa học và Công nghệ", en: "Listed in the Ministry of Science and Technology's 2026 list of journals meeting Vietnamese scientific standards" },
