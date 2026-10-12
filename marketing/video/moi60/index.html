@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><title>Ami 1.6 — clip 60 giây</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#070b16;width:1080px;height:1920px;overflow:hidden}
+#vid{position:fixed;left:0;top:0;width:1080px;height:1920px;overflow:hidden;font-family:'Inter','Space Grotesk',sans-serif;color:#eef2fb;background:#070b16}
+.abs{position:absolute;left:0;top:0;will-change:transform,opacity}
+.hd{font-family:'Space Grotesk','Inter',sans-serif;font-weight:700}
+.blob{border-radius:50%;filter:blur(90px)}
+.dots{position:absolute;inset:-60px;background-image:radial-gradient(rgba(255,255,255,.07) 2px,transparent 2px);background-size:46px 46px}
+.pill{display:inline-flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.08em;font-size:30px;padding:14px 30px;border-radius:99px;color:#04101f;white-space:nowrap}
+.card{background:#fff;border-radius:40px;overflow:hidden;box-shadow:0 30px 60px rgba(0,0,0,.5),0 0 0 3px rgba(255,255,255,.16)}
+.card img{display:block;width:100%}
+.chip{display:inline-flex;align-items:center;gap:12px;font-weight:800;font-size:34px;padding:14px 28px;border-radius:24px;background:#0f1a33;border:3px solid var(--c,#2dd4bf);color:#fff;white-space:nowrap;box-shadow:0 14px 30px rgba(0,0,0,.45)}
+.chip b{color:var(--c,#2dd4bf)}
+.big{font-weight:800;line-height:1.02;letter-spacing:-.02em}
+.grad{background:linear-gradient(90deg,#7dd3fc,#5eead4 50%,#d8c8ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cap{position:absolute;left:60px;width:960px;top:1330px;text-align:center;font-family:'Space Grotesk','Inter',sans-serif;font-weight:700;font-size:72px;line-height:1.16;color:#fff;text-shadow:0 4px 0 rgba(0,0,0,.55),0 0 22px rgba(0,0,0,.6)}
+.cap span{display:inline-block;margin:0 .13em}
+.cap .on{color:#04101f;background:var(--c);border-radius:18px;padding:0 .24em;margin:0 -.05em;text-shadow:none;transform:scale(1.07)}
+.stk{position:absolute;width:300px;height:390px;background:#fff;border-radius:14px;box-shadow:0 10px 24px rgba(0,0,0,.5);padding:34px 28px}
+.stk i{display:block;height:11px;border-radius:6px;background:#cfd8ea;margin-bottom:17px}
+.stk i.h{height:15px;width:60%;background:#7a8ab0;margin-bottom:28px}
+.doc{width:300px;height:120px;border-radius:26px;background:#101a33;border:3px solid #2b3a63;display:flex;align-items:center;gap:20px;padding:0 26px;font-weight:800;font-size:27px;color:#fff;box-shadow:0 12px 28px rgba(0,0,0,.45)}
+.doc u{display:grid;place-items:center;width:62px;height:76px;border-radius:12px;background:#2b6cff;color:#fff;text-decoration:none;font-size:22px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:13px 26px;border-bottom:2px solid #e7ecf6;font-size:30px;font-weight:700;color:#0b1020}
+.row em{font-style:normal;color:#6b7896;font-weight:600;font-size:26px}
+.box{min-width:104px;text-align:center;border:4px solid #c9d3ea;border-radius:16px;padding:6px 14px;font-size:36px;font-weight:800;background:#fff}
+</style></head><body><div id="vid"></div>
+<script>
+const T = {
+  hook:[0,6], gs:[6,13.5], quote:[13.5,19.5], batch:[19.5,29.5], zip:[29.5,36.5], edit:[36.5,44.5], pro:[44.5,52.5], end:[52.5,60]
+};
+const START = { hook:.5, gs:6.2, quote:13.7, batch:19.7, zip:29.7, edit:36.7, pro:44.7, end:52.8 };
+const COLC = { hook:"#38bdf8", gs:"#2dd4bf", quote:"#34d399", batch:"#fbbf24", zip:"#f472b6", edit:"#a78bfa", pro:"#38bdf8", end:"#2dd4bf" };
+const SCRIPT = __SCRIPT__, DUR = __DUR__;
+(() => {
+const W = 1080, H = 1920;
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x)), P=(t,a,b)=>clamp((t-a)/(b-a));
+const eo=p=>1-Math.pow(1-p,3), eio=p=>p<.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2;
+const ob=p=>{const c1=1.9,c3=c1+1;return 1+c3*Math.pow(p-1,3)+c1*Math.pow(p-1,2)};
+const rnd=i=>{const x=Math.sin(i*127.1+311.7)*43758.5453;return x-Math.floor(x)};
+const lerp=(a,b,p)=>a+(b-a)*p;
+const root = document.getElementById("vid");
+const E = (cls, html, style="") => { const d=document.createElement("div"); d.className="abs "+cls; d.innerHTML=html||""; d.style.cssText=style; root.appendChild(d); return d; };
+const put = (el, o) => { const {x=0,y=0,s=1,r=0,o:op=1,sx,sy} = o; el.style.opacity = op; el.style.display = op<=0.001?"none":"block"; el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg) scale(${sx??s},${sy??s})`; };
+
+// ---- nền ----
+const b1=E("blob","","width:900px;height:900px;background:#0ea5e9;opacity:.2");
+const b2=E("blob","","width:800px;height:800px;background:#7c3aed;opacity:.22");
+const b3=E("blob","","width:700px;height:700px;background:#14b8a6;opacity:.18");
+const dots=E("","<div class='dots'></div>","width:1080px;height:1920px");
+// ---- đầu trang ----
+const brand=E("","<div class='pill' style='background:#fff;font-size:28px;letter-spacing:.04em'><img src='assets/ami-idle.png' style='width:46px;height:57px;object-fit:cover;object-position:50% 12%;border-radius:50%;margin:-6px 0'> Ami · Trợ lý học thuật</div>");
+const ver=E("","<div class='pill hd' style='background:linear-gradient(90deg,#38bdf8,#2dd4bf);font-size:28px'>CÓ GÌ MỚI · 1.6</div>");
+const prog=E("","<div style='width:960px;height:8px;border-radius:6px;background:rgba(255,255,255,.14)'><div id='pg' style='height:100%;border-radius:6px;background:linear-gradient(90deg,#38bdf8,#2dd4bf,#a78bfa);width:0'></div></div>");
+// ---- ami ----
+const POSE=["idle","wave","happy","think","read","celebrate"]; const amiImgs={};
+POSE.forEach(p=>{amiImgs[p]=E("",`<img src='assets/ami-${p}.png' style='width:100%;display:block'>`,"width:330px")});
+const MOODS=[[0,"idle"],[.3,"wave"],[3.4,"celebrate"],[6,"read"],[9,"happy"],[13.5,"think"],[16.2,"happy"],[19.5,"read"],[24.6,"happy"],[29.5,"think"],[34,"celebrate"],[36.5,"think"],[41.5,"happy"],[44.5,"wave"],[49,"happy"],[52.5,"celebrate"]];
+const mood=t=>{let m="idle";for(const [a,k] of MOODS) if(t>=a) m=k;return m};
+// ---- phụ đề ----
+const cap=E("cap","");
+const WORDS={}; for(const k in SCRIPT){ const ws=SCRIPT[k].split(/\s+/); const tot=ws.reduce((s,w)=>s+w.length+2,0); let acc=0; WORDS[k]=ws.map(w=>{const a=acc/tot; acc+=w.length+2; return {w,a,b:acc/tot};}); }
+const phrases=k=>{const out=[];let cur=[];WORDS[k].forEach((o,i)=>{cur.push(i);if(/[.,!?]$/.test(o.w)||cur.length>=4){out.push(cur);cur=[]}});if(cur.length){ if(out.length&&cur.length<2) out[out.length-1].push(...cur); else out.push(cur);} return out;};
+const PH={}; for(const k in SCRIPT) PH[k]=phrases(k);
+function caption(t){
+  let seg=null; for(const k in START){ if(t>=START[k]-.05 && t<=START[k]+DUR[k]+.35) seg=k; }
+  if(!seg){cap.style.display="none";return}
+  cap.style.display="block"; cap.style.setProperty("--c",COLC[seg]);
+  const pr=(t-START[seg])/DUR[seg]; const ws=WORDS[seg];
+  let cw=ws.findIndex(o=>pr>=o.a&&pr<o.b); if(cw<0) cw=pr<0?0:ws.length-1;
+  const grp=PH[seg].find(g=>g.includes(cw))||PH[seg][0];
+  cap.innerHTML=grp.map(i=>`<span class="${i===cw?"on":""}">${ws[i].w}</span>`).join(" ");
+  const pop=eo(P(t,START[seg],START[seg]+.2)); cap.style.transform=`scale(${.96+.04*pop})`;
+}
+
+// ================= CẢNH =================
+// S0 hook
+const stk=[]; for(let i=0;i<30;i++) stk.push(E("stk","<i class='h'></i><i></i><i></i><i style='width:80%'></i><i></i><i style='width:55%'></i><i></i><i style='width:70%'></i><i></i>"));
+const s0num=E("big hd","<span id='n30'>0</span>","font-size:340px;color:#fff;text-shadow:0 8px 0 rgba(0,0,0,.55),0 0 40px rgba(0,0,0,.6)");
+const s0lab=E("hd","BÀI LUẬN VĂN<br>CẦN PHẢN BIỆN","font-size:60px;font-weight:700;text-align:center;line-height:1.1;color:#cfe3ff;width:900px;font-weight:700");
+const s0week=E("","<div class='pill hd' style='background:#fbbf24;font-size:56px;padding:18px 44px'>⏰ 7 NGÀY!</div>");
+const s0title1=E("big hd grad","CÓ GÌ MỚI?","font-size:190px;text-align:center;width:1000px");
+const s0title2=E("hd","<span style='color:#fff'>Ami 1.6</span> · Giáo sư phản biện","font-size:52px;text-align:center;width:1000px;color:#2dd4bf");
+// S1 gs
+const gsPill=E("","<div class='pill hd' style='background:#2dd4bf'>★ GIÁO SƯ PHẢN BIỆN · CAO CẤP</div>");
+const gsCard=E("card","<img src='assets/p7-result.webp'>","width:900px");
+const gsRing=E("","<div class='chip hd' style='--c:#fbbf24;font-size:96px;padding:6px 40px'><b id='gsn'>0</b><span style='font-size:44px'>/100</span></div>");
+const gsC=[["Nhận xét từng mục","#38bdf8"],["Điểm đề xuất thang 100","#2dd4bf"],["Khuyến nghị thông qua / chỉnh sửa","#a78bfa"]].map(([x,c])=>E("",`<div class='chip' style='--c:${c}'>✓ ${x}</div>`));
+// S2 quote
+const qCard=E("card","<img src='assets/p8-sections.webp'>","width:940px");
+const qStamp=E("","<div class='hd' style='border:10px solid #22c55e;color:#22c55e;background:rgba(5,20,12,.88);border-radius:26px;padding:12px 34px;font-size:60px;font-weight:700;letter-spacing:.04em;transform:rotate(-6deg)'>✓ KHỚP NGUYÊN VĂN</div>");
+const qBad=E("","<div class='chip' style='--c:#f87171;font-size:38px'>Không khớp bản gốc → <b>loại bỏ</b></div>");
+const qNo=E("","<div class='chip' style='--c:#fbbf24;font-size:38px'>Không bịa · không đoán</div>");
+// S3 batch
+const bPill=E("","<div class='pill hd' style='background:#fbbf24'>MỚI · CHẤM LÔ</div>");
+const bCard1=E("card","<img src='assets/p5b-batch.webp' style='width:1000px;margin:-118px 0 0 -30px'>","width:940px;height:520px");
+const bCard2=E("card","<img src='assets/p6b-batch-done.webp' style='width:1000px;margin:-128px 0 0 -30px'>","width:940px;height:640px");
+const FN=["Nguyen-Van-A.docx","Tran-Thi-B.docx","Le-Van-C.docx"];
+const bDocs=FN.map(n=>E("",`<div class='doc'><u>W</u>${n.replace('.docx','')}</div>`));
+const bMax=E("","<div class='chip hd' style='--c:#fbbf24;font-size:44px'>TỐI ĐA <b>30</b> CÔNG TRÌNH / LÔ</div>");
+const bSeq=E("","<div class='chip' style='--c:#38bdf8;font-size:36px'>Lần lượt · mỗi người một bản Word</div>");
+// S4 zip
+const zDocs=FN.map((n,i)=>E("",`<div class='doc' style='width:560px'><u>W</u>${n.replace('.docx','')}</div>`));
+const zOk=[0,2].map(i=>E("",`<div class='doc' style='width:560px;border-color:#22c55e;background:#0d2a1b'><u style='background:#22c55e'>W</u>${FN[i].replace('.docx','')}<span style='margin-left:auto;font-size:44px;color:#22c55e'>✓</span></div>`));
+const zBad=E("",`<div class='doc' style='width:560px;border-color:#f87171;background:#2a1010'><u style='background:#ef4444'>W</u>${FN[1].replace('.docx','')}<span style='margin-left:auto;font-size:44px;color:#f87171'>✗</span></div>`);
+const zErr=E("","<div class='chip' style='--c:#f87171;font-size:34px'>Lỗi · báo rõ · <b>hoàn lượt ↩</b></div>");
+const zZip=E("","<div style='width:330px;height:300px;border-radius:34px;background:linear-gradient(135deg,#fbbf24,#f472b6);display:grid;place-items:center;box-shadow:0 20px 50px rgba(0,0,0,.5)'><div style='font-size:130px'>🗜️</div><div class='hd' style='color:#1b0b1f;font-size:50px;margin-top:-52px;font-weight:700'>.ZIP</div></div>");
+const zName=E("","<div class='chip hd' style='--c:#f472b6;font-size:34px'>Cac-ban-nhan-xet.zip</div>");
+// S5 edit
+const EROWS=[["Tính cấp thiết & tổng quan",15,13,13],["Mục tiêu, giả thuyết",15,12,12],["Phương pháp nghiên cứu",20,17,11],["Kết quả & thảo luận",20,16,9],["Đóng góp mới",15,12,12],["Cấu trúc, lập luận",5,4,4],["Tài liệu tham khảo",10,8,8]];
+const eCard=E("card","","width:940px;color:#0b1020");
+eCard.innerHTML=`<div style='padding:30px 30px 8px'><div class='hd' style='font-size:40px;color:#0b1020'>Bảng điểm đề xuất <span style='font-size:28px;color:#6b7896;font-weight:600'>· sửa trực tiếp</span></div></div>`+EROWS.map((r,i)=>`<div class='row'><div>${r[0]} <em>/${r[1]}</em></div><div class='box' id='eb${i}'>${r[2]}</div></div>`).join("")+`<div class='row' style='border:0;background:#f4f7fd'><div class='hd' style='font-size:38px'>TỔNG</div><div style='display:flex;gap:20px;align-items:center'><div class='hd' id='etot' style='font-size:64px;color:#0b1020'>82</div><div id='ebadge' class='pill' style='font-size:25px;letter-spacing:.02em;background:#22c55e;padding:10px 22px'>Thông qua</div></div></div>`;
+const eHint=E("","<div class='chip' style='--c:#a78bfa;font-size:36px'>Tổng điểm & khuyến nghị <b>tự tính lại</b></div>");
+const eDl=E("","<div class='chip hd' style='--c:#2dd4bf;background:#0f6b73;font-size:40px'>⬇ Tải Word (bản đã sửa)</div>");
+// S6 pro
+const pGuide=E("card","","width:900px;color:#0b1020;padding:36px 40px");
+pGuide.innerHTML=`<div class='hd' style='font-size:44px;margin-bottom:18px'>Hướng dẫn từng bước <span style='color:#2dd4bf'>có hình</span></div>`+["Chọn công trình, mẫu nhận xét","Soạn nhận xét · cả lô","Sửa điểm · tải .zip"].map((x,i)=>`<div class='row' style='padding:16px 6px'><div><span class='pill' style='background:#e6faf7;color:#0b8f84;font-size:28px;padding:6px 18px;margin-right:16px'>${i+1}</span>${x}</div><div id='pk${i}' style='font-size:44px;color:#22c55e'>✓</div></div>`).join("");
+const pP=E("","<div class='pill hd' style='background:#a78bfa;font-size:46px;padding:22px 44px'>ProFind</div>");
+const pA=E("","<div class='pill hd' style='background:#2dd4bf;font-size:46px;padding:22px 44px'>Ami</div>");
+const pTag=E("","<div class='chip hd' style='--c:#fbbf24;font-size:38px'>📖 Tạp chí Giáo dục</div>");
+const pArrow=E("","<div style='width:260px;height:10px;border-radius:6px;background:repeating-linear-gradient(90deg,#8aa0d6 0 22px,transparent 22px 40px)'></div>");
+const pBan=E("card","<div style='padding:30px 36px'><div class='hd' style='font-size:36px;color:#0b1020'>Bạn vừa chọn một tạp chí gợi ý trên ProFind: Tạp chí Giáo dục</div><div style='font-size:28px;color:#6b7896;margin-top:10px;font-weight:600'>Ami sẽ giúp bạn đọc, chọn đoạn đáng trích…</div></div>","width:900px");
+// S7 end
+const eT1=E("big hd","Chấm cả lô<br>Sửa tại chỗ<br><span class='grad'>Giáo sư phản biện</span>","font-size:100px;text-align:center;width:1000px;text-shadow:0 6px 30px rgba(0,0,0,.75)");
+const eQR=E("","<div style='background:#fff;border-radius:34px;padding:22px;width:300px;height:300px;box-shadow:0 20px 50px rgba(0,0,0,.5)'><img src='assets/qr-app.svg' style='width:100%;height:100%;display:block'></div>");
+const eUrl=E("","<div class='chip hd' style='--c:#2dd4bf;font-size:54px;padding:20px 40px'>aaa.isavietnam.app</div>");
+const eNote=E("","<div style='font-size:27px;line-height:1.35;color:#9fb0d4;text-align:center;width:900px;font-weight:600'>Giáo sư phản biện dành cho tài khoản đã xác thực và được duyệt · Bản nháp hỗ trợ, người phản biện chịu trách nhiệm nội dung cuối cùng · Dữ liệu trong clip là minh họa</div>");
+const flash=E("","","width:1080px;height:1920px;background:#fff");
+
+
+const SIZE=new Map();
+const sizeOf=el=>SIZE.get(el)||[el.offsetWidth,el.offsetHeight];
+const cen=(el,x,y,o={})=>{const [w,h]=sizeOf(el);put(el,{...o,x:x-w/2,y:y-h/2})};
+const ALL=()=>[...root.children];
+const env=(t,k,a=.35,b=.3)=>P(t,T[k][0],T[k][0]+a)*(1-P(t,T[k][1]-b,T[k][1]));
+const pop=(t,a,d=.5)=>({o:clamp((t-a)/.15),s:t<a?.5:lerp(.5,1,ob(P(t,a,a+d)))});
+const pad=(n)=>String(Math.round(n));
+function amiPlace(t){
+  const m=mood(t); POSE.forEach(p=>{ if(p!==m) put(amiImgs[p],{o:0}); });
+  const el=amiImgs[m]; const bob=Math.sin(t*5)*10, enter=eo(P(t,.15,.7));
+  let w=300,x=W-w+8,y=1560;
+  if(t>=3.3&&t<6.2){const k=eio(P(t,3.3,3.9))*(1-eio(P(t,5.7,6.2)));w=lerp(300,380,k);x=lerp(W-w+8,W/2-w/2,k);y=lerp(1560,880,k)}
+  if(t>=52.5){const k=eo(P(t,52.5,53.3));w=lerp(300,470,k);x=lerp(W-300+8,40,k);y=lerp(1560,660,k)}
+  el.style.width=w+"px"; put(el,{x,y:y+bob+(1-enter)*500,o:enter});
+}
+window.__render=(t)=>{
+  put(b1,{x:-300+Math.sin(t*.6)*120,y:-200+Math.cos(t*.5)*120});
+  put(b2,{x:620+Math.cos(t*.45)*140,y:500+Math.sin(t*.4)*180});
+  put(b3,{x:-100+Math.sin(t*.35+2)*160,y:1300+Math.cos(t*.5)*120});
+  put(dots,{x:-((t*14)%46),y:-((t*14)%46)});
+  put(brand,{x:60,y:64}); put(ver,{x:W-60-sizeOf(ver)[0],y:70});
+  put(prog,{x:60,y:170}); document.getElementById("pg").style.width=(t/60*100)+"%";
+  const hide=[...stk,s0num,s0lab,s0week,s0title1,s0title2,gsPill,gsCard,gsRing,...gsC,qCard,qStamp,qBad,qNo,bPill,bCard1,bCard2,...bDocs,bMax,bSeq,...zDocs,...zOk,zBad,zErr,zZip,zName,eCard,eHint,eDl,pGuide,pP,pA,pTag,pArrow,pBan,eT1,eQR,eUrl,eNote];
+  hide.forEach(e=>put(e,{o:0}));
+  const beats=[0,6,13.5,19.5,29.5,36.5,44.5,52.5];
+  const fl=beats.reduce((m,b)=>Math.max(m,t>=b&&t<b+.2?1-(t-b)/.2:0),0);
+  // ---- S0: mở đầu ----
+  if(t<6.1){
+    if(t<3.3){
+      const out=1-P(t,3.05,3.3);
+      document.getElementById("n30").textContent=pad(30*eo(P(t,.3,2)));
+      stk.forEach((e,i)=>{const a=.3+i*.045,p=ob(P(t,a,a+.5));put(e,{x:60+rnd(i)*740,y:lerp(-500,760+rnd(i+9)*330,p),r:(rnd(i+3)-.5)*34,o:P(t,a,a+.1)*out})});
+      cen(s0num,W/2,400,{o:eo(P(t,.2,.6))*out,s:lerp(.7,1,eo(P(t,.2,.8)))});
+      cen(s0lab,W/2,610,{o:eo(P(t,.8,1.2))*out});
+      cen(s0week,W/2,1215,{o:P(t,1.5,1.8)*out,s:ob(P(t,1.5,2.0))});
+    } else {
+      const out=1-P(t,5.8,6.1);
+      cen(s0title1,W/2,430,{o:eo(P(t,3.3,3.7))*out,s:lerp(.6,1,ob(P(t,3.3,3.8)))});
+      cen(s0title2,W/2,620,{o:eo(P(t,3.7,4.2))*out});
+    }
+  }
+  // ---- S1: Giáo sư phản biện ----
+  if(t>=6&&t<13.6){
+    const e=env(t,"gs",.3,.3);
+    cen(gsPill,W/2,300,{o:e,s:ob(P(t,6,6.5))});
+    const c=ob(P(t,6.3,7.0));cen(gsCard,W/2,lerp(1500,740,c),{o:P(t,6.3,6.5)*e,r:lerp(-5,0,c)});
+    put(gsRing,{...{x:W/2+120,y:430},...pop(t,9.0),o:pop(t,9.0).o*e}); document.getElementById("gsn").textContent=pad(73*eo(P(t,9.0,10.4)));
+    cen(gsRing,W/2+230,455,{...pop(t,9.0),o:pop(t,9.0).o*e});
+    gsC.forEach((el,i)=>cen(el,W/2,1060+i*84,{...pop(t,8.0+i*1.4),o:pop(t,8.0+i*1.4).o*e}));
+  }
+  // ---- S2: trích dẫn nguyên văn ----
+  if(t>=13.5&&t<19.6){
+    const e=env(t,"quote",.3,.3), z=eio(P(t,14.6,15.9));
+    const c=ob(P(t,13.6,14.3));cen(qCard,W/2,lerp(1500,700,c)-z*40,{o:P(t,13.6,13.8)*e,s:lerp(1,1.22,z),r:lerp(4,0,c)});
+    const st=P(t,16.0,16.35); cen(qStamp,W/2,1030,{o:st*e,s:lerp(2.6,1,eo(st)),r:0});
+    cen(qBad,W/2,1130,{...pop(t,17.2),o:pop(t,17.2).o*e}); cen(qNo,W/2,1220,{...pop(t,18.1),o:pop(t,18.1).o*e});
+  }
+  // ---- S3: chấm lô ----
+  if(t>=19.5&&t<29.6){
+    const e=env(t,"batch",.3,.3);
+    cen(bPill,W/2,300,{o:e,s:ob(P(t,19.5,20))});
+    // 3 tệp bay vào rồi rơi xuống thẻ
+    bDocs.forEach((el,i)=>{const a=19.9+i*.3,p=ob(P(t,a,a+.6)),d=eio(P(t,22.0+i*.15,22.7+i*.15));
+      const fx=[-300,W/2,W+300][i],tx=[220,540,860][i];
+      cen(el,lerp(fx,tx,p),lerp(lerp(-200,440,p),900,d),{o:P(t,a,a+.15)*(1-P(t,22.5+i*.15,22.8+i*.15))*e,r:lerp(i-1?0:-10,0,p),s:lerp(1,.8,d)})});
+    const c1=ob(P(t,21.0,21.8)), out1=eio(P(t,24.2,24.9));
+    cen(bCard1,lerp(W/2,-700,out1),lerp(1500,880,c1),{o:P(t,21.0,21.2)*e,r:lerp(4,0,c1)});
+    const c2=eio(P(t,24.3,25.0));
+    cen(bCard2,lerp(W+700,W/2,c2),840,{o:P(t,24.3,24.5)*e});
+    cen(bSeq,W/2,410,{...pop(t,24.8),o:pop(t,24.8).o*e});
+    cen(bMax,W/2,1225,{...pop(t,26.6),o:pop(t,26.6).o*e});
+  }
+  // ---- S4: lỗi một tệp không ảnh hưởng; tải gói zip ----
+  if(t>=29.5&&t<36.6){
+    const e=env(t,"zip",.3,.3), ys=[430,590,750];
+    const fly=eio(P(t,33.2,34.0));
+    zDocs.forEach((el,i)=>{const a=29.8+i*.3,p=ob(P(t,a,a+.5)),shake=i===1&&t>31.2&&t<31.8?Math.sin(t*70)*10:0;
+      const toZip=(i!==1)?fly:0;
+      const x=lerp(lerp(-400,W/2,p),W/2,0)+shake, y=lerp(ys[i],1100,toZip);
+      const alive=(i===1)?1:1-P(t,33.9,34.1);
+      cen(el,x,y,{o:P(t,a,a+.15)*e*alive*(i===1?1-P(t,31.2,31.4):1-P(t,30.9,31.1)),s:lerp(1,.5,toZip)});
+      if(i===0) cen(zOk[0],x,y,{o:P(t,30.9,31.1)*e*(1-P(t,33.9,34.1)),s:lerp(1,.5,toZip)});
+      if(i===2) cen(zOk[1],x,y,{o:P(t,30.9,31.1)*e*(1-P(t,33.9,34.1)),s:lerp(1,.5,toZip)});
+      if(i===1) cen(zBad,x,y,{o:P(t,31.2,31.4)*e*(1-P(t,33.4,33.7)),y:0});
+    });
+    cen(zErr,W/2,900,{...pop(t,31.8),o:pop(t,31.8).o*e*(1-P(t,33.4,33.7))});
+    cen(zZip,W/2,1000,{...pop(t,33.7,.6),o:pop(t,33.7,.6).o*e});
+    cen(zName,W/2,1210,{...pop(t,34.6),o:pop(t,34.6).o*e});
+  }
+  // ---- S5: sửa tại chỗ ----
+  if(t>=36.5&&t<44.6){
+    const e=env(t,"edit",.3,.3);
+    cen(eHint,W/2,262,{...pop(t,36.8),o:pop(t,36.8).o*e});
+    const c=ob(P(t,36.7,37.4));cen(eCard,W/2,lerp(1500,775,c),{o:P(t,36.7,36.9)*e,r:lerp(-3,0,c)});
+    const v=EROWS.map((r,i)=>i===2?lerp(r[2],r[3],eio(P(t,38.3,38.8))):i===3?lerp(r[2],r[3],eio(P(t,39.6,40.1))):r[2]);
+    v.forEach((x,i)=>{const b=document.getElementById("eb"+i);b.textContent=pad(x);const hl=(i===2&&t>38.2&&t<39.4)||(i===3&&t>39.5&&t<40.7);b.style.borderColor=hl?"#7c3aed":"#c9d3ea";b.style.background=hl?"#efe8ff":"#fff"});
+    const tot=Math.round(v.reduce((a,b)=>a+b,0));document.getElementById("etot").textContent=tot;
+    const bd=document.getElementById("ebadge");bd.textContent=tot>=75?"Thông qua":"Thông qua có điều kiện";bd.style.background=tot>=75?"#22c55e":"#fbbf24";
+    cen(eDl,W/2,1275,{...pop(t,41.8),o:pop(t,41.8).o*e});
+  }
+  // ---- S6: giao diện, hướng dẫn, ProFind ----
+  if(t>=44.5&&t<52.6){
+    const e=env(t,"pro",.3,.3),g=1-P(t,48.4,48.8);
+    const c=ob(P(t,44.7,45.4));cen(pGuide,W/2,lerp(1400,620,c),{o:P(t,44.7,44.9)*e*g,r:lerp(3,0,c)});
+    [45.7,46.5,47.3].forEach((a,i)=>{const k=document.getElementById("pk"+i);k.style.opacity=P(t,a,a+.2);k.style.transform=`scale(${lerp(2,1,ob(P(t,a,a+.3)))})`});
+    const ap=P(t,48.8,49.4);
+    cen(pP,260,520,{o:ap*e,s:ob(ap)}); cen(pA,820,520,{o:ap*e,s:ob(ap)});
+    cen(pArrow,540,520,{o:ap*e});
+    const tp=eio(P(t,49.5,50.5)); cen(pTag,lerp(260,820,tp),lerp(520,520,tp)-Math.sin(tp*Math.PI)*90,{o:P(t,49.4,49.6)*(1-P(t,50.6,50.9))*e});
+    cen(pBan,W/2,lerp(1300,860,ob(P(t,50.7,51.4))),{o:P(t,50.7,50.9)*e});
+  }
+  // ---- S7: kết ----
+  if(t>=52.5){
+    const e=P(t,52.5,52.8);
+    cen(eT1,W/2,390,{o:e,s:lerp(.8,1,ob(P(t,52.5,53.2)))});
+    cen(eQR,810,860,{...pop(t,54.0),o:pop(t,54.0).o});
+    cen(eUrl,W/2,1255,{...pop(t,55.0),o:pop(t,55.0).o,s:pop(t,55.0).s*(1+Math.sin(t*6)*.02)});
+    cen(eNote,W/2,1730,{o:P(t,56.5,57.2)});
+  }
+  amiPlace(t); caption(t);
+  put(flash,{o:fl*.35});
+};
+// ---- chờ phông và ảnh, đo kích thước, rồi báo sẵn sàng ----
+Promise.all([document.fonts.ready,...[...document.images].map(i=>i.complete?1:new Promise(r=>{i.onload=i.onerror=r}))]).then(()=>{
+  [...root.children].forEach(el=>{SIZE.set(el,[el.offsetWidth,el.offsetHeight])});
+  window.__vidReady=true;
+});
+})();
+</script></body></html>
