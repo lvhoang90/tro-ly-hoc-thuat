@@ -6,6 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.1] - 2026-10-12
+
+When you open Ami from a journal suggested on ProFind, Ami remembers the journal name just as it does when you come from EduFind.
+
+### Changed
+
+- Opening Ami from a journal suggested on ProFind now shows the journal name on the Analyse page, with a button to look it up on EduFind.
+- The journal name is removed from the address bar once it has been received.
+
 ## [1.6.0] - 2026-10-10
 
 Pick many works from many authors at once, one Word file each; Ami drafts a separate review for each in turn and lets you download them all as one .zip.

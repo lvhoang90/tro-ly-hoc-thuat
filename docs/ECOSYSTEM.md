@@ -8,7 +8,7 @@ Tài liệu cho người vận hành. Nội dung cho người dùng nằm ở tr
 |---|---|---|
 | Ami → các ứng dụng | Liên kết qua cổng `https://isavn.edu.vn/go/<ứng dụng>?from=ami` (EduFind, ProFind, Mây) | Chỉ nguồn chiến dịch, ngôn ngữ, mã giới thiệu 7 ký tự; không email, không ORCID |
 | EduFind → Ami | `?journal=<tên>&utm_source=edufind` | Tên tạp chí, lưu trong phiên (`src/lib/handoff.ts`) |
-| ProFind → Ami | chưa có (xem "Việc cần làm ở ProFind") | |
+| ProFind → Ami | `?journal=<tên>&utm_source=profind` (khối "Gợi ý bài báo và tạp chí liên quan") | Tên tạp chí công khai, lưu trong phiên (`src/lib/handoff.ts`); không email, không ORCID |
 | Đo hành trình | `https://isavn.edu.vn/embed.js` (đã gắn ở `index.html`), sự kiện qua `window.isaTrack` (`src/lib/isa.ts`) | Tên sự kiện ngắn, không nội dung tài liệu |
 | Tác giả trên ProFind | Tải `https://profind.isavn.edu.vn/data/suggest.json` về trình duyệt (khoảng 1,5 MB, chỉ khi cần) và so khớp tên trên máy | Họ tên không rời khỏi máy người dùng |
 | Hồ sơ ProFind của tôi (ISA Connect) | `POST /api/eco` ký mã `v1.<payload>.<HMAC>` rồi mở `https://profind.isavn.edu.vn/#/ket-noi?t=…&from=ami` | Chỉ khi người dùng bấm: email đã xác thực, họ tên, số điện thoại, đơn vị, công việc, hồ sơ đã chọn |

@@ -10,6 +10,24 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.6.1",
+    date: "2026-10-12",
+    title: ["Mở Ami từ gợi ý tạp chí trên ProFind", "Open Ami from a journal suggestion on ProFind"],
+    summary: [
+      "Khi bạn mở Ami từ một tạp chí được gợi ý trên ProFind, Ami nhớ tên tạp chí đó giống như khi đi từ EduFind.",
+      "When you open Ami from a journal suggested on ProFind, Ami remembers the journal name just as it does when you come from EduFind.",
+    ],
+    sections: {
+      Changed: [
+        ["Mở Ami từ tạp chí gợi ý trên ProFind sẽ hiện tên tạp chí ở trang Phân tích, kèm nút tra tạp chí trên EduFind.",
+         "Opening Ami from a journal suggested on ProFind now shows the journal name on the Analyse page, with a button to look it up on EduFind."],
+        ["Tên tạp chí được dọn khỏi thanh địa chỉ sau khi nhận.",
+         "The journal name is removed from the address bar once it has been received."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.6.0",
     date: "2026-10-10",
     title: ["Giáo sư phản biện chấm cả lô và cho sửa ngay trên màn hình", "The AI Professor reviews a whole batch and lets you edit on screen"],
