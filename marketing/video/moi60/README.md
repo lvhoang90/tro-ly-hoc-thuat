@@ -1,7 +1,7 @@
 # Clip "Ami 1.6: có gì mới" (60 giây, 1080×1920, lời đọc tiếng Việt)
 
 - `../ami-1.6-moi-60s.vi.mp4`: clip dọc 9:16, 60 giây, 30 khung/giây, lời đọc bằng giọng ElevenLabs "Việt Hoàng - MC" (giọng nhân bản của tác giả), nhạc nền và hiệu ứng âm thanh. Không in phụ đề; chữ trên màn hình chỉ là giao diện ứng dụng và các nhãn ngắn.
-- `../ami-1.6-moi-60s-cover.png`: ảnh bìa (giây 5).
+- `../ami-1.6-moi-60s-cover.png` (9:16) và `../ami-1.6-moi-60s-cover-4x5.png` (4:5, cắt phần giữa cho lưới hồ sơ): ảnh bìa dựng từ `cover.html`; chụp bằng `node cover.cjs <9x16.png> <4x5.png>`.
 
 ## Kịch bản
 | Giây | Cảnh | Lời đọc |
