@@ -65,7 +65,7 @@ music *= (1 - 0.62 * duck)
 # ---------- hiệu ứng khớp cảnh ----------
 sfx = np.zeros(N)
 for i in range(30): put(sfx, boom(.12), 0.3 + i * 0.045, 0.1); put(sfx, pop(200 + (i % 5) * 30, .1), 0.3 + i * 0.045 + .2, 0.05)   # giấy rơi
-put(sfx, riser(.9, 300, 2800), 3.5, 0.55); put(sfx, boom(1.0), 4.4, 0.9); put(sfx, sparkle(1.3), 4.45, 0.9); put(sfx, pop(420, .3), 4.5, 0.5)
+put(sfx, riser(.9, 300, 2800), 3.8, 0.55); put(sfx, boom(1.0), 4.7, 0.9); put(sfx, sparkle(1.3), 4.75, 0.9); put(sfx, pop(420, .3), 4.8, 0.5)
 for t0 in (6.0, 13.5, 19.5, 29.5, 36.5, 44.5): put(sfx, whoosh(.45, 300, 2800), t0 - 0.1, 0.55)
 put(sfx, riser(.7, 300, 3200), 51.8, 0.6); put(sfx, boom(1.2), 52.5, 1.0); put(sfx, whoosh(.6, 600, 5000), 52.2, 0.5)
 for f in (523.25, 659.25, 783.99, 1046.5): put(sfx, tone(f, 3.2, (1, .4, .15), 0.01, 1.2), 52.5, 0.16)

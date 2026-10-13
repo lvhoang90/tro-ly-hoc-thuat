@@ -59,7 +59,7 @@ const prog=E("","<div style='width:960px;height:8px;border-radius:6px;background
 // ---- ami ----
 const POSE=["idle","wave","happy","think","read","celebrate"]; const amiImgs={};
 POSE.forEach(p=>{amiImgs[p]=E("",`<img src='assets/ami-${p}.png' style='width:100%;display:block'>`,"width:330px")});
-const MOODS=[[0,"idle"],[.3,"wave"],[4.4,"celebrate"],[6,"read"],[9,"happy"],[13.5,"think"],[16.2,"happy"],[19.5,"read"],[24.6,"happy"],[29.5,"think"],[34,"celebrate"],[36.5,"think"],[41.5,"happy"],[44.5,"wave"],[49,"happy"],[52.5,"celebrate"]];
+const MOODS=[[0,"idle"],[.3,"wave"],[4.7,"celebrate"],[6,"read"],[9,"happy"],[13.5,"think"],[16.2,"happy"],[19.5,"read"],[24.6,"happy"],[29.5,"think"],[34,"celebrate"],[36.5,"think"],[41.5,"happy"],[44.5,"wave"],[49,"happy"],[52.5,"celebrate"]];
 const mood=t=>{let m="idle";for(const [a,k] of MOODS) if(t>=a) m=k;return m};
 // ---- phụ đề ----
 const cap=E("cap","");
@@ -143,7 +143,7 @@ function amiPlace(t){
   const m=mood(t); POSE.forEach(p=>{ if(p!==m) put(amiImgs[p],{o:0}); });
   const el=amiImgs[m]; const bob=Math.sin(t*5)*10, enter=eo(P(t,.15,.7));
   let w=300,x=W-w+8,y=1560;
-  if(t>=4.4&&t<6.2){const k=eio(P(t,4.4,4.9))*(1-eio(P(t,5.7,6.2)));w=lerp(300,380,k);x=lerp(W-w+8,W/2-w/2,k);y=lerp(1560,880,k)}
+  if(t>=4.7&&t<6.4){const k=eio(P(t,4.7,5.2))*(1-eio(P(t,6.0,6.4)));w=lerp(300,380,k);x=lerp(W-w+8,W/2-w/2,k);y=lerp(1560,880,k)}
   if(t>=52.5){const k=eo(P(t,52.5,53.3));w=lerp(300,470,k);x=lerp(W-300+8,40,k);y=lerp(1560,660,k)}
   el.style.width=w+"px"; put(el,{x,y:y+bob+(1-enter)*500,o:enter});
 }
@@ -160,8 +160,8 @@ window.__render=(t)=>{
   const fl=beats.reduce((m,b)=>Math.max(m,t>=b&&t<b+.2?1-(t-b)/.2:0),0);
   // ---- S0: mở đầu ----
   if(t<6.1){
-    if(t<4.4){
-      const out=1-P(t,4.15,4.4);
+    if(t<4.7){
+      const out=1-P(t,4.45,4.7);
       document.getElementById("n30").textContent=pad(30*eo(P(t,.3,2)));
       stk.forEach((e,i)=>{const a=.3+i*.045,p=ob(P(t,a,a+.5));put(e,{x:60+rnd(i)*740,y:lerp(-500,760+rnd(i+9)*330,p),r:(rnd(i+3)-.5)*34,o:P(t,a,a+.1)*out})});
       cen(s0num,W/2,400,{o:eo(P(t,.2,.6))*out,s:lerp(.7,1,eo(P(t,.2,.8)))});
@@ -169,8 +169,8 @@ window.__render=(t)=>{
       cen(s0week,W/2,1215,{o:P(t,1.5,1.8)*out,s:ob(P(t,1.5,2.0))});
     } else {
       const out=1-P(t,5.8,6.1);
-      cen(s0title1,W/2,430,{o:eo(P(t,4.4,4.8))*out,s:lerp(.6,1,ob(P(t,4.4,4.9)))});
-      cen(s0title2,W/2,620,{o:eo(P(t,4.8,5.3))*out});
+      cen(s0title1,W/2,430,{o:eo(P(t,4.7,5.1))*out,s:lerp(.6,1,ob(P(t,4.7,5.2)))});
+      cen(s0title2,W/2,620,{o:eo(P(t,5.1,5.6))*out});
     }
   }
   // ---- S1: Giáo sư phản biện ----
