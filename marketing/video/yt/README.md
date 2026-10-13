@@ -1,7 +1,7 @@
 # Bản YouTube của clip "Ami 1.6: có gì mới" (16:9, 1920×1080, 60 giây)
 
-Tệp đăng YouTube (không đưa vào kho vì nặng, dựng lại theo các bước dưới):
-- `ami-1.6-youtube-1080p.mp4`: H.264 High 4.2, 1920×1080, 30 khung/giây, yuv420p, màu BT.709, khoảng 6 Mb/giây (đỉnh tối đa 16 Mb/giây); âm thanh AAC-LC 48 kHz stereo 256–384 kb/giây, âm lượng chuẩn −14 LUFS (mức YouTube chuẩn hóa), đỉnh âm dưới −1,5 dBTP; `moov` ở đầu tệp (phát được ngay khi đang tải).
+Tệp đăng YouTube:
+- `ami-1.6-youtube-1080p.mp4` (bản gốc chất lượng cao, khoảng 44 MB): H.264 High 4.2, 1920×1080, 30 khung/giây, yuv420p, màu BT.709, khoảng 6 Mb/giây (đỉnh tối đa 16 Mb/giây); âm thanh AAC-LC 48 kHz stereo 256–384 kb/giây, âm lượng chuẩn −14 LUFS (mức YouTube chuẩn hóa), đỉnh âm dưới −1,5 dBTP; `moov` ở đầu tệp (phát được ngay khi đang tải).
 - `ami-1.6-youtube-thumbnail.jpg`: ảnh đại diện 1280×720 (dưới 2 MB), dựng từ `thumb.html` bằng `node thumb.cjs <ra.jpg>`.
 - `ami-1.6-youtube.vi.srt` và `.vtt`: phụ đề tiếng Việt tách rời (không in vào hình), tải ở mục Phụ đề của YouTube Studio.
 - `youtube-metadata.md`: tiêu đề, mô tả có mốc chương, thẻ, cài đặt khi tải lên.
