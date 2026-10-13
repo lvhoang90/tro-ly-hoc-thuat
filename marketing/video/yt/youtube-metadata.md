@@ -13,7 +13,7 @@ Ami 1.6 có gì mới? Giáo sư phản biện giờ chấm được cả lô nh
 
 ⚠️ Giáo sư phản biện dành cho tài khoản đã xác thực và được quản trị viên duyệt. Đây là bản nháp hỗ trợ: Ami không kiểm tra đạo văn và không xác minh tài liệu tham khảo có thật; người phản biện thẩm định và chịu trách nhiệm về nội dung cuối cùng. Số liệu, tên người và tên tệp trong video là minh họa.
 
-👉 Dùng thử: https://aaa.isavietnam.app
+👉 Dùng thử: https://isavn.edu.vn/go/ami
 
 0:00 Giáo sư phản biện: nhận xét, điểm đề xuất, trích dẫn nguyên văn
 0:19 Chấm lô nhiều công trình và tải gói .zip
