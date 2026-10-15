@@ -3,6 +3,13 @@ const D = {
   // ----- Chung -----
   theme: { vi: "Đổi giao diện sáng/tối", en: "Toggle light/dark theme" },
   nav_work: { vi: "Phân tích", en: "Analyse" },
+  skip_main: { vi: "Chuyển đến nội dung chính", en: "Skip to main content" },
+  nf_title: { vi: "Không tìm thấy trang này", en: "This page could not be found" },
+  nf_body: { vi: "Đường dẫn có thể đã đổi hoặc gõ chưa đúng. Bạn có thể quay về trang chủ hoặc xem hướng dẫn sử dụng.", en: "The link may have changed or been mistyped. You can go back to the home page or read the user guide." },
+  nf_home: { vi: "Về trang chủ", en: "Back to home" },
+  nf_guide: { vi: "Hướng dẫn sử dụng", en: "User guide" },
+  page_prev: { vi: "Trang trước", en: "Previous page" },
+  page_next: { vi: "Trang sau", en: "Next page" },
   nav_history: { vi: "Lịch sử trích dẫn", en: "Citation history" },
   nav_profile: { vi: "Hồ sơ", en: "Profile" },
   nav_admin: { vi: "Quản trị", en: "Admin" },

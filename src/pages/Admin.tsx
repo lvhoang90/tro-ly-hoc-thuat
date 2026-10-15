@@ -243,9 +243,9 @@ export default function Admin() {
               </tbody>
             </table>
           </div>
-          <div className="between"><button className="btn sm" disabled={off === 0} onClick={() => setOff(Math.max(0, off - PAGE))}><Icon name="left" size={14} /></button>
+          <div className="between"><button className="btn sm" aria-label={t("page_prev")} disabled={off === 0} onClick={() => setOff(Math.max(0, off - PAGE))}><Icon name="left" size={14} /></button>
             <span className="muted small">{Math.floor(off / PAGE) + 1} / {Math.max(1, Math.ceil(total / PAGE))}</span>
-            <button className="btn sm" disabled={off + PAGE >= total} onClick={() => setOff(off + PAGE)}><Icon name="right" size={14} /></button></div>
+            <button className="btn sm" aria-label={t("page_next")} disabled={off + PAGE >= total} onClick={() => setOff(off + PAGE)}><Icon name="right" size={14} /></button></div>
         </div>
       )}
 

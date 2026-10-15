@@ -33,6 +33,14 @@ export default function App() {
   const [handoff, setHandoff] = useState(getHandoff);
   useEffect(() => { const f = () => setRoute(fromHash()); addEventListener("hashchange", f); return () => removeEventListener("hashchange", f); }, []);
 
+  // Tiêu đề thẻ theo màn hình đang mở, để trình đọc màn hình và lịch sử trình duyệt phân biệt được các trang.
+  const { lang } = useI18n();
+  const notFound = location.pathname !== "/" && location.pathname !== "/index.html";
+  useEffect(() => {
+    const label = notFound ? t("nf_title") : route === "work" ? "" : t(`nav_${route}` as "nav_work");
+    document.title = label ? `${label} | ${APP.short} - ${APP.name[lang]}` : `${APP.short} - ${APP.name.vi} | ${APP.name.en}`;
+  }, [route, notFound, lang, t]);
+
   const ami = useMascot();
   useEffect(() => {
     if (!session || !ready) return;
@@ -43,7 +51,17 @@ export default function App() {
   }, [route, session, ready]); // eslint-disable-line react-hooks/exhaustive-deps
 
   let body;
-  if (!configured) body = <div className="card setup"><h2>{t("setup_title")}</h2><p>{t("setup_body")}</p><pre>VITE_SUPABASE_URL=…{"\n"}VITE_SUPABASE_ANON_KEY=…</pre></div>;
+  if (notFound) body = (
+    <div className="card" role="alert">
+      <h1>{t("nf_title")}</h1>
+      <p className="muted">{t("nf_body")}</p>
+      <div className="row wrap">
+        <a className="btn primary" href="/">{t("nf_home")}</a>
+        <a className="btn" href={lang === "vi" ? "/huong-dan" : "/en/guide"}>{t("nf_guide")}</a>
+      </div>
+    </div>
+  );
+  else if (!configured) body = <div className="card setup"><h2>{t("setup_title")}</h2><p>{t("setup_body")}</p><pre>VITE_SUPABASE_URL=…{"\n"}VITE_SUPABASE_ANON_KEY=…</pre></div>;
   else if (!ready) body = <div className="center"><div className="spinner" /></div>;
   else if (!session) body = <Auth />;
   else if (profile?.status === "suspended") body = <div className="card err"><h3>{t("err_suspended")}</h3><p className="muted">{contact?.email}</p></div>;
@@ -61,6 +79,7 @@ export default function App() {
     <>
       <Background />
       <TierWatcher />
+      <a className="skip-link" href="#main" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); }}>{t("skip_main")}</a>
       <div className="shell">
         <Header route={route} go={setRoute} />
         {handoff && session && ready && route === "work" && (
@@ -73,7 +92,7 @@ export default function App() {
             </div>
           </div>
         )}
-        <main className="main">{body}</main>
+        <main id="main" className="main" tabIndex={-1}>{body}</main>
         {(ready || !configured) && <Footer />}
       </div>
       <VisitChip />
