@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.7.2] - 2026-10-23
+
+When a weak connection stops the AI Professor from checking your access, Ami now says so and lets you check again, instead of showing the access-request form.
+
+### Fixed
+
+- Accounts that already have access no longer see the "request access" form just because the connection flickered; Ami retries a few times and offers a Check again button.
+
 ## [1.7.1] - 2026-10-23
 
 The AI Professor now keeps the connection alive during steps that take a few minutes, especially on phones.
