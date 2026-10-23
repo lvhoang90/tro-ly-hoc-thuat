@@ -204,3 +204,16 @@ test("nhận xét từng mục dùng mức suy nghĩ vừa, phần tổng hợp 
   assert.equal(readToken(t, "u1", 1_000 + 2.9 * 3600_000), 7);
   assert.equal(readToken(t, "u1", 1_000 + 3.1 * 3600_000), null);
 });
+
+test("giữ kết nối khi trình duyệt xin: HTTP luôn 200, mã thật ở thân; không xin thì mã HTTP như thường", async () => {
+  reset();
+  const kreq = (body: unknown) => new Request("http://x/api/review", { method: "POST", headers: { authorization: "Bearer t", "x-ami-keepalive": "1" }, body: JSON.stringify(body) });
+  const bad = await POST(kreq({ op: "template", text: "ngắn" }));
+  assert.equal(bad.status, 200);
+  assert.deepEqual({ ...(await bad.json()) }.status, 400);
+  db.left = 0;
+  const out = await POST(kreq({ op: "start" }));
+  const o = await out.json();
+  assert.equal(out.status, 200); assert.equal(o.error, "quota_exhausted"); assert.equal(o.status, 402);
+  assert.equal((await POST(req({ op: "template", text: "ngắn" }))).status, 400);
+});
