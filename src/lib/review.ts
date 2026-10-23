@@ -7,6 +7,7 @@ import type { ReviewMeta } from "../../shared/review/prompts.ts";
 import { corpusChars } from "../../shared/review/corpus.ts";
 import { sectionBatches, type Template } from "../../shared/review/template.ts";
 import { shouldRetry } from "../../shared/review/retry.ts";
+import { isUsable } from "../../shared/review/saved.ts";
 import { ApiFailure, call } from "./api.ts";
 
 export interface ReviewQuota { eligible: boolean; has_access: boolean; unlimited: boolean; limit: number; used: number; left: number; next_reset: string }
@@ -90,7 +91,7 @@ export async function runReview(p: { blocks: RawBlock[]; fileName: string; meta:
 const KEY = "ami-review-v1";
 export interface SavedReview { id: string; at: string; result: ReviewResult }
 export function loadSaved(): SavedReview[] {
-  try { const v = JSON.parse(localStorage.getItem(KEY) ?? "[]"); return Array.isArray(v) ? v : []; } catch { return []; }
+  try { const v = JSON.parse(localStorage.getItem(KEY) ?? "[]"); return Array.isArray(v) ? v.filter(isUsable) as SavedReview[] : []; } catch { return []; }
 }
 /** Ghi danh sách xuống trình duyệt; đầy bộ nhớ thì ghi ít bản hơn (bỏ dần bản cũ nhất). Danh sách trả về vẫn đủ để dùng trong phiên này. */
 export function persistSaved(list: SavedReview[]): SavedReview[] {

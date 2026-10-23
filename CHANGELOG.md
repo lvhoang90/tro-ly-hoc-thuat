@@ -6,6 +6,19 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-10-23
+
+Your saved AI Professor reviews now have View and Download buttons on every row, plus search, sorting and multi-select download.
+
+### Added
+
+- Every saved review has View / edit and Download .docx buttons on its row; tick several and download them as one .zip.
+- Search by file name (accents optional) and sort by date, score or name.
+
+### Fixed
+
+- Earlier reviews can still be viewed and downloaded when your weekly allowance is used up or access is not active; the list used to be hidden.
+
 ## [1.6.1] - 2026-10-12
 
 When you open Ami from a journal suggested on ProFind, Ami remembers the journal name just as it does when you come from EduFind.

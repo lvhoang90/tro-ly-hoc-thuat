@@ -42,7 +42,7 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 ## Giới hạn đã biết
 - Chấm lô tối đa 30 công trình mỗi lần (`MAX_BATCH_WORKS`), chạy tuần tự; mỗi công trình tốn 1 lượt, và cả lô dùng chung loại văn bản, vai trò, mẫu nhận xét. Hết lượt/khóa/đình chỉ thì dừng cả lô, các tệp còn lại ghi "bỏ qua"; lỗi riêng một tệp không ảnh hưởng tệp khác (lượt được hoàn).
 - Sửa tại chỗ (`shared/review/edit.ts`): điểm từng mục, nhận xét, ưu/nhược điểm, yêu cầu chỉnh sửa; điểm tổng và khuyến nghị tính lại bằng mã. Gói .zip một tệp .docx mỗi công trình (`src/lib/review-docx.ts`, `buildZip`).
-- Kết quả (kèm trích đoạn công trình) lưu ở `localStorage` tối đa 30 bản (`MAX_SAVED_REVIEWS`), tự giảm khi hết chỗ; xóa được bất cứ lúc nào.
+- Kết quả (kèm trích đoạn công trình) lưu ở `localStorage` tối đa 30 bản (`MAX_SAVED_REVIEWS`), tự giảm khi hết chỗ; xóa được bất cứ lúc nào. Danh sách "Kết quả đã soạn" (`SavedList` trong `src/pages/Review.tsx`, lọc và sắp xếp ở `shared/review/saved.ts`) hiện cả khi tài khoản hết lượt hoặc chưa được duyệt: xem và tải .docx/.zip chạy hoàn toàn trên trình duyệt; mục lưu hỏng bị bỏ qua khi đọc.
 - Chưa kiểm tra trùng lặp (đạo văn) và không xác minh tài liệu tham khảo có thật; giao diện và bản Word đều nói rõ.
 - PDF ảnh quét chưa hỗ trợ (chưa OCR); `.doc` cần lưu lại thành `.docx`.
 - Chưa thử với mô hình thật trong phiên phát triển: kiểm thử dùng máy chủ AI giả (`tests/review-api.test.ts`). Bộ nhớ đệm lời nhắc có thể không phát huy khi dùng đầu ra có lược đồ; chi phí thực tế đọc ở nhật ký sau những lượt đầu.
