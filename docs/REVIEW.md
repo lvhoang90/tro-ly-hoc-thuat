@@ -52,3 +52,8 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 - "Thử lại" cùng văn bản, cùng khung mẫu và bối cảnh thì dùng lại mã lượt, chỉ gửi các mục chưa xong, không gọi `start` (không tốn lượt mới). Đổi ghi chú, lĩnh vực hoặc khung mẫu thì là lượt mới.
 - Không nhận được phản hồi từ máy chủ (mất mạng) thì dừng và giữ điểm lưu, không ghép bản dở dang; lỗi do máy chủ trả về vẫn đi theo đường cũ (mục lỗi để người phản biện tự điền).
 - Chưa có mục nào xong thì gọi `fail`: hoàn được thì bỏ điểm lưu; không gửi được vì mất mạng thì giữ điểm lưu và xếp hàng (`ami-review-pendfail-v1`), gửi lại khi mở trang hoặc có mạng, trừ mã còn điểm lưu dùng được. Mã lượt hết hạn hoặc đã hoàn thì tự mở lượt mới.
+
+## Lưu trên tài khoản, xem từ mọi máy (1.7.0)
+- Bản nhận xét hoàn chỉnh (cả khi sửa) được ghi vào `saved_results` (`kind = 'review'`, `local_id` = mã bản trên trình duyệt) nếu `profiles.save_results` khác false; chỉ gửi kết quả, không có tệp hay toàn văn. Lỗi mạng hoặc chưa chạy migration thì bỏ qua, bản trên trình duyệt vẫn dùng bình thường (`src/lib/results-store.ts`).
+- Mở trang: lấy danh sách (không kèm nội dung) từ tài khoản, ghép với 30 bản trên trình duyệt (`mergeRows`); bản chỉ có trên máy được tải lên (`missingInCloud`); bản chỉ có trên tài khoản lấy nội dung khi mở, tải hoặc nén .zip. Sửa bản mở từ tài khoản được đồng bộ lại sau 2 giây.
+- Phân tích thường: `Workspace` ghi `kind = 'analysis'` sau mỗi lượt (`shared/results/analysis.ts`, bỏ `quota`); xem ở Lịch sử, tab "Phân tích đã lưu" (`SavedAnalyses.tsx`), tải Word/.zip ở `src/lib/analysis-docx.ts`.

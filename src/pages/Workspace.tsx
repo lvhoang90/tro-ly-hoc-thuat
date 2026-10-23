@@ -15,6 +15,8 @@ import { Icon } from "../components/Icon.tsx";
 import ResultView from "../components/ResultView.tsx";
 import ProjectPicker, { type Project } from "../components/ProjectPicker.tsx";
 import CiteStep from "../components/CiteStep.tsx";
+import { putCloud, savesToCloud } from "../lib/results-store.ts";
+import { analysisLabel, analysisName, type SavedAnalysis } from "../../shared/results/analysis.ts";
 import type { Key } from "../dict.ts";
 
 const store = {
@@ -112,6 +114,15 @@ export default function Workspace() {
 
   const onDrop = (e: DragEvent) => { e.preventDefault(); setDrag(false); void pick(e.dataTransfer.files?.[0]); };
 
+  // Lưu KẾT QUẢ vào tài khoản (không lưu tệp, không lưu toàn văn) để xem lại từ mọi máy; lỗi thì bỏ qua, kết quả vẫn hiện bình thường.
+  function saveToAccount(r: AnalysisResult, fileName: string) {
+    if (!profile || !savesToCloud(profile)) return;
+    const at = new Date().toISOString();
+    const data: SavedAnalysis = { v: 1, fileName, project: project.trim(), at, res: { ...r, quota: null } };
+    const id = typeof crypto !== "undefined" && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    void putCloud(profile.id, "analysis", { id, at, name: analysisName(data), score: r.score, label: analysisLabel(data) }, data);
+  }
+
   async function run() {
     if (!file) return;
     setErr(""); setBusy(true); setPhase(0); setNeedContact(false);
@@ -119,6 +130,7 @@ export default function Workspace() {
       const r = await analyze({ abstract, text, fileName: file.name, profile: profileContext() });
       track("ami_phan_tich", r.score >= PASS_SCORE ? "dat" : "chua_dat");
       setRes(r); setSel(new Set(r.passages.filter((p) => p.priority === "high").map((p) => p.id)));
+      saveToAccount(r, file.name);
       if (r.quota) setQuota(r.quota);
       setStep(3);
     } catch (e) {

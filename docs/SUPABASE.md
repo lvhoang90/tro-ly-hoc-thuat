@@ -72,8 +72,11 @@ Bản v2 thêm: xác thực người dùng (tệp 2 MB / 15 MB), chi phí API t�
 | Bộ đếm truy cập không hiện | Chạy lại `schema.sql` (hàm `record_visit`, `visit_stats`) và kiểm tra `SUPABASE_SERVICE_ROLE_KEY` trên Vercel; mở `/api/visit` phải trả `"enabled":true`. |
 | Người dùng báo tệp bị từ chối vì quá 2 MB | Tài khoản chưa được xác thực: vào Quản trị → Người dùng và bấm Xác thực. |
 
+## Lưu kết quả vào tài khoản (1.7.0)
+Chạy thêm `supabase/migrations/20261023_saved_results.sql` trong SQL Editor (chạy lại an toàn): thêm cột `profiles.save_results` (công tắc của người dùng, mặc định bật), bảng `saved_results` (kết quả phân tích và phản biện, RLS chỉ cho chủ sở hữu; phân tích thường theo quy tắc `can_view_history()`; tối đa 100 bản mỗi loại mỗi người, bản cũ nhất tự bị xóa) và hàm `my_saved_count`. Chưa chạy thì ứng dụng vẫn dùng được: bản lưu trên trình duyệt hoạt động như cũ, phần tài khoản im lặng bỏ qua, và tab "Phân tích đã lưu" báo cần chạy migration. Nội dung lưu chỉ là kết quả (kèm các câu trích minh chứng), không có tệp và toàn văn. Bản chạy bằng máy chủ Node + SQLite (`VITE_BACKEND=local`) chưa có tính năng này.
+
 ## Sao lưu và dữ liệu
-Hệ thống không lưu tài liệu tải lên. Dữ liệu duy nhất cần bảo vệ là hồ sơ, hạn mức và lịch sử trích dẫn: bật **Database → Backups** (gói Pro của Supabase có sao lưu hằng ngày; gói Free thì dùng `pg_dump` định kỳ).
+Hệ thống không lưu tài liệu tải lên (chỉ lưu kết quả phân tích khi người dùng bật). Dữ liệu cần bảo vệ là hồ sơ, hạn mức, lịch sử trích dẫn và kết quả đã lưu: bật **Database → Backups** (gói Pro của Supabase có sao lưu hằng ngày; gói Free thì dùng `pg_dump` định kỳ).
 
 ## Đổi hạn mức mặc định trên cơ sở dữ liệu đã chạy
 

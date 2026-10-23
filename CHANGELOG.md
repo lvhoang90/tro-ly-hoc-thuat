@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.7.0] - 2026-10-23
+
+Results from the AI Professor and from regular analyses are saved to your account, so you can reopen and download them from any device; the original file and full text are still never kept.
+
+### Added
+
+- A new "Saved analyses" tab in History: reopen the score, comments and passages, and download a Word report for one or a whole .zip.
+- AI Professor reviews are also kept in your account: open another device and you can still view, edit and download them.
+- A "Save my results to my account" switch: turn it off or on any time, and delete one result or all of them.
+
+### Changed
+
+- Your account keeps up to 100 results of each kind; the browser still keeps the latest 30 for quick access.
+- Reviews already stored in your browser are added to your account automatically when you open the AI Professor page.
+
 ## [1.6.2] - 2026-10-23
 
 Saved AI Professor reviews now have View and Download buttons on every row; after an error, Resume continues from the finished part without using another review.

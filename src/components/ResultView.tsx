@@ -6,12 +6,15 @@ import { Icon } from "./Icon.tsx";
 import { Bullets, Breakdown, Choice, PassageList, RecoAdvice, RecoJournals, RecoWorks, ScoreGauge } from "./Results.tsx";
 import { PASS_SCORE, type AnalysisResult } from "../../shared/types.ts";
 
+const noop = () => {};
 const clip = (s: string, n = 150) => (s.length > n ? s.slice(0, n).trimEnd() + "…" : s);
 
 /** Kết quả đánh giá: tổng quan, các phần đánh giá tách riêng (thu gọn được), rồi hộp "Quyết định của bạn" ở cuối. */
-export default function ResultView({ res, fileName, sel, toggle, onCiteSelected, onCiteSource, onAnother, onEditAbstract, onNewProject }: {
+export default function ResultView({ res, fileName, sel, toggle, onCiteSelected = noop, onCiteSource = noop, onAnother = noop, onEditAbstract = noop, onNewProject = noop, readOnly = false }: {
   res: AnalysisResult; fileName: string; sel: Set<string>; toggle: (id: string) => void;
-  onCiteSelected: () => void; onCiteSource: () => void; onAnother: () => void; onEditAbstract: () => void; onNewProject: () => void;
+  onCiteSelected?: () => void; onCiteSource?: () => void; onAnother?: () => void; onEditAbstract?: () => void; onNewProject?: () => void;
+  /** Xem lại bản đã lưu: không có hộp "Quyết định của bạn" và không chọn đoạn để trích. */
+  readOnly?: boolean;
 }) {
   const { t, lang } = useI18n();
   const pass = res.score >= PASS_SCORE;
@@ -59,10 +62,10 @@ export default function ResultView({ res, fileName, sel, toggle, onCiteSelected,
 
       {pass ? (
         <Panel n={roman("passages")} title={t("passages_h")} icon="quote" accent="emerald" open={!!open.passages} onToggle={() => tog("passages")}
-          preview={t("selected_n", { n: sel.size })} badge={<span className="badge">{res.passages.length}</span>}>
-          <p className="muted small">{t("passages_d")}</p>
+          preview={readOnly ? clip(res.passages[0]?.quote ?? "") : t("selected_n", { n: sel.size })} badge={<span className="badge">{res.passages.length}</span>}>
+          {!readOnly && <p className="muted small">{t("passages_d")}</p>}
           {res.passages.length === 0 ? <p className="muted">{t("no_passages")}</p> :
-            <PassageList passages={res.passages} dropped={res.droppedPassages} selected={sel} toggle={toggle} />}
+            <PassageList passages={res.passages} dropped={res.droppedPassages} selected={sel} toggle={toggle} readOnly={readOnly} />}
         </Panel>
       ) : rec && (
         <>
@@ -80,7 +83,7 @@ export default function ResultView({ res, fileName, sel, toggle, onCiteSelected,
         </>
       )}
 
-      <section className="decision">
+      {!readOnly && <section className="decision">
         <div className="decision-head">
           <span className="panel-ico gold"><Icon name="compass" size={18} /></span>
           <div><h3 className="serif">{t("decision_h")}</h3><p className="muted small">{pass ? t("decision_d_pass") : t("decision_d_fail")}</p></div>
@@ -102,7 +105,7 @@ export default function ResultView({ res, fileName, sel, toggle, onCiteSelected,
             </>
           )}
         </div>
-      </section>
+      </section>}
     </div>
   );
 }
