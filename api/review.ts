@@ -1,5 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { withKeepalive } from "./_lib/keepalive.ts";
 import { adminClient, fail, json, requireUser, type AuthedUser } from "./_lib/common.ts";
 import { costUsdCached } from "./_lib/pricing.ts";
 import { OVERALL_ID, SECTIONS_SCHEMA, TEMPLATE_SCHEMA, overallSchema } from "../shared/review/schemas.ts";
@@ -75,7 +76,13 @@ interface Body {
   template?: unknown; ids?: unknown; corpus?: string; kind?: string; digest?: string; score?: unknown;
 }
 
+/** Trình duyệt xin giữ kết nối (tiêu đề x-ami-keepalive) vì mỗi bước AI có thể kéo dài vài phút; các bên khác nhận mã HTTP như thường. */
 export async function POST(request: Request): Promise<Response> {
+  if (request.headers.get("x-ami-keepalive") === "1") return withKeepalive(() => handle(request));
+  return handle(request);
+}
+
+async function handle(request: Request): Promise<Response> {
   const auth = await requireUser(request);
   if (auth instanceof Response) return auth;
   if (!process.env.ANTHROPIC_API_KEY) return fail("server_misconfigured", 500, "Thiếu ANTHROPIC_API_KEY.");

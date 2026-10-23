@@ -10,7 +10,7 @@ import { flushPendingCore, resumeInfoCore, runReviewCore, type Deps, type Review
 
 export type { ReviewQuota, Stage };
 
-const post = <T>(body: unknown) => call<T>("/api/review", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
+const post = <T>(body: unknown) => call<T>("/api/review", { method: "POST", headers: { "content-type": "application/json", "x-ami-keepalive": "1" }, body: JSON.stringify(body) });
 
 export const analyzeTemplate = (text: string) => post<{ template: Template }>({ op: "template", text }).then((r) => r.template);
 

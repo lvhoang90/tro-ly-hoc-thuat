@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.7.1] - 2026-10-23
+
+The AI Professor now keeps the connection alive during steps that take a few minutes, especially on phones.
+
+### Fixed
+
+- Reviewing a long work over a mobile network is less likely to stop midway with "Could not reach the server".
+
 ## [1.7.0] - 2026-10-23
 
 Results from the AI Professor and from regular analyses are saved to your account, so you can reopen and download them from any device; the original file and full text are still never kept.

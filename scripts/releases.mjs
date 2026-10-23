@@ -10,6 +10,22 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.7.1",
+    date: "2026-10-23",
+    title: ["Bớt đứt kết nối khi soạn công trình dài", "Fewer dropped connections on long works"],
+    summary: [
+      "Giáo sư phản biện giữ kết nối ổn định hơn khi một bước soạn kéo dài vài phút, nhất là trên điện thoại.",
+      "The AI Professor now keeps the connection alive during steps that take a few minutes, especially on phones.",
+    ],
+    sections: {
+      Fixed: [
+        ["Soạn công trình dài trên mạng di động ít bị báo \"Không kết nối được máy chủ\" giữa chừng hơn.",
+         "Reviewing a long work over a mobile network is less likely to stop midway with \"Could not reach the server\"."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.7.0",
     date: "2026-10-23",
     title: ["Xem lại kết quả từ mọi máy, cả phân tích thường", "Reopen your results from any device, including regular analyses"],
