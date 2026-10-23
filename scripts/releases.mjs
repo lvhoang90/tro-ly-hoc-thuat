@@ -12,10 +12,10 @@ export const RELEASES = [
   {
     version: "1.6.2",
     date: "2026-10-23",
-    title: ["Xem lại và tải các bản nhận xét cũ dễ hơn", "Reopen and download your earlier reviews more easily"],
+    title: ["Xem lại bản cũ dễ hơn, thử lại không tốn thêm lượt", "Reopen earlier reviews more easily, and resume without using another review"],
     summary: [
-      "Các bản nhận xét đã soạn của Giáo sư phản biện giờ có nút Xem và Tải ngay trên từng dòng, kèm tìm kiếm, sắp xếp và tải nhiều bản một lúc.",
-      "Your saved AI Professor reviews now have View and Download buttons on every row, plus search, sorting and multi-select download.",
+      "Các bản nhận xét đã soạn của Giáo sư phản biện giờ có nút Xem và Tải ngay trên từng dòng; khi lỗi giữa chừng, nút Thử lại tiếp tục từ phần đã xong và không tốn thêm lượt.",
+      "Saved AI Professor reviews now have View and Download buttons on every row; after an error, Resume continues from the finished part without using another review.",
     ],
     sections: {
       Added: [
@@ -23,6 +23,12 @@ export const RELEASES = [
          "Every saved review has View / edit and Download .docx buttons on its row; tick several and download them as one .zip."],
         ["Tìm theo tên tệp (không cần gõ dấu) và sắp xếp theo ngày, điểm hoặc tên.",
          "Search by file name (accents optional) and sort by date, score or name."],
+      ],
+      Changed: [
+        ["Mất mạng hoặc lỗi giữa chừng khi soạn công trình dài: phần đã xong được giữ lại trên trình duyệt, bấm Thử lại sẽ tiếp tục từ chỗ dừng, không phải làm lại và không tốn thêm lượt.",
+         "If the connection drops or an error happens while reviewing a long work, the finished part is kept in your browser; pressing Resume continues from where it stopped, with no restart and no extra review used."],
+        ["Lệnh hoàn lại lượt bị mất mạng làm hỏng sẽ tự gửi lại khi có mạng.",
+         "A refund request that was lost to a dropped connection is sent again automatically when you are back online."],
       ],
       Fixed: [
         ["Các bản cũ vẫn xem và tải được khi bạn hết lượt trong tuần hoặc tài khoản chưa còn quyền dùng; trước đây danh sách bị ẩn đi.",

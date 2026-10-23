@@ -671,3 +671,4 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 .rv-saved li input[type=checkbox] { width: 1.15rem; height: 1.15rem; flex: none; }
 .rv-savedname { max-width: min(26rem, 100%); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rv-savedact { margin-left: auto; }
+.rv-resume { color: var(--accent); font-weight: 600; margin: .25rem 0; }

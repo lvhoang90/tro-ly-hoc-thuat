@@ -6,7 +6,7 @@ import { ApiFailure } from "../lib/api.ts";
 import { ExtractFailure } from "../lib/extract.ts";
 import { readReviewDoc, type ReadDoc } from "../lib/review-read.ts";
 import { filterSaved, SORT_MODES, sortSaved, type SortMode } from "../../shared/review/saved.ts";
-import { analyzeTemplate, clearReviews, loadSaved, persistSaved, removeReview, replaceReview, runReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
+import { analyzeTemplate, clearReviews, flushPendingFail, resumeInfo, loadSaved, persistSaved, removeReview, replaceReview, runReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
 import { runBatch, type ItemStatus, type WorkItem } from "../lib/review-batch.ts";
 import { blockLine, numberBlocks } from "../../shared/review/corpus.ts";
 import { MAX_BATCH_WORKS, MAX_REVIEW_CHARS, MAX_SAVED_REVIEWS } from "../../shared/review/limits.ts";
@@ -21,7 +21,7 @@ import { track } from "../lib/isa.ts";
 import type { Key } from "../dict.ts";
 
 const stageText = (s: Stage | null, t: (k: Key, p?: Record<string, string | number>) => string) =>
-  !s ? "" : s.phase === "start" ? t("rv_ph_start") : s.phase === "sections" ? t("rv_ph_sections", { a: Math.min(s.done + 1, s.total), b: s.total }) : s.phase === "overall" ? t("rv_ph_overall") : t("rv_ph_finish");
+  !s ? "" : s.phase === "start" ? t("rv_ph_start") : s.phase === "sections" ? t(s.resumed ? "rv_ph_resumed" : "rv_ph_sections", { a: Math.min(s.done + 1, s.total), b: s.total }) : s.phase === "overall" ? t("rv_ph_overall") : t("rv_ph_finish");
 const stagePct = (s: Stage | null) => (!s ? 0 : s.phase === "start" ? 4 : s.phase === "sections" ? 8 + (s.done / Math.max(s.total, 1)) * 70 : s.phase === "overall" ? 85 : 96);
 
 const plainTemplateText = (doc: ReadDoc) => numberBlocks(doc.blocks).map((b) => blockLine(b).replace(/^\[¶\d+\] /, "")).join("\n");
@@ -240,6 +240,8 @@ export default function Review() {
 
   const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => { setRq((data as ReviewQuota | null) ?? null); setRqLoaded(true); }); };
   useEffect(() => { if (eligible) refreshQuota(); }, [eligible]);
+  // Lệnh hoàn lượt từng bị mất mạng làm hỏng: gửi lại khi mở trang và khi có mạng trở lại.
+  useEffect(() => { if (!eligible) return; const f = () => { void flushPendingFail().then(refreshQuota).catch(() => {}); }; f(); addEventListener("online", f); return () => removeEventListener("online", f); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (running) { const f = (e: BeforeUnloadEvent) => { e.preventDefault(); }; addEventListener("beforeunload", f); return () => removeEventListener("beforeunload", f); } }, [running]);
   // Sửa trên màn hình: ghi xuống trình duyệt sau khi ngừng gõ, và ghi nốt khi rời trang.
   useEffect(() => () => { if (persistTimer.current) { clearTimeout(persistTimer.current); persistSaved(savedRef.current); } }, []);
@@ -314,7 +316,8 @@ export default function Review() {
     setErr(""); setRunning(true); setStopping(false); stopRef.current = false; setOpen(""); setRunIds(list.map((x) => x.id));
     const meta = { docType, role, field: field.trim(), notes: notes.trim(), lang };
     const tplNow = tpl;
-    const sum = await runBatch(list.map((x) => ({ ...x })), {
+    const copies = list.map((x) => ({ ...x }));
+    const sum = await runBatch(copies, {
       run: async (it, onStage) => {
         track("ami_phan_bien", docType);
         const { result, quota: q } = await runReview({ blocks: it.blocks ?? [], fileName: it.name, meta, template: tplNow, onStage: onStage as (s: Stage) => void });
@@ -326,6 +329,10 @@ export default function Review() {
       shouldStop: () => stopRef.current,
       classify: failText,
     });
+    for (const c of copies) {
+      if (c.status !== "failed" || !c.blocks) continue;
+      try { patchItem(c.id, { resume: resumeInfo({ blocks: c.blocks, meta, template: tplNow }) ?? undefined }); } catch { /* bỏ qua */ }
+    }
     refreshQuota();
     setRunning(false); setStopping(false);
     if (sum.stoppedBecause) setErr(items.find((x) => x.status === "skipped")?.error ?? "");
@@ -432,7 +439,8 @@ export default function Review() {
                           <button className="btn sm" onClick={() => void downloadOne(sv.result)}>{t("rv_download_one")}</button>
                         </div>
                       )}
-                      {it.status === "failed" && it.blocks && !running && <button className="btn sm" disabled={left === 0} onClick={() => void runItems([it])}>{t("rv_retry")}</button>}
+                      {it.status === "failed" && it.resume && <div className="small rv-resume">{t(it.resume.done > 0 ? "rv_resume_hint" : "rv_resume_hint0", { a: it.resume.done, b: it.resume.total })}</div>}
+                      {it.status === "failed" && it.blocks && !running && <button className="btn sm" disabled={left === 0 && !it.resume} onClick={() => void runItems([{ ...it, resume: undefined }])}>{t(it.resume ? "rv_retry_resume" : "rv_retry")}</button>}
                     </li>
                   );
                 })}

@@ -7,6 +7,8 @@ export interface WorkItem {
   id: string; name: string; size: number;
   blocks?: RawBlock[]; words?: number; pages?: number;
   status: ItemStatus; error?: string; stage?: unknown; savedId?: string;
+  /** Lượt đang dở của công trình này: "Thử lại" nối tiếp từ mục đã xong, không tốn thêm lượt. */
+  resume?: { done: number; total: number };
 }
 
 /** Mã lỗi buộc dừng cả lô (không phải lỗi riêng của một công trình). */

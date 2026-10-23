@@ -46,3 +46,9 @@ Mỗi bước ngắn nên không vướng giới hạn thời gian hàm (`api/re
 - Chưa kiểm tra trùng lặp (đạo văn) và không xác minh tài liệu tham khảo có thật; giao diện và bản Word đều nói rõ.
 - PDF ảnh quét chưa hỗ trợ (chưa OCR); `.doc` cần lưu lại thành `.docx`.
 - Chưa thử với mô hình thật trong phiên phát triển: kiểm thử dùng máy chủ AI giả (`tests/review-api.test.ts`). Bộ nhớ đệm lời nhắc có thể không phát huy khi dùng đầu ra có lược đồ; chi phí thực tế đọc ở nhật ký sau những lượt đầu.
+
+## Nối tiếp khi lỗi giữa chừng (1.6.2)
+- `src/lib/review-run.ts` (lõi, không nhập Supabase nên kiểm thử bằng Node) điều phối một lượt; `src/lib/review.ts` nối với mạng và `localStorage`. Mỗi lần AI xử lý xong một lô mục, kết quả được ghi vào điểm lưu (`ami-review-ckpt-v1`, tối đa 3, hết hạn sau 2,5 giờ vì mã lượt sống 3 giờ), khóa theo dấu vân tay của (văn bản đã đánh số, khung mẫu, bối cảnh) trong `shared/review/checkpoint.ts`.
+- "Thử lại" cùng văn bản, cùng khung mẫu và bối cảnh thì dùng lại mã lượt, chỉ gửi các mục chưa xong, không gọi `start` (không tốn lượt mới). Đổi ghi chú, lĩnh vực hoặc khung mẫu thì là lượt mới.
+- Không nhận được phản hồi từ máy chủ (mất mạng) thì dừng và giữ điểm lưu, không ghép bản dở dang; lỗi do máy chủ trả về vẫn đi theo đường cũ (mục lỗi để người phản biện tự điền).
+- Chưa có mục nào xong thì gọi `fail`: hoàn được thì bỏ điểm lưu; không gửi được vì mất mạng thì giữ điểm lưu và xếp hàng (`ami-review-pendfail-v1`), gửi lại khi mở trang hoặc có mạng, trừ mã còn điểm lưu dùng được. Mã lượt hết hạn hoặc đã hoàn thì tự mở lượt mới.
