@@ -664,3 +664,11 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 .rv-edit { width: 100%; font: inherit; line-height: 1.5; padding: .5rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: var(--card, transparent); color: inherit; resize: vertical; }
 .rv-pts { width: 5rem; text-align: right; font: inherit; padding: .25rem .4rem; border: 1px solid var(--line); border-radius: 6px; background: var(--card, transparent); color: inherit; }
 .rv-revs { list-style: none; padding: 0; display: grid; gap: .4rem; }
+.rv-savedtools { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; }
+.rv-savedtools input[type=search] { flex: 1 1 14rem; min-width: 0; }
+.rv-saved li { padding: .35rem .5rem; border-radius: 10px; border: 1px solid transparent; }
+.rv-saved li.on { background: color-mix(in srgb, var(--accent) 10%, transparent); border-color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.rv-saved li input[type=checkbox] { width: 1.15rem; height: 1.15rem; flex: none; }
+.rv-savedname { max-width: min(26rem, 100%); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rv-savedact { margin-left: auto; }
+.rv-resume { color: var(--accent); font-weight: 600; margin: .25rem 0; }

@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [1.6.2] - 2026-10-23
+
+Saved AI Professor reviews now have View and Download buttons on every row; after an error, Resume continues from the finished part without using another review.
+
+### Added
+
+- Every saved review has View / edit and Download .docx buttons on its row; tick several and download them as one .zip.
+- Search by file name (accents optional) and sort by date, score or name.
+
+### Changed
+
+- If the connection drops or an error happens while reviewing a long work, the finished part is kept in your browser; pressing Resume continues from where it stopped, with no restart and no extra review used.
+- A refund request that was lost to a dropped connection is sent again automatically when you are back online.
+
+### Fixed
+
+- Earlier reviews can still be viewed and downloaded when your weekly allowance is used up or access is not active; the list used to be hidden.
+
 ## [1.6.1] - 2026-10-12
 
 When you open Ami from a journal suggested on ProFind, Ami remembers the journal name just as it does when you come from EduFind.
