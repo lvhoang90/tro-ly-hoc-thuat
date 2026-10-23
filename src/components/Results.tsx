@@ -50,8 +50,8 @@ export function Bullets({ items, tone }: { items: string[]; tone: "teal" | "ambe
 
 const PRIO: Priority[] = ["high", "medium", "low"];
 
-export function PassageList({ passages, dropped, selected, toggle }: {
-  passages: Passage[]; dropped: number; selected: Set<string>; toggle: (id: string) => void;
+export function PassageList({ passages, dropped, selected, toggle, readOnly }: {
+  passages: Passage[]; dropped: number; selected: Set<string>; toggle: (id: string) => void; readOnly?: boolean;
 }) {
   const { t, lang } = useI18n();
   const [filter, setFilter] = useState<Priority | "all">("all");
@@ -67,7 +67,7 @@ export function PassageList({ passages, dropped, selected, toggle }: {
         {shown.map((p) => (
           <li key={p.id} className={`passage ${p.priority} ${selected.has(p.id) ? "sel" : ""}`}>
             <label>
-              <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
+              {!readOnly && <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />}
               <div className="p-body">
                 <div className="p-meta">
                   <span className={`prio ${p.priority}`}>{t(`prio_${p.priority}` as "prio_high")}</span>

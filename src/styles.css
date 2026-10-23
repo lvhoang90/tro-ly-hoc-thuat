@@ -672,3 +672,10 @@ html[data-ami] .to-top { right: auto; left: max(16px, env(safe-area-inset-left))
 .rv-savedname { max-width: min(26rem, 100%); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .rv-savedact { margin-left: auto; }
 .rv-resume { color: var(--accent); font-weight: 600; margin: .25rem 0; }
+.cloud-toggle, label.cloud-toggle { display: flex; flex-direction: row; gap: .6rem; align-items: flex-start; padding: .55rem .75rem; border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--card-solid) 70%, transparent); cursor: pointer; }
+.cloud-toggle input { width: 1.15rem; height: 1.15rem; margin-top: .15rem; flex: none; }
+.cloud-toggle small { display: block; }
+.tabs-seg { display: inline-flex; gap: .25rem; padding: .25rem; border: 1px solid var(--line); border-radius: 999px; background: color-mix(in srgb, var(--card-solid) 70%, transparent); }
+.tabs-seg button { border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; padding: .4rem 1rem; border-radius: 999px; cursor: pointer; }
+.tabs-seg button[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
+.rv-cloudpill { font-size: .72rem; padding: .05rem .5rem; border-radius: 999px; border: 1px solid var(--line); }

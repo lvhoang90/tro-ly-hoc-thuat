@@ -5,7 +5,9 @@ import { supabase } from "../lib/supabase.ts";
 import { ApiFailure } from "../lib/api.ts";
 import { ExtractFailure } from "../lib/extract.ts";
 import { readReviewDoc, type ReadDoc } from "../lib/review-read.ts";
-import { filterSaved, SORT_MODES, sortSaved, type SortMode } from "../../shared/review/saved.ts";
+import { filterRows, mergeRows, missingInCloud, SORT_MODES, sortRows, type ResultMeta, type Row, type SortMode } from "../../shared/review/saved.ts";
+import { clearCloud, delCloud, getCloud, listCloud, putCloud, savesToCloud } from "../lib/results-store.ts";
+import CloudToggle from "../components/CloudToggle.tsx";
 import { analyzeTemplate, clearReviews, flushPendingFail, resumeInfo, loadSaved, persistSaved, removeReview, replaceReview, runReview, type ReviewQuota, type SavedReview, type Stage } from "../lib/review.ts";
 import { runBatch, type ItemStatus, type WorkItem } from "../lib/review-batch.ts";
 import { blockLine, numberBlocks } from "../../shared/review/corpus.ts";
@@ -162,26 +164,26 @@ const saveBlobAs = (blob: Blob, name: string) => {
 const STATUS_KEY: Record<ItemStatus, Key> = { reading: "rv_st_reading", ready: "rv_st_ready", read_error: "rv_st_read_error", queued: "rv_st_queued", running: "rv_st_running", done: "rv_st_done", failed: "rv_st_failed", skipped: "rv_st_skipped", stopped: "rv_st_stopped" };
 const newId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 
-function SavedList(p: { list: SavedReview[]; lang: "vi" | "en"; t: (k: never, v?: Record<string, string | number>) => string; zipBusy: boolean; note: boolean; onOpen: (id: string) => void; onDownload: (r: ReviewResult) => void; onZip: (l: SavedReview[]) => void; onRemove: (id: string) => void; onClear: () => void }) {
-  const { list, lang, zipBusy } = p;
+function SavedList(p: { rows: Row[]; lang: "vi" | "en"; t: (k: never, v?: Record<string, string | number>) => string; zipBusy: boolean; note: boolean; showCloud: boolean; onOpen: (id: string) => void; onDownload: (id: string) => void; onZip: (ids: string[]) => void; onRemove: (id: string) => void; onClear: () => void }) {
+  const { rows, lang, zipBusy } = p;
   const t = p.t as (k: string, v?: Record<string, string | number>) => string;
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortMode>("new");
   const [sel, setSel] = useState<string[]>([]);
-  const shown = sortSaved(filterSaved(list, q), sort);
-  const picked = list.filter((x) => sel.includes(x.id));
+  const shown = sortRows(filterRows(rows, q), sort);
+  const picked = rows.filter((x) => sel.includes(x.id));
   const L = labelsFor(lang);
   const toggle = (id: string) => setSel((c) => (c.includes(id) ? c.filter((x) => x !== id) : [...c, id]));
   return (
     <div className="card stack rv-savedbox">
-      <div className="between"><h4>{t("rv_saved")} <span className="muted small">{t("rv_saved_count", { a: shown.length, b: list.length })}</span></h4>
+      <div className="between"><h4>{t("rv_saved")} <span className="muted small">{t("rv_saved_count", { a: shown.length, b: rows.length })}</span></h4>
         <span className="row wrap">
           {picked.length > 0
-            ? <button className="btn sm primary" onClick={() => p.onZip(picked)} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip_selected", { n: picked.length })}</button>
-            : list.length > 1 && <button className="btn sm" onClick={() => p.onZip(shown)} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip")}</button>}
+            ? <button className="btn sm primary" onClick={() => p.onZip(picked.map((x) => x.id))} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip_selected", { n: picked.length })}</button>
+            : rows.length > 1 && <button className="btn sm" onClick={() => p.onZip(shown.map((x) => x.id))} disabled={zipBusy}>{zipBusy ? "…" : t("rv_zip")}</button>}
           <button className="btn sm" onClick={p.onClear}>{t("rv_clear")}</button></span></div>
       <p className="muted small">{t("rv_saved_note", { n: MAX_SAVED_REVIEWS })}{p.note ? " " + t("rv_saved_view_only") : ""}</p>
-      {list.length > 3 && (
+      {rows.length > 3 && (
         <div className="rv-savedtools">
           <input type="search" value={q} onChange={(e) => setQ(e.target.value)} placeholder={t("rv_search")} aria-label={t("rv_search")} />
           <label className="small">{t("rv_sort")} <select value={sort} onChange={(e) => setSort(e.target.value as SortMode)}>
@@ -191,15 +193,16 @@ function SavedList(p: { list: SavedReview[]; lang: "vi" | "en"; t: (k: never, v?
       )}
       {shown.length === 0 && <p className="muted small">{t("rv_none_found")}</p>}
       <ul className="rv-saved">{shown.map((x) => {
-        const d = L.decision(x.result.decision.key);
+        const d = x.label ? L.decision(x.label) : null;
         return (
           <li key={x.id} className={sel.includes(x.id) ? "on" : ""}>
-            <input type="checkbox" checked={sel.includes(x.id)} onChange={() => toggle(x.id)} aria-label={`${t("rv_select_one")}: ${x.result.file.name}`} />
-            <button className="btn sm rv-savedname" onClick={() => p.onOpen(x.id)} title={x.result.file.name}>{x.result.file.name}</button>
-            <span className="muted small">{new Date(x.at).toLocaleString(lang === "vi" ? "vi-VN" : "en-GB")} · {x.result.score.sumMax ? `${x.result.score.score100}/100` : "—"}{d?.short ? ` · ${d.short}` : ""}</span>
+            <input type="checkbox" checked={sel.includes(x.id)} onChange={() => toggle(x.id)} aria-label={`${t("rv_select_one")}: ${x.name}`} />
+            <button className="btn sm rv-savedname" onClick={() => p.onOpen(x.id)} title={x.name}>{x.name}</button>
+            <span className="muted small">{new Date(x.at).toLocaleString(lang === "vi" ? "vi-VN" : "en-GB")} · {x.score != null ? `${x.score}/100` : "—"}{d?.short ? ` · ${d.short}` : ""}</span>
+            {p.showCloud && (x.cloud ? (!x.local && <span className="rv-cloudpill muted">{t("cloud_in_account")}</span>) : <span className="rv-cloudpill muted">{t("cloud_only_here")}</span>)}
             <span className="row wrap rv-savedact">
               <button className="btn sm" onClick={() => p.onOpen(x.id)}>{t("rv_open")}</button>
-              <button className="btn sm" onClick={() => p.onDownload(x.result)}>{t("rv_download_one")}</button>
+              <button className="btn sm" onClick={() => p.onDownload(x.id)}>{t("rv_download_one")}</button>
               <button className="btn sm ghost" aria-label={t("rv_remove")} onClick={() => p.onRemove(x.id)}>×</button></span>
           </li>
         );
@@ -210,7 +213,7 @@ function SavedList(p: { list: SavedReview[]; lang: "vi" | "en"; t: (k: never, v?
 
 export default function Review() {
   const { t, lang } = useI18n();
-  const { quota, toast } = useApp();
+  const { quota, toast, profile } = useApp();
   const eligible = !!quota?.approved;
   const [rq, setRq] = useState<ReviewQuota | null>(null);
   const [rqLoaded, setRqLoaded] = useState(false);
@@ -230,6 +233,9 @@ export default function Review() {
   const [err, setErr] = useState("");
   const [saved, setSaved] = useState<SavedReview[]>(loadSaved);
   const [open, setOpen] = useState<string>("");
+  const [cloud, setCloud] = useState<ResultMeta[] | null>(null);
+  const [view, setView] = useState<SavedReview | null>(null); // bản mở từ tài khoản (không nằm trong 30 bản trên trình duyệt)
+  const upTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const [drag, setDrag] = useState(false);
   const workInput = useRef<HTMLInputElement>(null);
   const tplInput = useRef<HTMLInputElement>(null);
@@ -237,6 +243,8 @@ export default function Review() {
   const savedRef = useRef<SavedReview[]>(saved);
   const persistTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   savedRef.current = saved;
+  const viewRef = useRef<SavedReview | null>(null);
+  viewRef.current = view;
 
   const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => { setRq((data as ReviewQuota | null) ?? null); setRqLoaded(true); }); };
   useEffect(() => { if (eligible) refreshQuota(); }, [eligible]);
@@ -297,17 +305,66 @@ export default function Review() {
     } finally { setTplBusy(false); }
   };
 
+  // ---- Lưu trên tài khoản (xem từ mọi máy): kết quả, không phải tệp; lỗi mạng thì bản trên trình duyệt vẫn dùng được ----
+  const metaOf = (x: SavedReview): ResultMeta => ({ id: x.id, at: x.at, name: x.result.file.name, score: x.result.score.sumMax ? x.result.score.score100 : null, label: x.result.decision.key });
+  const upload = (x: SavedReview) => {
+    if (!profile || !savesToCloud(profile)) return;
+    void putCloud(profile.id, "review", metaOf(x), x.result).then((ok) => { if (ok) setCloud((c) => [metaOf(x), ...(c ?? []).filter((m) => m.id !== x.id)]); });
+  };
+  const current = (id: string) => savedRef.current.find((x) => x.id === id) ?? (viewRef.current?.id === id ? viewRef.current : null);
+  const uploadLater = (id: string) => {
+    clearTimeout(upTimers.current[id]);
+    upTimers.current[id] = setTimeout(() => { delete upTimers.current[id]; const x = current(id); if (x) upload(x); }, 2000);
+  };
+  const flushUploads = () => { for (const id of Object.keys(upTimers.current)) { clearTimeout(upTimers.current[id]); delete upTimers.current[id]; const x = current(id); if (x) upload(x); } };
+  const flushRef = useRef(flushUploads); flushRef.current = flushUploads;
+  useEffect(() => () => flushRef.current(), []);
+  useEffect(() => {
+    if (!eligible || !profile) return;
+    let live = true;
+    void listCloud("review").then((list) => {
+      if (!live) return;
+      setCloud(list);
+      if (list && savesToCloud(profile)) for (const id of missingInCloud(savedRef.current.map(metaOf), list)) { const x = savedRef.current.find((v) => v.id === id); if (x) upload(x); } // bản cũ trước khi có tính năng, hoặc lần gửi trước bị lỗi
+    });
+    return () => { live = false; };
+  }, [eligible, profile?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const addSaved = (result: ReviewResult) => {
     const item: SavedReview = { id: newId(), at: new Date().toISOString(), result };
     const next = persistSaved([item, ...savedRef.current]);
     savedRef.current = next; setSaved(next);
+    upload(item);
     return item.id;
   };
   const onEdit = (id: string, r: ReviewResult) => {
-    const next = replaceReview(savedRef.current, id, r);
-    savedRef.current = next; setSaved(next);
-    if (persistTimer.current) clearTimeout(persistTimer.current);
-    persistTimer.current = setTimeout(() => { persistSaved(savedRef.current); persistTimer.current = null; }, 700);
+    if (savedRef.current.some((x) => x.id === id)) {
+      const next = replaceReview(savedRef.current, id, r);
+      savedRef.current = next; setSaved(next);
+      if (persistTimer.current) clearTimeout(persistTimer.current);
+      persistTimer.current = setTimeout(() => { persistSaved(savedRef.current); persistTimer.current = null; }, 700);
+    } else if (viewRef.current?.id === id) { const v = { ...viewRef.current, result: r }; viewRef.current = v; setView(v); }
+    uploadLater(id);
+  };
+  const resolve = async (id: string): Promise<SavedReview | null> => {
+    const local = savedRef.current.find((x) => x.id === id);
+    if (local) return local;
+    const r = await getCloud<ReviewResult>("review", id);
+    if (!r || !r.file) { toast(t("cloud_fetch_fail"), "err"); return null; }
+    return { id, at: cloud?.find((m) => m.id === id)?.at ?? new Date().toISOString(), result: r };
+  };
+  const openSaved = async (id: string) => { const x = await resolve(id); if (!x) return; if (!savedRef.current.some((v) => v.id === id)) { viewRef.current = x; setView(x); } setOpen(id); };
+  const downloadSaved = async (id: string) => { const x = await resolve(id); if (x) await downloadOne(x.result); };
+  const zipSaved = async (ids: string[]) => { const list: SavedReview[] = []; for (const id of ids) { const x = await resolve(id); if (x) list.push(x); } await downloadZip(list); };
+  const removeOne = (id: string) => {
+    const next = removeReview(id); savedRef.current = next; setSaved(next);
+    if (viewRef.current?.id === id) { viewRef.current = null; setView(null); }
+    void delCloud("review", id); setCloud((c) => (c ? c.filter((m) => m.id !== id) : c));
+  };
+  const clearAll = () => {
+    if (!confirm(t((cloud?.length ?? 0) > 0 ? "cloud_clear_confirm" : "rv_clear_confirm"))) return;
+    clearReviews(); setSaved([]); savedRef.current = []; setView(null); viewRef.current = null;
+    void clearCloud("review"); setCloud((c) => (c ? [] : c)); toast(t("rv_cleared"));
   };
 
   /** Chạy tuần tự các công trình: mỗi công trình một lượt phản biện và một bản nhận xét riêng. */
@@ -352,7 +409,8 @@ export default function Review() {
 
   if (!quota) return <div className="center"><div className="spinner" /></div>;
   const left = rq ? (rq.unlimited ? Infinity : rq.left) : 1;
-  const shown = saved.find((x) => x.id === open);
+  const shown = saved.find((x) => x.id === open) ?? (view && view.id === open ? view : undefined);
+  const rows = mergeRows(saved.map(metaOf), cloud);
   const ready = items.filter((x) => x.status === "ready");
   const over = Number.isFinite(left) && ready.length > left;
   const doneItems = items.filter((x) => x.status === "done" && saved.some((s) => s.id === x.savedId));
@@ -367,6 +425,7 @@ export default function Review() {
       <div className="between"><h2>{t("rv_title")} <span className="badge premium">{t("rv_premium")}</span></h2>
         {access && rq && <span className="badge">{rq.unlimited ? t("rv_unlimited") : t("rv_left", { a: rq.left, b: rq.limit })}</span>}</div>
       <p className="muted">{t("rv_intro")}</p>
+      {eligible && <CloudToggle />}
 
       {!eligible && (
         <>
@@ -468,11 +527,10 @@ export default function Review() {
         </>
       )}
 
-      {!shown && saved.length > 0 && (
-        <SavedList list={saved} lang={lang} t={t} zipBusy={zipBusy} note={!access}
-          onOpen={setOpen} onDownload={(r) => void downloadOne(r)} onZip={(l) => void downloadZip(l)}
-          onRemove={(id) => { const next = removeReview(id); savedRef.current = next; setSaved(next); }}
-          onClear={() => { if (confirm(t("rv_clear_confirm"))) { clearReviews(); setSaved([]); savedRef.current = []; toast(t("rv_cleared")); } }} />
+      {!shown && rows.length > 0 && (
+        <SavedList rows={rows} lang={lang} t={t} zipBusy={zipBusy} note={!access} showCloud={savesToCloud(profile) && cloud !== null}
+          onOpen={(id) => void openSaved(id)} onDownload={(id) => void downloadSaved(id)} onZip={(ids) => void zipSaved(ids)}
+          onRemove={removeOne} onClear={clearAll} />
       )}
     </div>
   );

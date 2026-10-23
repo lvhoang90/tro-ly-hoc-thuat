@@ -10,6 +10,32 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.7.0",
+    date: "2026-10-23",
+    title: ["Xem lại kết quả từ mọi máy, cả phân tích thường", "Reopen your results from any device, including regular analyses"],
+    summary: [
+      "Kết quả của Giáo sư phản biện và của phân tích thường được lưu vào tài khoản, để bạn xem lại và tải từ bất kỳ máy nào; tệp gốc và toàn văn vẫn không được lưu.",
+      "Results from the AI Professor and from regular analyses are saved to your account, so you can reopen and download them from any device; the original file and full text are still never kept.",
+    ],
+    sections: {
+      Added: [
+        ["Mục mới \"Phân tích đã lưu\" trong Lịch sử: xem lại điểm, nhận xét và đoạn đáng trích; tải báo cáo Word từng bản hoặc cả gói .zip.",
+         "A new \"Saved analyses\" tab in History: reopen the score, comments and passages, and download a Word report for one or a whole .zip."],
+        ["Bản nhận xét của Giáo sư phản biện cũng lưu trên tài khoản: mở máy khác vẫn xem, sửa và tải được.",
+         "AI Professor reviews are also kept in your account: open another device and you can still view, edit and download them."],
+        ["Công tắc \"Lưu kết quả vào tài khoản\": tắt hoặc bật bất cứ lúc nào, xóa từng bản hoặc tất cả.",
+         "A \"Save my results to my account\" switch: turn it off or on any time, and delete one result or all of them."],
+      ],
+      Changed: [
+        ["Tài khoản giữ tối đa 100 bản mỗi loại; trình duyệt vẫn giữ 30 bản gần nhất để mở nhanh.",
+         "Your account keeps up to 100 results of each kind; the browser still keeps the latest 30 for quick access."],
+        ["Bản nhận xét cũ đang có trên trình duyệt tự được đưa lên tài khoản khi bạn mở trang Giáo sư phản biện.",
+         "Reviews already stored in your browser are added to your account automatically when you open the AI Professor page."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.6.2",
     date: "2026-10-23",
     title: ["Xem lại bản cũ dễ hơn, thử lại không tốn thêm lượt", "Reopen earlier reviews more easily, and resume without using another review"],

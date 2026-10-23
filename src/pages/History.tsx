@@ -8,6 +8,7 @@ import { PASS_SCORE, type Lang, type SourceMeta } from "../../shared/types.ts";
 import { FlagToggle } from "../components/Chrome.tsx";
 import { Icon } from "../components/Icon.tsx";
 import { VerifyCard } from "../components/Tier.tsx";
+import SavedAnalyses from "../components/SavedAnalyses.tsx";
 
 interface Row {
   id: string; created_at: string; style: string; cite_lang: string; reference: string; in_text: string; quote: string; page: string;
@@ -107,6 +108,7 @@ export default function History() {
   const [saved, setSaved] = useState<number | null>(null);
   const [rows, setRows] = useState<Row[] | null>(null);
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"cite" | "analysis">(() => { try { return location.hash.includes("analyses") ? "analysis" : "cite"; } catch { return "cite"; } });
 
   const load = useCallback(async () => {
     if (gated) { const { data } = await supabase.rpc("my_citation_count"); setSaved(Number(data) || 0); return; }
@@ -165,7 +167,13 @@ export default function History() {
 
   return (
     <div className="page">
-      <div className="between"><h2 className="serif">{t("hist_title")}</h2>{(rows?.length ?? 0) > 0 && <button className="btn sm" onClick={exportAll}>{t("export")}</button>}</div>
+      <div className="between"><h2 className="serif">{t(tab === "cite" ? "hist_title" : "sa_page")}</h2>{tab === "cite" && (rows?.length ?? 0) > 0 && <button className="btn sm" onClick={exportAll}>{t("export")}</button>}</div>
+      <div className="tabs-seg" role="tablist" aria-label={t("hist_title")}>
+        <button role="tab" aria-selected={tab === "cite"} onClick={() => setTab("cite")}>{t("hist_tab_cite")}</button>
+        <button role="tab" aria-selected={tab === "analysis"} onClick={() => setTab("analysis")}>{t("hist_tab_analysis")}</button>
+      </div>
+      {tab === "analysis" ? <SavedAnalyses /> : (
+      <>
       <p className="muted">{t("hist_note")} {multi ? t("hist_by_topic") : t("hist_by_priority")}</p>
       <input placeholder={t("search")} value={q} onChange={(e) => setQ(e.target.value)} />
       {rows === null ? <div className="card">…</div> : topics.length === 0 ? <div className="card muted">{t("hist_empty")}</div> : (
@@ -187,6 +195,8 @@ export default function History() {
             );
           })}
         </div>
+      )}
+      </>
       )}
     </div>
   );
