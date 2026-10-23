@@ -217,6 +217,7 @@ export default function Review() {
   const eligible = !!quota?.approved;
   const [rq, setRq] = useState<ReviewQuota | null>(null);
   const [rqLoaded, setRqLoaded] = useState(false);
+  const [rqErr, setRqErr] = useState(false); // không kiểm tra được hạn mức (mạng yếu, máy chủ bận): KHÁC với "chưa được cấp quyền"
   const [docType, setDocType] = useState<keyof typeof DOC_TYPES>("thesis");
   const [role, setRole] = useState<keyof typeof ROLES>("reviewer");
   const [field, setField] = useState("");
@@ -246,10 +247,17 @@ export default function Review() {
   const viewRef = useRef<SavedReview | null>(null);
   viewRef.current = view;
 
-  const refreshQuota = () => { void supabase.rpc("my_review_quota").then(({ data }) => { setRq((data as ReviewQuota | null) ?? null); setRqLoaded(true); }); };
+  // Lỗi mạng không được coi là "không có quyền": giữ nguyên hạn mức đã biết, tự thử lại vài lần, và chỉ hiện form xin cấp quyền khi máy chủ trả lời rõ ràng là chưa có quyền.
+  const refreshQuota = (tries = 0) => {
+    const bad = () => { setRqErr(true); if (tries < 2) setTimeout(() => refreshQuota(tries + 1), 2500 * (tries + 1)); else setRqLoaded(true); };
+    void supabase.rpc("my_review_quota").then(({ data, error }) => {
+      if (error || !data || typeof data !== "object") { bad(); return; }
+      setRq(data as ReviewQuota); setRqErr(false); setRqLoaded(true);
+    }, bad);
+  };
   useEffect(() => { if (eligible) refreshQuota(); }, [eligible]);
   // Lệnh hoàn lượt từng bị mất mạng làm hỏng: gửi lại khi mở trang và khi có mạng trở lại.
-  useEffect(() => { if (!eligible) return; const f = () => { void flushPendingFail().then(refreshQuota).catch(() => {}); }; f(); addEventListener("online", f); return () => removeEventListener("online", f); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (!eligible) return; const f = () => { void flushPendingFail().catch(() => {}); }; const online = () => { f(); refreshQuota(); }; f(); addEventListener("online", online); return () => removeEventListener("online", online); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { if (running) { const f = (e: BeforeUnloadEvent) => { e.preventDefault(); }; addEventListener("beforeunload", f); return () => removeEventListener("beforeunload", f); } }, [running]);
   // Sửa trên màn hình: ghi xuống trình duyệt sau khi ngừng gõ, và ghi nốt khi rời trang.
   useEffect(() => () => { if (persistTimer.current) { clearTimeout(persistTimer.current); persistSaved(savedRef.current); } }, []);
@@ -436,7 +444,10 @@ export default function Review() {
       )}
 
       {eligible && !rqLoaded && <div className="center"><div className="spinner" /></div>}
-      {eligible && rqLoaded && !access && <ReviewRequest />}
+      {eligible && rqLoaded && !access && !rqErr && <ReviewRequest />}
+      {eligible && rqLoaded && !access && rqErr && (
+        <div className="card stack" role="alert"><p>{t("rv_quota_fail")}</p><div><button className="btn primary" onClick={() => { setRqLoaded(false); refreshQuota(); }}>{t("rv_recheck")}</button></div></div>
+      )}
 
       {shown && <Result key={shown.id} r={shown.result} onClose={() => setOpen("")} onChange={(r) => onEdit(shown.id, r)} />}
 

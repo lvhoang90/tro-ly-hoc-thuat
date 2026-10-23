@@ -783,6 +783,8 @@ const D = {
   cloud_in_account: { vi: "Trên tài khoản", en: "In your account" },
   cloud_fetch_fail: { vi: "Không lấy được bản này từ tài khoản. Kiểm tra mạng và thử lại.", en: "Could not load this result from your account. Check your connection and try again." },
   cloud_clear_confirm: { vi: "Xóa mọi kết quả đã lưu, cả trên trình duyệt này lẫn trên tài khoản (mọi máy)?", en: "Delete every saved result, both in this browser and in your account (all devices)?" },
+  rv_quota_fail: { vi: "Chưa kiểm tra được quyền dùng Giáo sư phản biện (mạng yếu hoặc máy chủ đang bận). Tài khoản của bạn không bị ảnh hưởng. Hãy kiểm tra mạng rồi thử lại.", en: "Could not check your AI Professor access (weak connection or a busy server). Your account is not affected. Please check your connection and try again." },
+  rv_recheck: { vi: "Kiểm tra lại", en: "Check again" },
   rv_search: { vi: "Tìm theo tên tệp", en: "Search by file name" },
   rv_sort: { vi: "Sắp xếp", en: "Sort" },
   rv_sort_new: { vi: "Mới nhất", en: "Newest" },

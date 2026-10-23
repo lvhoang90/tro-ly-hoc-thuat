@@ -10,6 +10,22 @@ export const SITE = "https://aaa.isavietnam.app";
 
 export const RELEASES = [
   {
+    version: "1.7.2",
+    date: "2026-10-23",
+    title: ["Không còn hiện nhầm form xin cấp quyền khi mạng yếu", "No more wrong access-request form on a weak connection"],
+    summary: [
+      "Khi mạng yếu làm Giáo sư phản biện không kiểm tra được quyền dùng, Ami báo rõ và cho kiểm tra lại, thay vì hiện form xin cấp quyền.",
+      "When a weak connection stops the AI Professor from checking your access, Ami now says so and lets you check again, instead of showing the access-request form.",
+    ],
+    sections: {
+      Fixed: [
+        ["Tài khoản đã được cấp quyền không còn bị hiện form \"Gửi đề nghị cấp hạn mức\" chỉ vì mạng chập chờn; Ami tự thử lại vài lần và có nút Kiểm tra lại.",
+         "Accounts that already have access no longer see the \"request access\" form just because the connection flickered; Ami retries a few times and offers a Check again button."],
+      ],
+    },
+    notes: [],
+  },
+  {
     version: "1.7.1",
     date: "2026-10-23",
     title: ["Bớt đứt kết nối khi soạn công trình dài", "Fewer dropped connections on long works"],
